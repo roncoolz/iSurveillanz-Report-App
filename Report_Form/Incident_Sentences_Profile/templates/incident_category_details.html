@@ -1,0 +1,67 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Incident Category Details{% endblock %}
+
+{% block content %}
+<div class="container1">
+    <h1>Incident Category Details</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('report.form_incident_category') }}" method="POST" class="form">
+        <!-- Category Name Dropdown -->
+        <div class="input-container">
+            <i class="fa-solid fa-list"></i>
+            <label for="category_name" class="required">Category Name:</label>
+            <select id="category_name" name="category_name" required onchange="toggleOtherCategory()">
+                <option value="" disabled selected>Select a Category</option>
+                {% for category in category_names %}
+                    <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <!-- Other Category Name (Hidden Initially) -->
+        <div class="input-container" id="other_category_container" style="display: none;">
+            <i class="fa-solid fa-pen"></i>
+            <label for="new_category_name">Enter New Category:</label>
+            <input type="text" id="new_category_name" name="new_category_name" placeholder="Enter new category">
+        </div>
+
+        <!-- Short Form of Category -->
+        <div class="input-container">
+            <i class="fa-solid fa-tag"></i>
+            <label for="short_form" class="required">Short Form:</label>
+            <input type="text" id="short_form" name="short_form" placeholder="Enter Short Form" required>
+        </div>
+
+        <button type="submit">Create Category</button>
+    </form>
+</div>
+
+<script>
+function toggleOtherCategory() {
+    var categoryDropdown = document.getElementById("category_name");
+    var otherCategoryContainer = document.getElementById("other_category_container");
+    
+    if (categoryDropdown.value === "Other") {
+        otherCategoryContainer.style.display = "block";
+        document.getElementById("new_category_name").required = true;
+    } else {
+        otherCategoryContainer.style.display = "none";
+        document.getElementById("new_category_name").required = false;
+    }
+}
+</script>
+
+{% endblock %}

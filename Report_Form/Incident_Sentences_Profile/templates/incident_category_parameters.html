@@ -1,0 +1,43 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Incident Category Parameters{% endblock %}
+
+{% block content %}
+<div class="container1">
+    <h1>Incident Category Parameters</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('report.form_incident_category_parameters') }}" method="POST" class="form">
+        <!-- Category (Dropdown with Short Forms from MongoDB) -->
+        <div class="input-container">
+            <i class="fa-solid fa-list"></i>
+            <label for="category_short_form" class="required">Category:</label>
+            <select id="category_short_form" name="category_short_form" required>
+                <option value="" disabled selected>Select a Category</option>
+                {% for short_form in category_short_forms %}
+                    <option value="{{ short_form }}">{{ short_form }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Parameter (Text Field) -->
+        <div class="input-container">
+            <i class="fa-solid fa-pen"></i>
+            <label for="parameter" class="required">Parameter:</label>
+            <input type="text" id="parameter" name="parameter" placeholder="Enter Parameter" required>
+        </div>
+
+        <button type="submit">Create Parameter</button>
+    </form>
+</div>
+{% endblock %}

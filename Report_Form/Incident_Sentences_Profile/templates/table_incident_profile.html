@@ -1,0 +1,56 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Incident Sentences{% endblock %}
+
+{% block content %}
+<div class="container2">
+    <h1>Incident Sentences List</h1>
+    <a href="{{ url_for('report.form_incident_profile') }}">Create new Incident Sentence</a>
+    <br><br>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            <script>
+                // Hide flash messages after 4 seconds
+                setTimeout(() => {
+                    const flashElements = document.querySelectorAll('.flashes .flash');
+                    flashElements.forEach(flash => flash.style.display = 'none');
+                }, 3000);
+            </script>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table to Display Incident Sentence Profiles -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Client Name</th>
+                    <th>Client ID</th>
+                    <th>Incident Category</th>
+                    <th>Incident Sentence</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_records = incident_sentences|length %}
+                {% for incident in incident_sentences %}
+                <tr>
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td>{{ incident['Client Name'] }}</td>
+                    <td>{{ incident['Client ID'] }}</td>
+                    <td>{{ incident['Incident Category'] }}</td>
+                    <td>{{ incident['Incident Sentence'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

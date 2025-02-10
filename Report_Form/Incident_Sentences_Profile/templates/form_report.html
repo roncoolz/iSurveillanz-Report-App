@@ -1,0 +1,181 @@
+{% extends "menu_bar.html" %}
+
+{% block content %}
+<a href="{{ url_for('settings_reportform') }}">Back to Report Form Home Page</a>
+<div class="container1">
+    <h1>Form Report</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('report.form_report') }}" method="POST" class="form">
+        <!-- Incident Message -->
+        <div class="input-container">
+            <i class="fa-solid fa-message"></i>
+            <label for="incident_message" class="required">Incident Message:</label>
+            <textarea id="incident_message" name="incident_message" placeholder="Enter Incident Message" required>{{ incident_message }}</textarea>
+            <button type="button" id="add_modal" class="add-button">+</button>
+        </div>
+
+        <button type="submit">Create Form Report</button>
+    </form>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-button" id="close_modal">&times;</span>
+        <h2>Add Details</h2>
+        <table id="modal_table">
+            <tr>
+                <td><label for="n_text">[n]</label></td>
+                <td><input type="number" id="n_text" name="n_text" placeholder="Enter N-Text" min="1" max="10"></td>
+            </tr>
+            <tr>
+                <td><label for="human_entity">[Entity]</label></td>
+                <td>
+                    <select id="human_entity" name="human_entity">
+                        <option value="">Select...</option>
+                        <!-- Dynamically populate the dropdown with entity titles -->
+                        {% for title in entity_titles %}
+                            <option value="{{ title }}">{{ title }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="mark">[mark]</label></td>
+                <td>
+                    <select id="mark" name="mark">
+                        <option value="">Select...</option>
+                        <option value="Red Arrow">Red Arrow</option>
+                        <option value="Yellow Pointer">Yellow Pointer</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+        <button type="button" id="save_modal">Save</button>
+    </div>
+</div>
+
+<script>
+    // Handle Flash Messages
+    setTimeout(() => {
+        const flashElements = document.querySelectorAll('.flashes .flash');
+        flashElements.forEach(flash => flash.style.display = 'none');
+    }, 3000);
+
+    // Modal Functionality
+    const modal = document.getElementById('modal');
+    const addButton = document.getElementById('add_modal');
+    const closeButton = document.getElementById('close_modal');
+    const saveButton = document.getElementById('save_modal');
+    const incidentMessageTextArea = document.getElementById('incident_message');
+
+    addButton.addEventListener('click', () => {
+        modal.style.display = 'block';
+    });
+
+    closeButton.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+  
+    saveButton.addEventListener('click', () => {
+        const nText = document.getElementById('n_text').value; // Input value for [n]
+        const humanEntity = document.getElementById('human_entity').value; // Dropdown value for [human-entity-p]
+        const mark = document.getElementById('mark').value; // Dropdown value for [mark]
+
+        if (nText && humanEntity && mark) {
+            // Extract the current message
+            const currentMessage = incidentMessageTextArea.value;
+
+            // Replace the first occurrence of the placeholders with the updated values
+            const updatedDynamicPart = `[${nText}][${humanEntity}][${mark}]`;
+            const updatedMessage = currentMessage.replace(/\[.*?\]\[.*?\]\[.*?\]/, updatedDynamicPart);
+
+            // Update the textarea with the new message
+            incidentMessageTextArea.value = updatedMessage;
+
+            // Close the modal
+            modal.style.display = 'none';
+        } else {
+            alert('Please fill in all fields in the modal.');
+        }
+    });
+</script>
+    
+
+</script>
+<style>
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+        background-color: black;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 40%;
+        border-radius: 5px;
+    }
+
+    .close-button {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close-button:hover,
+    .close-button:focus {
+        color: white;
+        text-decoration: none;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    td {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .add-button {
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}

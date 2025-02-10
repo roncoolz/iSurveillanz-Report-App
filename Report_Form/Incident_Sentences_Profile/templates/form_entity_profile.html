@@ -1,0 +1,70 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Entity Profile{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('settings_reportform') }}">Back to Report Form Home Page</a>
+<div class="container1">
+    <h1>Create Entity Profile</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('report.form_entity_profile') }}" method="POST" class="form">
+        <!-- Entity Type -->
+        <div class="input-container">
+            <i class="fa-solid fa-list"></i>
+            <label for="entity_type" class="required">Type:</label>
+            <select id="entity_type" name="entity_type" required>
+                <option value="" disabled selected>Select Type</option>
+                <option value="Human-Entiy-P">Human-Entiy-P</option>
+                <option value="Vehicle-Entiy-P">Vehicle-Entiy-P</option>
+                <option value="Animal-Entiy-P">Animal-Entiy-P</option>
+                <option value="Human-Entiy-S">Human-Entiy-S</option>
+                <option value="Vehicle-Entiy-S">Vehicle-Entiy-S</option>
+                <option value="Animal-Entiy-S">Animal-Entiy-S</option>
+                <option value="other">Other</option>
+            </select>
+            <!-- Input for 'Other' Type -->
+            <input type="text" id="entity_type_other" name="entity_type_other" placeholder="Enter Other" style="display: none; margin-top: 5px;">
+        </div>
+
+        <!-- Entity Title -->
+        <div class="input-container">
+            <i class="fa-solid fa-id-badge"></i>
+            <label for="entity_title" class="required">Title:</label>
+            <input type="text" id="entity_title" name="entity_title" placeholder="Enter Title" required>
+        </div>
+
+        <button type="submit">Create Entity Profile</button>
+    </form>
+</div>
+<a href="{{ url_for('report.table_entity_profile') }}">Entity Profile Table</a>
+
+<script>
+    // Hide flash messages after 3 seconds
+    setTimeout(() => {
+        const flashElements = document.querySelectorAll('.flashes .flash');
+        flashElements.forEach(flash => flash.style.display = 'none');
+    }, 3000);
+
+    // Show 'Other' input if 'Other' is selected in the dropdown
+    document.getElementById('entity_type').addEventListener('change', (event) => {
+        const otherInput = document.getElementById('entity_type_other');
+        if (event.target.value === 'other') {
+            otherInput.style.display = 'block';
+        } else {
+            otherInput.style.display = 'none';
+        }
+    });
+    
+</script>
+{% endblock %}

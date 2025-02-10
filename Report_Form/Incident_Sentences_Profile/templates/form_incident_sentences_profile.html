@@ -1,0 +1,277 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Incident Sentences{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('settings_reportform') }}">Back to Report Form Home Page</a>
+<div class="container1">
+    <h1>Create Incident Sentences Profile</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('report.form_incident_profile') }}" method="POST" class="form">
+        <!-- Subject (Fixed Dropdown) -->
+        <div class="input-container">
+            <i class="fa-solid fa-book"></i>
+            <label for="subject" class="required">Subject:</label>
+            <select id="subject" name="subject" required>
+                <option value="" disabled selected>Select Subject</option>
+                <option value="Incident">Incident</option>
+                <option value="Camera Issue">Camera Issue</option>
+            </select>
+        </div>
+
+        <!-- Client Name (Dropdown fetched from MongoDB) 
+        <div class="input-container">
+            <i class="fa-solid fa-user"></i>
+            <label for="client_name" class="required">Client Name:</label>
+            <select id="client_name" name="client_name" required onchange="updateClientID()">
+                <option value="" disabled selected>Select Client Name</option>
+                {% for client_name, client_id in client_data.items() %}
+                    <option value="{{ client_name }}">{{ client_name }}</option>
+                {% endfor %}
+            </select>
+        </div> -->
+
+        <!-- Client ID (Auto-filled based on Client Name selection) 
+        <div class="input-container">
+            <i class="fa-solid fa-id-card"></i>
+            <label for="client_id" class="required">Client ID:</label>
+            <input type="text" id="client_id" name="client_id" placeholder="Client ID" required readonly>
+        </div> -->
+
+        <!-- Incident Sentence -->
+        <div class="input-container">
+            <i class="fa-solid fa-paragraph"></i>
+            <label for="incident_sentence" class="required">Incident Sentence:</label>
+            <div>
+                <button type="button" class="btn btn-primary" onclick="openTagModal()">+</button>
+            </div>
+            <textarea id="incident_sentence" name="incident_sentence" placeholder="Describe the Incident" required rows="4" style="width: 100%;" ondrop="drop(event)" ondragover="allowDrop(event)"></textarea>
+        </div>
+
+        <!-- Keywords -->
+        <div class="input-container">
+            <i class="fa-solid fa-key"></i>
+            <label for="keywords">Keywords (Optional):</label>
+            <input type="text" id="keywords" name="keywords" placeholder="Enter Keywords">
+        </div>
+
+        <!-- Incident Category Dropdown -->
+        <div class="input-container">
+            <i class="fa-solid fa-list"></i>
+            <label for="incident_category" class="required">Incident Category:</label>
+            <select id="incident_category" name="incident_category" required>
+                <option value="" disabled selected>Select a Category</option>
+            </select>
+            <!-- Input for 'Other' category -->
+            <input type="text" id="incident_category_other" name="incident_category_other" placeholder="Enter other" style="display: none;">
+        </div>
+
+        <button type="submit">Create Incident Profile</button>
+    </form>
+</div>
+
+<!-- Modal for Tagging (Positioned to the right of Incident Sentence) -->
+<div id="tagModal" class="modal">
+    <div class="modal-content2">
+        <span class="close" onclick="closeTagModal()">&times;</span>
+        <h2>Select a Tag</h2>
+        <button type="button" class="btn btn-info" draggable="true" ondragstart="drag(event)" id="tag1">[n]</button>
+        <button type="button" class="btn btn-info" draggable="true" ondragstart="drag(event)" id="tag2">[Human-Entity]</button>
+        <button type="button" class="btn btn-info" draggable="true" ondragstart="drag(event)" id="tag3">[Animal-Entity]</button>
+        <button type="button" class="btn btn-info" draggable="true" ondragstart="drag(event)" id="tag4">[Vehicle-Entity]</button>
+        <button type="button" class="btn btn-info" draggable="true" ondragstart="drag(event)" id="tag5">[mark]</button>
+        <button type="button" class="btn btn-info" draggable="true" ondragstart="drag(event)" id="tag6">[time1]</button>
+        <button type="button" class="btn btn-info" draggable="true" ondragstart="drag(event)" id="tag7">[time2]</button>
+        <button type="button" class="btn btn-info" draggable="true" ondragstart="drag(event)" id="tag7">[date-time1]</button>
+        <button type="button" class="btn btn-info" draggable="true" ondragstart="drag(event)" id="tag7">[date-time2]</button>
+    </div>
+</div>
+
+<script>
+    // Function to open the Tag Modal
+    function openTagModal() {
+        const modal = document.getElementById('tagModal');
+        const textArea = document.getElementById('incident_sentence');
+        const rect = textArea.getBoundingClientRect();
+        
+        // Set the position of the modal to the right of the incident sentence
+        modal.style.left = `${rect.right + window.scrollX + 10}px`; // 10px offset to prevent direct overlap
+        modal.style.top = `${rect.top + window.scrollY}px`; // Align vertically with the textarea
+        modal.style.display = 'block'; // Show the modal
+    }
+
+    // Function to close the Tag Modal
+    function closeTagModal() {
+        const modal = document.getElementById('tagModal');
+        modal.style.display = 'none'; // Hide the modal
+    }
+
+    // JavaScript function to allow dropping of tags
+    function allowDrop(event) {
+        event.preventDefault(); // Prevent the default action (open as link for some elements)
+    }
+
+    // Function to handle the drag event
+    function drag(event) {
+        event.dataTransfer.setData("text", event.target.id); // Store the id of the dragged element
+    }
+
+    // JavaScript function to update Client ID based on selected Client Name
+    function updateClientID() {
+        var clientName = document.getElementById('client_name').value;
+        var clientData = {{ client_data | tojson }};
+        var clientID = clientData[clientName] || '';
+        document.getElementById('client_id').value = clientID;
+    }
+
+    // Function to handle the drop event
+    function drop(event) {
+        event.preventDefault();
+        var data = event.dataTransfer.getData("text");
+        var tag = document.getElementById(data).textContent; // Get the content of the dragged tag
+        var incidentSentence = document.getElementById('incident_sentence');
+        incidentSentence.value += '' + tag; // Append the tag to the textarea
+    }
+
+    // Hide flash messages after 3 seconds
+    setTimeout(() => {
+        const flashElements = document.querySelectorAll('.flashes .flash');
+        flashElements.forEach(flash => flash.style.display = 'none');
+    }, 3000);
+
+    // Show 'Other' input if 'Other' is selected in the dropdown
+    document.getElementById('incident_category').addEventListener('change', (event) => {
+        const otherInput = document.getElementById('incident_category_other');
+        if (event.target.value === 'other') {
+            otherInput.style.display = 'block';
+        } else {
+            otherInput.style.display = 'none';
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+    fetch('/get_incident_categories_for_report_form')
+        .then(response => response.json())
+        .then(categories => {
+            let dropdown = document.getElementById("incident_category");
+            dropdown.innerHTML = '<option value="" disabled selected>Select a Category</option>'; // Reset dropdown
+            
+            categories.forEach(category => {
+                let option = document.createElement("option");
+                option.value = category;
+                option.textContent = category;
+                dropdown.appendChild(option);
+            });
+
+            // Always add 'Other' at the end
+            let otherOption = document.createElement("option");
+            otherOption.value = "other";
+            otherOption.textContent = "Other";
+            dropdown.appendChild(otherOption);
+        })
+        .catch(error => console.error("Error fetching categories:", error));
+});
+
+    // Show input field when 'Other' is selected
+    document.getElementById("incident_category").addEventListener("change", function() {
+        document.getElementById("incident_category_other").style.display = this.value === "other" ? "block" : "none";
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+    fetchIncidentCategories();
+});
+
+    function fetchIncidentCategories() {
+        fetch('/get_incident_categories_2')
+            .then(response => response.json())
+            .then(categories => {
+                let dropdown = document.getElementById("incident_category");
+                dropdown.innerHTML = '<option value="" disabled selected>Select a Category</option>'; // Reset dropdown
+                categories.forEach(category => {
+                    let option = document.createElement("option");
+                    option.value = category;
+                    option.textContent = category;
+                    dropdown.appendChild(option);
+                });
+                // Ensure 'Other' is always an option
+                let otherOption = document.createElement("option");
+                otherOption.value = "other";
+                otherOption.textContent = "Other";
+                dropdown.appendChild(otherOption);
+            })
+            .catch(error => console.error("Error fetching categories:", error));
+    }
+
+    // Show input field when 'Other' is selected
+    document.getElementById("incident_category").addEventListener("change", function() {
+        let otherInput = document.getElementById("incident_category_other");
+        otherInput.style.display = this.value === "other" ? "block" : "none";
+    });
+
+</script>
+
+<style>
+    .modal {
+        display: none;
+        position: absolute; /* Change to absolute positioning for custom placement */
+        z-index: 1;
+        background-color: rgba(0,0,0,0.4);
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+        min-width: 200px;
+    }
+
+    .modal-content2 {
+        background-color: #fefefe;
+        padding: 20px;
+        border: 1px solid #888;
+        border-radius: 10px;
+    }
+
+    .close {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        position: absolute;
+        top: 10px;
+        right: 25px;
+        font-family: Arial, sans-serif;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .btn-info {
+        background-color: #5bc0de;
+        color: white;
+        padding: 10px;
+        margin-right: 5px;
+        border: none;
+        border-radius: 5px;
+    }
+
+    .btn-info:hover {
+        background-color: #31b0d5;
+    }
+
+    textarea {
+        resize: vertical;
+    }
+</style>
+{% endblock %}
