@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Open+Sans:wght@300..800&family=Poppins:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="shortcut icon" type="image/svg+xml" href="{{ url_for('static', filename='Favicon.svg') }}">
+    <!-- Include jQuery (needed for Bootstrap JS) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Include Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Admin Site</title>
+</head>
+<body class="dark">
+
+    <!-- NAVBAR -->
+    <section id="content">
+        <nav>
+            <a href="#" class="brand">
+                <img src="{{ url_for('static', filename='Favicon.svg') }}" alt="iSurveillanz Logo" width="50" class="toggle-sidebar">
+            </a>
+            <form action="#">
+                <div class="from-group">
+                    <input type="text" placeholder="Search...">
+                    <i class="fa-solid fa-magnifying-glass icon"></i>
+                </div>
+            </form>
+            <input type="checkbox" id="mode" hidden>
+            <label for="mode">
+                <i class='fa-solid fa-sun' id="light-icon"></i>
+                <i class='fa-solid fa-moon' id="dark-icon"></i>
+            </label>
+            <span class="divider"></span>
+            <div class="profile">
+                <label for="profile-dropdown">
+                    <img src="{{ url_for('static', filename='bussiness-man.png') }}" alt="">
+                </label>
+                <input type="checkbox" id="profile-dropdown" class="profile-checkbox">
+                <ul class="profile-link">
+                    <li><a href="#"><i class='fa-solid fa-circle-user icon' style="color: cadetblue;"></i> Profile</a></li>
+                    <li><a href="#"><i class='fa-solid fa-pen-to-square icon' style="color: cadetblue;"></i> Edit Profile</a></li>
+                    <li><a href="{{ url_for('logout') }}"><i class='fa-solid fa-right-from-bracket icon' style="color: cadetblue;"></i> Logout</a></li>
+                </ul>
+            </div>
+            <div class="username">
+                {% if username %}
+                    <span>{{ username }}</span>
+                {% else %}
+                    <span></span>
+                {% endif %}
+            </div>
+        </nav>
+    </section>
+
+    <!-- Main Content Section -->
+    <section id="main-content" style="max-height: 100vh; overflow-y: auto;">
+        <main>
+            <!--Dashboard Content Here -->
+            <div>
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </section>
+
+    <!-- Sidebar-->
+    <section id="sidebar" class="hidden"> 
+        <ul class="side-menu">
+            {% for name1, items in menu_list.items() %}
+            {% if name1 != 'Settings' %}
+            {% if items | length > 1 %}
+                <!-- Expandable for name1 with multiple items -->
+                <li class="expandable">
+                    <a href="javascript:void(0);" class="expand-toggle" onclick="toggleMenu('menu-{{ loop.index }}')">
+                        <i class="fa-solid fa-user icon"></i>{{ name1 }} <i class="fa-solid fa-caret-down"></i>
+                    </a>
+                    <ul id="menu-{{ loop.index }}" class="expandable-list" style="display: none;">
+                        {% for name2, htmlfile in items %}
+                            <li><a href="{{ url_for(htmlfile) }}" class="active"><i class="fa-solid fa-user icon"></i>{{ name2 }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% else %}
+                <!-- Single item for name1 without expandable -->
+                <li><a href="{{ url_for(items[0][1]) }}" class="active"><i class="fa-solid fa-user icon"></i>{{ name1 }}</a></li>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+        </ul>
+
+            {% if 'Settings' in menu_list %}
+            <!-- Settings Icon at the bottom of the sidebar footer -->
+            <div class="sidebar-footer">
+                <a href="{{ url_for('settings') }}" class="settings-link">
+                    <i class="fa-solid fa-gear" style="font-size: 30px;"></i> <!-- FontAwesome gear icon -->
+                </a>
+            </div>
+            {% endif %}
+        </section>
+
+            <!-- Permissions Section 
+            <li class="divider" data-text="Permissions">Permissions</li>-->
+            
+            <!-- New Menu Item for Portal Titles 
+            <li><a href="{{ url_for('portal.portal_titles_form') }}" class="active"><i class='fa-solid fa-clipboard-list icon'></i> Portal Titles</a></li>
+            <li><a href="{{ url_for('portal.portal_html_linking') }}"><i class='fa-solid fa-clipboard-list icon'></i>Link HTML Files</a></li>-->
+        </ul>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        
+
+        let currentExpandedMenu = null;
+
+        function toggleMenu(menuId) {
+            var menu = document.getElementById(menuId);
+
+            // If there is already a menu expanded, collapse it
+            if (currentExpandedMenu && currentExpandedMenu !== menu) {
+                currentExpandedMenu.style.display = "none";
+            }
+
+            // Toggle the current menu
+            if (menu.style.display === "none") {
+                menu.style.display = "block";  // Show the menu
+                currentExpandedMenu = menu;   // Set the current expanded menu
+            } else {
+                menu.style.display = "none";  // Hide the menu
+                currentExpandedMenu = null;  // Reset the expanded menu
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            const dropdownLinks = document.querySelectorAll('.dropdown-link');
+            const profileCheckbox = document.getElementById('profile-dropdown');
+            const sidebar = document.getElementById('sidebar');
+            const toggleSidebarIcon = document.querySelector('.toggle-sidebar');
+            const content = document.querySelector('#content');
+            const allSideDivider = document.querySelectorAll('#sidebar .divider');
+            const allMenu = document.querySelectorAll('main .content-data .head .menu');
+            const allProgress = document.querySelectorAll('main .card .progress');
+            const mode = document.getElementById('mode');
+            const lightIcon = document.getElementById('light-icon');
+            const darkIcon = document.getElementById('dark-icon');
+            const mainContent = document.getElementById('main-content');
+
+            // Initially hide the sidebar and make main content flexible
+            sidebar.classList.add('hidden');
+            content.classList.add('expanded');
+            mainContent.classList.add('full-width');
+
+            // Toggle sidebar visibility and adjust main content layout
+            toggleSidebarIcon.addEventListener('click', function () {
+                sidebar.classList.toggle('hidden');  // Hide/Show sidebar
+                content.classList.toggle('expanded');  // Adjust main content layout
+                mainContent.classList.toggle('full-width');  // Adjust main content layout
+
+                /*// Adjust sidebar text based on visibility
+                if (sidebar.classList.contains('hidden')) {
+                    allSideDivider.forEach(item => {
+                        item.textContent = '-';
+                    });
+                } else {
+                    allSideDivider.forEach(item => {
+                        item.textContent = item.dataset.text;
+                    });
+                }*/
+            });
+
+            // Handle dropdown links for the sidebar
+            dropdownLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    this.classList.toggle('active');
+                    const dropdownMenu = this.nextElementSibling;
+                    document.querySelectorAll('.side-dropdown').forEach(menu => {
+                        if (menu !== dropdownMenu) menu.classList.remove('show');
+                    });
+                    dropdownMenu.classList.toggle('show');
+                });
+            });
+
+            // Hide dropdown when sidebar is hidden or mouse leaves
+            sidebar.addEventListener('mouseleave', function () {
+                if (this.classList.contains('hide')) {
+                    dropdownLinks.forEach(item => {
+                        const a = item.parentElement.querySelector('a:first-child');
+                        a.classList.remove('active');
+                        item.classList.remove('show');
+                    });
+                }
+            });
+
+            // Hide dropdown when sidebar is shown again
+            sidebar.addEventListener('mouseenter', function () {
+                if (this.classList.contains('hide')) {
+                    dropdownLinks.forEach(item => {
+                        const a = item.parentElement.querySelector('a:first-child');
+                        a.classList.remove('active');
+                        item.classList.remove('show');
+                    });
+                }
+            });
+
+            // Profile dropdown functionality
+            document.querySelector('.profile label').addEventListener('click', function (e) {
+                e.preventDefault();
+                profileCheckbox.checked = !profileCheckbox.checked;
+            });
+
+            // Toggle menu on icon click
+            allMenu.forEach(item => {
+                const icon = item.querySelector('.icon');
+                const menuLink = item.querySelector('.menu-link');
+
+                icon.addEventListener('click', function () {
+                    menuLink.classList.toggle('show');
+                });
+            });
+
+            // Close menu if clicked outside
+            window.addEventListener('click', function (e) {
+                if (!e.target.closest('.profile') && profileCheckbox.checked) {
+                    profileCheckbox.checked = false;
+                }
+
+                allMenu.forEach(item => {
+                    const icon = item.querySelector('.icon');
+                    const menuLink = item.querySelector('.menu-link');
+
+                    if (e.target !== icon && e.target !== menuLink && menuLink.classList.contains('show')) {
+                        menuLink.classList.remove('show');
+                    }
+                });
+            });
+
+            // Set progress value dynamically
+            allProgress.forEach(item => {
+                item.style.setProperty('--value', item.dataset.value);
+            });
+
+            // Mode switch functionality (Dark/Light mode)
+            function initializeMode() {
+                if (mode.checked) {
+                    document.body.classList.add('dark');
+                    lightIcon.style.display = 'none';
+                    darkIcon.style.display = 'block';
+                } else {
+                    document.body.classList.remove('dark');
+                    lightIcon.style.display = 'block';
+                    darkIcon.style.display = 'none';
+                }
+            }
+
+            initializeMode();
+
+            mode.addEventListener('change', function () {
+                if (mode.checked) {
+                    document.body.classList.add('dark');
+                    lightIcon.style.display = 'none';
+                    darkIcon.style.display = 'block';
+                } else {
+                    document.body.classList.remove('dark');
+                    lightIcon.style.display = 'block';
+                    darkIcon.style.display = 'none';
+                }
+            });
+
+            // Apex Chart
+            var options = {
+                series: [{
+                    name: 'series1',
+                    data: [31, 40, 28, 51, 42, 109, 100]
+                }, {
+                    name: 'series2',
+                    data: [11, 32, 45, 32, 34, 52, 41]
+                }],
+                chart: {
+                    height: 350,
+                    type: 'area'
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    curve: 'smooth'
+                },
+                xaxis: {
+                    type: 'datetime',
+                    categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
+                },
+                tooltip: {
+                    x: {
+                        format: 'dd/MM/yy HH:mm'
+                    },
+                },
+            };
+
+            var chart = new ApexCharts(document.querySelector("#chart"), options);
+            chart.render();
+        });
+        
+        function logout() {
+            window.location.href = "/logout"; // Redirect to logout route
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,55 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}PC Profile{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1>Logs Records Table</h1>
+
+        <!-- Filter Form -->
+        <form method="GET" action="/show_logs">
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="category">Category</label>
+                    <select class="form-select" name="category" id="category">
+                        <option value="">All</option>
+                        {% for category in categories %}
+                            <option value="{{ category }}" {% if category == request.args.get('category') %}selected{% endif %}>{{ category }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Replace Action filter with Collection filter -->
+                <div class="col">
+                    <label for="collection">Collection</label>
+                    <select class="form-select" name="collection" id="collection">
+                        <option value="">All</option>
+                        {% for collection in collections %}
+                            <option value="{{ collection }}" {% if collection == request.args.get('collection') %}selected{% endif %}>{{ collection }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col">
+                    <label for="username">User Name</label>
+                    <select class="form-select" name="username" id="username">
+                        <option value="">All</option>
+                        {% for user in users %}
+                            <option value="{{ user }}" {% if user == request.args.get('username') %}selected{% endif %}>{{ user }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Render the filtered table -->
+        <div>
+            {{ table|safe }}
+        </div>
+    </div>
+
+{% endblock %}

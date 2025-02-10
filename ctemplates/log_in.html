@@ -1,1 +1,35 @@
+<!-- log_in.html -->
+{% extends "report_master.html" %}
 
+{% block content %}
+<div class="container1">
+    <h1>Login Form</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form action="/" method="POST" class="form">
+        <!-- Username Field -->
+        <div class="input-container">
+            <i class='bx bx-user'></i>
+            <label for="username" class="required">Username:</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+        </div>
+
+        <!-- Password Field -->
+        <div class="input-container">
+            <i class='bx bx-lock'></i>
+            <label for="password" class="required">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit">Log In</button>
+    </form>
+</div>
+{% endblock %}
