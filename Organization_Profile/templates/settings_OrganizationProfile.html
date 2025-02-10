@@ -1,0 +1,58 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Organization Profile{% endblock %}
+
+{% block content %}
+
+    <!--Widget Start-->
+    <div class="card-body">
+        <div class="container3">
+
+            <!-- Back to Selection Process Link -->
+            <div class="back-link">
+                <a href="{{ url_for('settings') }}" class="back-button">Back to Settings home page</a>
+            </div>
+
+            <div class="row">
+                <div class="mb-3 col-md-6 col-12">
+                    <div class="card1">
+                        <a href="{{ url_for('organization.organizations_table') }}" class="card-link"> <!-- Make the whole card clickable -->
+                            <div class="face">
+                                <div class="content">
+                                    <i class="fa-solid fa-user-gear icon"></i>
+                                    <h3 style="font-size: 15px; margin-top: 15px;">Organization List</h3>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+            <div class="row">
+                <div class="mb-3 col-md-6 col-12">
+                    <div class="card1">
+                        <a href="{{ url_for('organization.organization_location_table') }}" class="card-link"> <!-- Make the whole card clickable -->
+                            <div class="face">
+                                <div class="content">
+                                    <i class="fa-solid fa-user-gear icon"></i>
+                                    <h3 style="font-size: 15px; margin-top: 15px;">Organization Location Linking</h3>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+            <div class="row">
+                <div class="mb-3 col-md-6 col-12">
+                    <div class="card1">
+                        <a href="{{ url_for('organization.organization_location_department_table') }}" class="card-link"> <!-- Make the whole card clickable -->
+                            <div class="face">
+                                <div class="content">
+                                    <i class="fa-solid fa-user-gear icon"></i>
+                                    <h3 style="font-size: 15px; margin-top: 15px;">Organization Location Department Linking</h3>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+{% endblock %}

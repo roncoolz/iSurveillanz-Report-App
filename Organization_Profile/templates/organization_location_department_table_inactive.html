@@ -1,19 +1,21 @@
 {% extends "menu_bar.html" %}
 
-{% block title %}Designations List{% endblock %}
+{% block title %}Inactive Organization-Location-Department Table{% endblock %}
 
 {% block content %}
 <a href="{{ url_for('settings_OrganizationProfile') }}">Back to Organization Settings Page</a>
-<h1>Designations List</h1>
+<h1>Organization-Location-Department Table (Inactive)</h1>
 
-<!-- Table for active departments -->
+<!-- Table for inactive departments -->
 <table border="1">
     <tr>
         <th>Sr.No.</th>
         <th>Organization Name</th>
         <th>Location Name</th>
         <th>Department Name</th>
-        <th>Designation Name</th>
+        <th>Status Creator</th>
+        <th>Status Created On</th>
+        <th>Action</th>
     </tr>
 
     {% for record in records %}
@@ -22,29 +24,29 @@
         <td>{{ record['organization_name'] }}</td>
         <td>{{ record['location_name'] }}</td>
         <td>{{ record['department_name'] }}</td>
-        <td>{{ record['designation_name'] }}</td>
+        <td>{{ record['status_creator'] }}</td>
+        <td>{{ record['status_created_on'] }}</td>
+        <td>
+            <!-- Button to mark department as inactive -->
+            <button onclick="confirmStatusChange('{{ record['_id'] }}')">Mark as Active</button>
+        </td>
     </tr>
     {% endfor %}
 </table>
 
 <br>
-<!-- Link to the inactive departments table -->
-<a href="{{ url_for('organization.organization_location_department_table_inactive') }}">View Inactive Departments</a>
-<br>
-<br>
-<a href="{{ url_for('organization.organization_location_department_form') }}">Open Org Loc Dept Linking Form</a>
-
+<a href="{{ url_for('organization.organization_location_department_table') }}">Back to Active Departments</a>
 
 <script type="text/javascript">
     // JavaScript function to handle the status change confirmation and redirect
     function confirmStatusChange(departmentId) {
         // Display confirmation popup to the user
-        var confirmation = confirm("Are you sure you want to mark this Department as Inactive?");
+        var confirmation = confirm("Are you sure you want to mark this Department as Active?");
         
         // If the user confirms the change, proceed with the redirection
         if (confirmation) {
             // Redirect to the Flask route that updates the status
-            window.location.href = "/change_status_inactive/" + departmentId;
+            window.location.href = "/change_status_active/" + departmentId;
         } else {
             console.log("Status change canceled.");
         }

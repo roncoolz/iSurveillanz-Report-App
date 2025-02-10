@@ -1,0 +1,22 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Organizations List{% endblock %}
+
+{% block content %}
+    <h1>Organizations List</h1>
+    
+    <!-- Form for submitting organization data -->
+    <form method="POST">
+        <label for="org_name">Organization Name:</label>
+        <input type="text" id="org_name" name="org_name" required><br><br>
+
+        <label for="short_name">Short Name for Official ID:</label>
+        <input type="text" id="short_name" name="short_name" required><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <br>
+    <a href="{{ url_for('organization.organizations_table') }}">Back to Organizations Table</a>
+
+{% endblock %}

@@ -1,10 +1,10 @@
 {% extends "menu_bar.html" %}
 
-{% block title %}Designations List{% endblock %}
+{% block title %}Organization-Location-Department Table{% endblock %}
 
 {% block content %}
 <a href="{{ url_for('settings_OrganizationProfile') }}">Back to Organization Settings Page</a>
-<h1>Designations List</h1>
+<h1>Organization-Location-Department Table (Active)</h1>
 
 <!-- Table for active departments -->
 <table border="1">
@@ -13,7 +13,9 @@
         <th>Organization Name</th>
         <th>Location Name</th>
         <th>Department Name</th>
-        <th>Designation Name</th>
+        <th>Status Creator</th>
+        <th>Status Created On</th>
+        <th>Action</th> <!-- Action column for status change -->
     </tr>
 
     {% for record in records %}
@@ -22,7 +24,12 @@
         <td>{{ record['organization_name'] }}</td>
         <td>{{ record['location_name'] }}</td>
         <td>{{ record['department_name'] }}</td>
-        <td>{{ record['designation_name'] }}</td>
+        <td>{{ record['status_creator'] }}</td>
+        <td>{{ record['status_created_on'] }}</td>
+        <td>
+            <!-- Button to mark department as inactive -->
+            <button onclick="confirmStatusChange('{{ record['_id'] }}')">Mark as Inactive</button>
+        </td>
     </tr>
     {% endfor %}
 </table>

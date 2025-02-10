@@ -1,0 +1,73 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Designations List{% endblock %}
+
+{% block content %}
+    <h1>Designations List Form</h1>
+    <form method="POST">
+        
+        <!-- Organization Name Dropdown -->
+        <label for="organization_name">Organization Name:</label>
+        <select id="organization_name" name="organization_name" required>
+            <option value="">Select Organization</option>
+            {% for org in organizations %}
+                <option value="{{ org }}">{{ org }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <!-- Location Name Dropdown (dynamically populated) -->
+        <label for="location_name">Location Name:</label>
+        <select id="location_name" name="location_name" required>
+            <option value="">Select Location</option>
+            {% for loc in locations %}
+            <option value="{{ loc }}">{{ loc }}</option>
+        {% endfor %}
+        </select><br><br>
+
+        <!-- Department Name Dropdown (dynamically populated) -->
+        <label for="department_name">Department Name:</label>
+        <select id="department_name" name="department_name" required>
+            <option value="">Select Department</option>
+            {% for dep in departments %}
+            <option value="{{ dep }}">{{ dep }}</option>
+        {% endfor %}
+        </select><br><br>
+
+        <!-- Designation Name (Text input) -->
+        <label for="designation_name">Designation Name:</label>
+        <input type="text" id="designation_name" name="designation_name"><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <br>
+    <a href="{{ url_for('organization.organization_location_department_table') }}">Return to Organization Location Department table</a>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    /*$(document).ready(function() {
+        // Fetch location names when the page loads
+        $.get('/get_locations', function(data) {
+            // Clear the Location dropdown before populating it
+            $('#location_name').empty().append('<option value="">Select Location</option>');
+
+            // If locations are found, populate the dropdown
+            if (data.length > 0) {
+                $.each(data, function(index, location) {
+                    $('#location_name').append('<option value="' + location + '">' + location + '</option>');
+                });
+            } else {
+                // If no locations found, show a message in the dropdown
+                $('#location_name').append('<option value="">No locations available</option>');
+            }
+        }).fail(function() {
+            // Handle AJAX errors
+            console.error("Error fetching location data.");
+            $('#location_name').empty().append('<option value="">Error loading locations</option>');
+        });
+    });*/
+</script>
+{% endblock %}

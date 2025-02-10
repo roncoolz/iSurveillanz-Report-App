@@ -1,0 +1,47 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Link Organization to Location{% endblock %}
+
+{% block content %}
+    <h1>Link Organization to Location</h1>
+
+    <form method="POST">
+        <label for="organization_name">Organization:</label>
+        <select id="organization_name" name="organization_name" required>
+            <option value="">Select Organization</option>
+            {% for org in organizations %}
+                <option value="{{ org['org_name'] }}">{{ org['org_name'] }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label for="address_line1">Address Line 1:</label>
+        <input type="text" id="address_line1" name="address_line1" required><br><br>
+
+        <label for="address_line2">Address Line 2:</label>
+        <input type="text" id="address_line2" name="address_line2"><br><br>
+
+        <label for="city">City/District:</label>
+        <input type="text" id="city" name="city" required><br><br>
+
+        <label for="state">State/Province:</label>
+        <input type="text" id="state" name="state" required><br><br>
+
+        <label for="postal_code">Postal Code:</label>
+        <input type="text" id="postal_code" name="postal_code" required><br><br>
+
+        <label for="country">Country:</label>
+        <input type="text" id="country" name="country" required><br><br>
+
+        <label for="location_name">Location Name:</label>
+        <input type="text" id="location_name" name="location_name" required><br><br>
+
+        <label for="mobile_number">Mobile Number:</label>
+        <input type="text" id="mobile_number" name="mobile_number"><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <br>
+    <a href="{{ url_for('organization.organization_location_table') }}">View Organization-Location Table</a>
+
+{% endblock %}

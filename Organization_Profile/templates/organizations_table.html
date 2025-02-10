@@ -1,0 +1,26 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Organizations List{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('settings_OrganizationProfile') }}">Back to Organization Settings Page</a>
+<h2>Submitted Organizations</h2>
+<table border="1">
+    <tr>
+        <th>Sr.No.</th>
+        <th>Organization Name</th>
+        <th>Short Name for Official ID</th>
+    </tr>
+    {% for organization in organizations %}
+    <tr>
+        <td>{{ loop.index }}</td> <!-- This is the index of the loop -->
+        <td>{{ organization['org_name'] }}</td>
+        <td>{{ organization['short_name'] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>
+<a href="{{ url_for('organization.organizations_list_form') }}">Open Organization Lists Form</a>
+
+{% endblock %}

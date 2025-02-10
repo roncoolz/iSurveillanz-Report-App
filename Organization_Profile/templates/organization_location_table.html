@@ -1,0 +1,28 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Organizations List with Location{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('settings_OrganizationProfile') }}">Back to Organization Settings Page</a>
+    <h2>Linked Organizations and Locations</h2>
+    <table border="1">
+        <tr>
+            <th>Sr.No.</th>
+            <th>Organization Name</th>
+            <th>Location Name</th>
+            <th>Address</th>
+        </tr>
+        {% for link in organization_locations %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ link['org_name'] }}</td>
+            <td>{{ link['location_name'] }}</td>
+            <td>{{ link['address'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <a href="{{ url_for('organization.organization_location_form') }}">Open Organization Location Form</a>
+
+{% endblock %}
