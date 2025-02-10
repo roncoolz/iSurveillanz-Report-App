@@ -1,1 +1,1472 @@
+{% extends "menu_bar.html" %}
 
+{% block title %}Quick Report View{% endblock %}
+
+{% block content %}
+<div class="container2">
+    <h1>Quick Report View</h1>
+
+    <!-- Add New Entry Button Above Table -->
+    <button class="add-button" onclick="addNewRow()">+</button>
+
+    <!-- Table to Display Quick Reports -->
+    <div class="table-container">
+        <table id="quickReportTable">
+            <thead>
+                <tr>
+                    <th>Cancel</th>
+                    <th>No.</th>
+                    <th>Client Name</th>
+                    <th>Department Name</th>
+                    <th>Camera Number</th>
+                    <th>Short Message</th>
+                    <th>File Name</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr id="report-{{ report._id }}">
+                    <td><button class="cancel-button" onclick="cancelAction('{{ report._id }}', {{ loop.index }})">X</button></td>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <select id="clientNameSelect-{{ loop.index }}" onchange="loadDepartmentsByClient({{ loop.index }})">
+                            <option selected>{{ report['client_registration_number'] }}</option>
+                            {% for client in clients %}
+                                <option value="{{ client }}">{{ client }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select id="departmentSelect-{{ loop.index }}" onchange="loadCamerasByDepartment({{ loop.index }})">
+                            <option selected>{{ report['department'] }}</option>
+                            {% for department in departments %}
+                                <option value="{{ department }}">{{ department }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select id="cameraSelect-{{ loop.index }}">
+                            <option selected>{{ report['Camera Number'] }}</option>
+                            {% for camera in cameras %}
+                                <option value="{{ camera }}">{{ camera }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    
+                    <td contenteditable="true" data-key="short_message">{{ report['Short Message'] }}</td>
+                    <td>
+                        <!-- File input -->
+                        <input type="file" name="file_name" accept="image/*" style="width: 100%;" 
+                               id="fileNameInput-{{ loop.index }}" 
+                               onchange="handleFileUpload(event, {{ loop.index }})">
+                    
+                        <!-- Hidden field to store file name (used for persistence on reload) -->
+                        <input type="hidden" id="fileNameHidden-{{ loop.index }}" value="{{ report['File Name'] }}">
+                    
+                        <!-- Label to show file name -->
+                        <label id="fileNameLabel-{{ loop.index }}" style="display: none; display: inline-block; margin-top: 5px;">
+                            <span id="fileNameDisplay-{{ loop.index }}"></span> 
+                            <button type="button" class="close-button" onclick="removeFile({{ loop.index }})">X</button>
+                        </label>
+                    </td>
+                    
+                    <td><span>{{ report['Status'] }}</span></td>
+                    <td>
+                        <button class="action-button" onclick="continueAction('{{ report._id }}', {{ loop.index }})">Continue</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>            
+        </table>
+    </div>
+</div>
+
+<!-- Modal for Continue Button -->
+<div class="modal" id="continueModal" style="display: none;">
+    <div class="modal-content3" style="max-height: 80vh; overflow-y: auto;">
+        <span class="close" onclick="closeModal()" style="color:#FAF9F6 ;">&times;</span>
+        <h2 class="text-center" style="font-size: 35px; color: #FAF9F6;">Report Form</h2>
+        <input type="hidden" id="reportId" value="">
+        
+        <!-- Modal Content -->
+        <form id="reportForm" class="ReportForm">
+
+            <div class="row">
+                <!-- Client Name -->
+                <div class="mb-3 col-md-4 position-relative">
+                    <div class="row d-flex align-items-center">
+                        <!-- Label Above Input -->
+                        <div class="col-12">
+                            <label for="client_name" class="Label2">Client Name:</label>
+                        </div>
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="input-group">
+                                <!-- User Icon -->
+                                <span class="input-group-text" style="background-color: #616161;">
+                                    <i class="fa-solid fa-users-line" style="color: #FAF9F6;"></i>
+                                </span>
+                                <input type="text" class="form-control" id="modalClientName" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Department Name -->
+                <div class="mb-3 col-md-4 position-relative">
+                    <div class="row d-flex align-items-center">
+                        <div class="col-12">
+                            <label for="modalDepartmentName" class="Label2">Department Name:</label>
+                        </div>
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="input-group">
+                                <span class="input-group-text" style="background-color: #616161;">
+                                    <i class="fa-solid fa-network-wired"  style="color: #FAF9F6;"></i>
+                                </span>
+                                <input type="text" class="form-control" id="modalDepartmentName" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Camera Number -->
+                <div class="mb-3 col-md-4 position-relative">
+                    <div class="row d-flex align-items-center">
+                        <div class="col-12">
+                            <label for="modalCameraNumber" class="Label2">Camera Number:</label>
+                        </div>
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="input-group">
+                                <span class="input-group-text" style="background-color: #616161;">
+                                    <i class="fa-solid fa-camera" style="color: #FAF9F6;"></i>
+                                </span>
+                                <input type="text" class="form-control" id="modalCameraNumber" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Incident Date -->
+                <div class="mb-3 col-md-4 position-relative">
+                    <div class="row d-flex align-items-center">
+                        <div class="col-12">
+                            <label for="modalIncidentDate" class="Label2">Incident Date:</label>
+                        </div>
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="input-group">
+                                <span class="input-group-text" style="background-color: #616161; cursor: pointer;">
+                                    <i class="fa-regular fa-calendar-days" style="color: #FAF9F6;"></i>
+                                </span>
+                                <input type="date" class="form-control" id="modalIncidentDate" required>
+                            </div>
+                        </div>
+                        <!-- Incident Date -->
+                        <div class="col-12 mt-3">
+                            <label for="modalIncidentTime" class="Label2">Incident Time:</label>
+                        </div>
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="input-group">
+                                <span class="input-group-text" style="background-color: #616161; cursor: pointer;">
+                                    <i class="fa-regular fa-clock" style="color: #FAF9F6;"></i>
+                                </span>
+                                <input type="time" class="form-control" id="modalIncidentTime" required>
+                            </div>
+                        </div>
+                        <!-- Keywords -->
+                        <div class="col-12">
+                            <label for="modalKeywords" class="Label2" style="margin-top: 15px;">Keywords:</label>
+                        </div>
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="input-group">
+                                <span class="input-group-text" style="background-color: #616161; cursor: pointer;">
+                                    <i class="fa-regular fa-rectangle-list" style="color: #FAF9F6;"></i>
+                                </span>
+                                <input type="text" class="form-control" id="modalKeywords" oninput="getSuggestions(this)">
+                            </div>
+                        </div>
+                        
+                        <!-- Report Category -->
+                        <div class="col-12">
+                            <label class="Label2" style="margin-top: 15px;">Report Category:</label>
+                        </div>
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" id="modalReportCategoryUrgent" name="reportCategory" value="Urgent">
+                                <label class="form-check-label" for="modalReportCategoryUrgent">Urgent</label>
+                            </div>
+                        </div>
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" id="modalReportCategoryInformation" name="reportCategory" value="Information">
+                                <label class="form-check-label" for="modalReportCategoryInformation">Information</label>
+                            </div>
+                        </div>
+    
+                        <!-- Incident Category -->
+                        <div class="col-12">
+                            <label for="modalIncidentCategory" class="Label2" style="margin-top: 15px;">Incident Category:</label>
+                        </div>
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="input-group">
+                                <span class="input-group-text" style="background-color: #616161; cursor: pointer;">
+                                    <i class="fa-solid fa-list" style="color: #FAF9F6;"></i>
+                                </span>
+                                <input type="text" class="form-control" id="modalIncidentCategory" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="mb-3 col-md-4 position-relative">
+                    <div class="row d-flex align-items-center">
+                        <!-- Short Message -->
+                        <div class="col-12">
+                            <label for="modalShortMessage" class="Label2">Short Message:</label>
+                        </div>
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="input-group">
+                                <span class="input-group-text" style="background-color: #616161; cursor: pointer;">
+                                    <i class="fa-regular fa-note-sticky" style="color: #FAF9F6;"></i>
+                                </span>
+                                <input type="text" class="form-control" id="modalShortMessage" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Report Message -->
+                        <div class="col-12">
+                            <label for="modalReportMessage" class="Label2" style="margin-top: 15px;">Report Message:</label>
+                        </div>
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="input-group">
+                                <span class="input-group-text" style="background-color: #616161; cursor: pointer;">
+                                    <i class="fa-regular fa-message" style="color: #FAF9F6;"></i>
+                                </span>
+                                <textarea class="form-control" id="modalReportMessage" style="height: 100px;" readonly></textarea>
+                            </div>
+                        </div>
+                        <!-- Dropdown for Suggestions -->
+                        <div id="dropdownContainer" class="dropdown-container" style="display: none;">
+                            <div id="dropdownList"></div>
+                            <div id="message"></div>
+                        </div>
+                        
+                        <!-- Incident Message -->
+                        <div class="col-12">
+                            <label for="modalIncidentMessage" class="Label2" style="margin-top: 15px;">Incident Message:</label>
+                        </div>
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="input-group">
+                                <span class="input-group-text" style="background-color: #616161; cursor: pointer;">
+                                    <i class="fa-regular fa-comment" style="color: #FAF9F6;"></i>
+                                </span>
+                                <textarea class="form-control" id="modalIncidentMessage" style="height: 100px;" readonly></textarea>
+                                <button type="button" id="add_modal" class="add-button" style="display: none;">+</button>
+
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+
+                 <!-- Modal for Adding Details -->
+                 <div id="modal" class="modal" style="display: none;">
+                    <div class="modal-content2">
+                        <span class="close-button" id="close_modal">&times;</span>
+                        <h2>Add Details</h2>
+                        <table id="modal_table">
+                            <tr>
+                                <td><label for="n_text">[n]</label></td>
+                                <td><input type="number" id="n_text" name="n_text" placeholder="Enter N-Text" min="1" max="10"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="human_entity">[Entity]</label></td>
+                                <td>
+                                    <select id="human_entity" name="human_entity">
+                                        <option value="">Select...</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label for="mark">[mark]</label></td>
+                                <td>
+                                    <select id="mark" name="mark">
+                                        <option value="">Select...</option>
+                                        <option value="red arrow">Red Arrow</option>
+                                        <option value="red arrows">Red Arrows</option>
+                                        <option value="yellow pointer">Yellow Pointer</option>
+                                        <option value="red mark">Red Mark</option>
+                                        <option value="red marks">Red Marks</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label for="time1">Time 1</label></td>
+                                <td><input type="time" id="time1" name="time1"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="time2">Time 2</label></td>
+                                <td><input type="time" id="time2" name="time2"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="dateTime1">DateTime 1</label></td>
+                                <td><input type="datetime-local" id="dateTime1" name="dateTime1"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="dateTime2">DateTime 2</label></td>
+                                <td><input type="datetime-local" id="dateTime2" name="dateTime2"></td>
+                            </tr>
+                        </table>
+                        <button type="button" id="save_modal">Save</button>
+                    </div>
+                </div>
+
+                 <div class="mb-3 col-md-4 position-relative">
+                    <div class="row d-flex align-itmes-center">
+                        <div class="row col-12">
+                            <!-- Month Year of Report (String) -->
+                            <div class="col-6">
+                                <div class="justify-content-between">
+                                    <label for="modalMonthYearString" class="Label2">Month Year of Report (String):</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text" style="background-color: #616161; cursor: pointer;">
+                                            <i class="fa-regular fa-comment" style="color: #FAF9F6;"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="modalMonthYearString" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <!-- Month Year of Report (Number) -->
+                            <div class="col-6">
+                                <div class="justify-content-between">
+                                    <label for="modalMonthYearNumber" class="Label2">Month Year of Report (Number):</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text" style="background-color: #616161; cursor: pointer;">
+                                            <i class="fa-regular fa-comment" style="color: #FAF9F6;"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="modalMonthYearNumber" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- File Name -->
+                        <div class="col-12">
+                            <label for="modalFileName" class="Label2" style="margin-top: 15px;">File Name:</label>
+                        </div>
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="input-group">
+                                <span class="input-group-text" style="background-color: #616161;">
+                                    <i class="fa-solid fa-arrow-up-from-bracket" id="upload-icon" style="color: #FAF9F6;"></i>
+                                </span>
+                                <input type="text" class="form-control" id="modalFileName" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="col-12 d-flex align-items-center">
+                            <div class="input-group" style="margin-top: auto;">
+                                <button type="submit" class="btn" onclick="submitReport()" style="background-color: #616161; border-color: white;">
+                                    <i class="fa-solid fa-arrow-up-right-from-square" style="color: #FAF9F6;"></i> <!-- Submit icon -->
+                                </button>
+                                <!-- Input field -->
+                                <input type="text" class="form-control" placeholder="Enter text here" style="background-color: #616161; color: #FAF9F6;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Popup for Selected confirmation -->
+<div class="popup" id="shortlistConfirmationPopup" style="display: none;">
+    <div class="popup-content">
+        <img src="{{ url_for('static', filename='question-mark-circle-outline-icon.svg') }}" alt="Confirmation Icon" class="confirmation-icon">
+        <h2>Report Removal Confirmation</h2>
+        <p>Are you sure you want to remove this report with Serial No. <span id="reportPopupSerialNo"></span>?</p>
+        <div class="button-container">
+            <form id="removeReportForm" method="post" style="display: inline;">
+                <input type="hidden" id="reportPopupIdHidden" name="report_id">
+                <button type="submit">Yes, Proceed</button>
+            </form>
+            <button type="button" onclick="closeConfirmationPopup()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Include Action Script -->
+<script>
+
+   // Modal Functionality
+   const modal = document.getElementById('modal');
+    const addButton = document.getElementById('add_modal');
+    const closeButton = document.getElementById('close_modal');
+    const saveButton = document.getElementById('save_modal');
+    const incidentMessageTextArea = document.getElementById('modalIncidentMessage');
+
+    // Variables for [n], [entity], and [mark]
+    let currentN = "";
+    let currentEntity = "";
+    let currentMark = "";
+
+    addButton.addEventListener('click', () => {
+        modal.style.display = 'block';
+        console.log('Modal opened');  // Debugging line
+
+        // Extract [n], [entity], and [mark] from the Incident Message
+        const currentMessage = incidentMessageTextArea.value;
+        
+        // Regex pattern to match and extract [n] and [entity]
+        const entityMatch = currentMessage.match(/\[n\](.*?)\[entity\]/);
+        
+        if (entityMatch) {
+            currentN = entityMatch[1].trim();  // Extracts the value for [n]
+            currentEntity = entityMatch[2].trim();  // Extracts the value for [entity]
+        } else {
+            currentN = '';  // If no match, set to empty
+            currentEntity = '';  // If no match, set to empty
+        }
+
+        // Pre-fill modal fields
+        document.getElementById('n_text').value = currentN;
+        document.getElementById('human_entity').value = currentEntity;
+        document.getElementById('mark').value = currentMark;  // Set to the current [mark] or empty if none
+    });
+
+    // Close Modal
+    closeButton.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    /*// Save the edited details and update the Incident Message
+    saveButton.addEventListener('click', () => {
+        const nText = document.getElementById('n_text').value;
+        const humanEntity = document.getElementById('human_entity').value;
+        const mark = document.getElementById('mark').value;
+
+        if (nText && humanEntity && mark !== undefined) {
+            // Update the incident message
+            const dynamicPart = `${nText} ${humanEntity} (${mark})`.trim(); // Combine the values for n, entity, and mark
+
+            // Find and replace the placeholders with the selected values
+            const currentMessage = incidentMessageTextArea.value;
+            const updatedMessage = currentMessage.replace(/\[n\]\[entity\]/, dynamicPart);
+
+            // Update the incident message text area with the modified text
+            incidentMessageTextArea.value = updatedMessage;
+
+            // Close the modal after saving
+            modal.style.display = 'none'; 
+        } else {
+            alert('Please fill all fields before saving.');
+        }
+    });*/
+
+    addButton.addEventListener('click', () => {
+        modal.style.display = 'block';
+    
+        // Extract the [Entity] type from the Incident Message
+        const currentMessage = incidentMessageTextArea.value;
+    
+        // Regex to match [Entity] type (e.g., [Human-Entity-P], [Human-Entity-S], etc.)
+        const entityTypeMatch = currentMessage.match(/\[(Human|Animal|Vehicle)-Entity-(P|S)\]/);
+    
+        if (entityTypeMatch) {
+            const entityCategory = entityTypeMatch[1]; // e.g., 'Human'
+            const entityType = entityTypeMatch[2]; // e.g., 'P' or 'S'
+            const dropdown = document.getElementById('human_entity');
+    
+            // Clear previous dropdown options
+            dropdown.innerHTML = '';
+    
+            // Fetch the corresponding entity titles from the backend
+            fetch(`/get_entity_titles/${entityType}?entity_category=${entityCategory}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Populate dropdown with the fetched entity titles
+                    data.entity_titles.forEach(entityTitle => {
+                        const option = document.createElement('option');
+                        option.value = entityTitle;
+                        option.textContent = entityTitle;
+                        dropdown.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching entity titles:', error));
+        } else {
+            alert("No valid [Entity] type found in the Incident Message.");
+        }
+    });
+    
+    // Define default entity options
+    const entityOptions = {
+        'Human-Entity': {
+            singular: ['person', 'worker', 'staff', 'security guy'],
+            plural: ['persons', 'workers', 'staffs', 'security guys']
+        },
+        'Animal-Entity': {
+            singular: ['rat', 'dog', 'cat'],
+            plural: ['rats', 'dogs', 'cats']
+        },
+        'Vehicle-Entity': {
+            singular: ['car', 'tempo', 'bike'],
+            plural: ['cars', 'tempos', 'bikes']
+        }
+    };
+
+    async function getSuggestions(inputElement) {
+        let wordInput = inputElement.value.trim();
+        let dropdownList = document.getElementById("dropdownList");
+        let dropdownContainer = document.getElementById("dropdownContainer");
+        let messageDiv = document.getElementById("message");
+        
+    
+        // Clear previous content
+        dropdownList.innerHTML = "";
+        messageDiv.innerHTML = "";
+        dropdownContainer.style.display = 'none';
+    
+        if (wordInput.length === 0) return;
+    
+        try {
+            let selectedClient = document.getElementById("modalClientName").value;
+            const response = await fetch(`/get_sentences_for_report_form?word=${encodeURIComponent(wordInput)}&client=${encodeURIComponent(selectedClient)}`);
+            const sentences = await response.json();
+    
+            if (sentences.length > 0) {
+                dropdownContainer.style.display = 'block';
+                sentences.forEach(async (sentence) => {
+                    let div = document.createElement("div");
+                    div.textContent = sentence;
+                    div.className = "dropdown-item";
+                    div.addEventListener("click", async function () {
+                        document.getElementById("modalReportMessage").value = sentence;
+                        dropdownContainer.style.display = 'none';
+                        
+                        // Check for entity type in the sentence
+                        const entityTypeMatch = sentence.match(/\[n\]\[(Human|Animal|Vehicle)-Entity\]/);
+                        if (entityTypeMatch) {
+                            // Open the Add Details modal
+                            document.getElementById("modal").style.display = "block";
+    
+                            // Fetch and populate entity titles based on the entity type
+                            const entityCategory = entityTypeMatch[1];  // Human, Animal, or Vehicle
+                            const entityType = entityTypeMatch[2];      // P or S
+                            const entityDropdown = document.getElementById("human_entity");
+    
+                            entityDropdown.innerHTML = '';
+                            try {
+                                const entityResponse = await fetch(`/get_entity_titles/${entityType}?entity_category=${entityCategory}`);
+                                const data = await entityResponse.json();
+                                data.entity_titles.forEach(title => {
+                                    const option = document.createElement("option");
+                                    option.value = title;
+                                    option.textContent = title;
+                                    entityDropdown.appendChild(option);
+                                });
+                            } catch (error) {
+                                console.error("Error fetching entity titles:", error);
+                            }
+                        }
+    
+                        // Fetch and auto-display the incident category
+                        try {
+                            await fetchIncidentCategory(sentence);
+                        } catch (error) {
+                            console.error("Error fetching incident category:", error);
+                        }
+    
+                        openAddDetailsModal(sentence);
+                    });
+                    dropdownList.appendChild(div);
+                });
+            } else {
+                messageDiv.textContent = `No matching sentences found for "${wordInput}".`;
+            }
+        } catch (error) {
+            console.error("Error fetching sentences:", error);
+        }
+    }
+    
+    // Update the modal event listener for dynamic entity options
+    document.addEventListener("DOMContentLoaded", function() {
+        const nInput = document.getElementById('n_text');
+        const entitySelect = document.getElementById('human_entity');
+        
+        nInput.addEventListener('change', function() {
+            const n = parseInt(this.value);
+            const reportMessage = document.getElementById('modalReportMessage').value;
+            
+            // Determine entity type from report message
+            let entityType = 'Human-Entity';
+            if (reportMessage.includes('[Animal-Entity]')) {
+                entityType = 'Animal-Entity';
+            } else if (reportMessage.includes('[Vehicle-Entity]')) {
+                entityType = 'Vehicle-Entity';
+            }
+            
+            // Clear existing options
+            entitySelect.innerHTML = '<option value="">Select...</option>';
+            
+            // Add appropriate options based on number
+            const options = n === 1 ? 
+                entityOptions[entityType].singular :
+                entityOptions[entityType].plural;
+                
+            options.forEach(option => {
+                const optElement = document.createElement('option');
+                optElement.value = option;
+                optElement.textContent = option;
+                entitySelect.appendChild(optElement);
+            });
+        });
+    });
+
+    
+    // Update the save button click handler with improved message format handling
+    document.getElementById('save_modal').addEventListener('click', () => {
+        // Get values from modal fields
+        const nText = document.getElementById('n_text').value;
+        const entity = document.getElementById('human_entity').value;
+        const mark = document.getElementById('mark').value;
+        const time1 = document.getElementById('time1').value;
+        const time2 = document.getElementById('time2').value;
+        const dateTime1 = document.getElementById('dateTime1').value;
+        const dateTime2 = document.getElementById('dateTime2').value;
+
+        // Validate required fields
+        if (!nText || !entity) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+
+        // Get the report message and incident message elements
+        const reportMessage = document.getElementById('modalReportMessage').value;
+        const incidentMessageTextArea = document.getElementById('modalIncidentMessage');
+
+        // Format times to AM/PM (if time1 and time2 are chosen)
+        const formattedTime1 = time1 ? formatTimeToAMPM(time1) : '';
+        const formattedTime2 = time2 ? formatTimeToAMPM(time2) : '';
+        
+        // Format DateTimes (if dateTime1 and dateTime2 are chosen)
+        const formattedDateTime1 = dateTime1 ? formatDateTimeToAMPM(dateTime1) : '';
+        const formattedDateTime2 = dateTime2 ? formatDateTimeToAMPM(dateTime2) : '';
+        
+        try {
+            // First, check if we have a report message
+            if (!reportMessage) {
+                throw new Error('No report message found');
+            }
+
+            // Create the transformed message by directly replacing placeholders
+            let transformedMessage = reportMessage;
+
+            // Prioritize Time1 and Time2 if they are selected
+            if (formattedTime1 && formattedTime2) {
+                transformedMessage = transformedMessage.replace('[time1]', formattedTime1);
+                transformedMessage = transformedMessage.replace('[time2]', formattedTime2);
+            }
+            // Otherwise, fall back to DateTime1 and DateTime2 if available
+            else if (formattedDateTime1 && formattedDateTime2) {
+                transformedMessage = transformedMessage.replace('[dateTime1]', formattedDateTime1);
+                transformedMessage = transformedMessage.replace('[dateTime2]', formattedDateTime2);
+            }
+
+            // Replace entity placeholders
+            const entityPlaceholders = [
+                /\[n\]\[Human-Entity\]/,
+                /\[n\]\[Animal-Entity\]/,
+                /\[n\]\[Vehicle-Entity\]/
+            ];
+
+            let replacementMade = false;
+            for (const placeholder of entityPlaceholders) {
+                if (placeholder.test(transformedMessage)) {
+                    transformedMessage = transformedMessage.replace(placeholder, `${nText} ${entity}`);
+                    replacementMade = true;
+                    break;
+                }
+            }
+
+            // If no replacement was made, try a simpler [n] replacement
+            if (!replacementMade && transformedMessage.includes('[n]')) {
+                transformedMessage = transformedMessage.replace('[n]', nText);
+                transformedMessage = transformedMessage.replace('[entity]', entity);
+            }
+
+            // Add mark if provided
+            if (mark) {
+                transformedMessage += ` (${mark})`;
+            }
+
+            // Update the incident message
+            incidentMessageTextArea.value = transformedMessage;
+
+            // Close the modal
+            document.getElementById('modal').style.display = 'none';
+
+            // Clear the modal fields
+            document.getElementById('n_text').value = '';
+            document.getElementById('human_entity').value = '';
+            document.getElementById('mark').value = '';
+            document.getElementById('time1').value = '';
+            document.getElementById('time2').value = '';
+            document.getElementById('dateTime1').value = '';
+            document.getElementById('dateTime2').value = '';
+
+            console.log('Message transformed successfully:', transformedMessage);
+        } catch (error) {
+            console.error('Error transforming message:', error);
+            alert('Error updating the incident message. Please make sure you have selected a report message first.');
+        }
+    });
+
+    // Helper function to format time to AM/PM
+    function formatTimeToAMPM(time) {
+        if (!time) return '';
+        
+        try {
+            const [hours, minutes] = time.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            return `${hour12}.${minutes} ${ampm}`;
+        } catch (error) {
+            console.error('Error formatting time:', error);
+            return time;
+        }
+    }
+
+    function formatDateTimeToAMPM(dateTime) {
+        if (!dateTime) return '';
+        try {
+            const dateObj = new Date(dateTime);
+            const hours = dateObj.getHours();
+            const minutes = dateObj.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const hour12 = hours % 12 || 12;
+            const minuteFormatted = minutes < 10 ? '0' + minutes : minutes;
+    
+            // Format date as "21 Sep 2024"
+            const day = dateObj.getDate();
+            const month = dateObj.toLocaleString('en-US', { month: 'short' });
+            const year = dateObj.getFullYear();
+            const formattedDate = `${day} ${month} ${year}`;
+    
+            return `${hour12}:${minuteFormatted} ${ampm} - ${formattedDate}`;
+        } catch (error) {
+            console.error('Error formatting DateTime:', error);
+            return dateTime;
+        }
+    }
+
+    function openAddDetailsModal(sentence) {
+        const modal = document.getElementById("modal");
+        modal.style.display = "block";
+    
+        // Reset fields
+        document.getElementById('n_text').value = '';
+        document.getElementById('human_entity').value = '';
+        document.getElementById('mark').value = '';
+        document.getElementById('time1').value = '';
+        document.getElementById('time2').value = '';
+        document.getElementById('dateTime1').value = '';
+        document.getElementById('dateTime2').value = '';
+    
+        // Hide/Show fields based on sentence pattern
+        let showTime = sentence.includes('[time1]') && sentence.includes('[time2]');
+        let showDateTime = sentence.includes('[dateTime1]') && sentence.includes('[dateTime2]');
+    
+        document.getElementById("time1").closest("tr").style.display = showTime ? "table-row" : "none";
+        document.getElementById("time2").closest("tr").style.display = showTime ? "table-row" : "none";
+        document.getElementById("dateTime1").closest("tr").style.display = showDateTime ? "table-row" : "none";
+        document.getElementById("dateTime2").closest("tr").style.display = showDateTime ? "table-row" : "none";
+    }
+
+    // Function to transform sentence to Incident Message format
+    function transformToIncidentMessage(sentence, entityMatch) {
+        // Check if the sentence contains entity placeholders
+        if (entityMatch) {
+            // The full pattern includes [n] and the entity type
+            const fullPattern = entityMatch[0];
+            // Return the sentence with placeholder ready for transformation
+            return sentence;
+        }
+        return sentence;
+    }
+    
+    // Fetch Incident Category from backend
+    async function fetchIncidentCategory(transformedMessage) {
+        try {
+            const response = await fetch(`/get_incident_categories_for_report_form?sentence=${encodeURIComponent(transformedMessage)}`);
+            const data = await response.json();
+            
+            // If a category is returned, update the Incident Category field
+            if (data.incidentCategory) {
+                document.getElementById('modalIncidentCategory').value = data.incidentCategory;
+            } else {
+                document.getElementById('modalIncidentCategory').value = "Not Found";
+            }
+        } catch (error) {
+            console.error("Error fetching Incident Category:", error);
+        }
+    }
+
+    // Function to toggle the Incident Message field based on Keywords
+    function toggleIncidentMessageField() {
+        const keywordsField = document.getElementById("modalKeywords");
+        const incidentMessageField = document.getElementById("modalIncidentMessage");
+
+        if (keywordsField.value.trim() !== "") {
+            // If Keywords field is not empty, disable Incident Message
+            incidentMessageField.readOnly = false;
+            incidentMessageField.placeholder = "";
+        } else {
+            // If Keywords field is empty, enable Incident Message
+            incidentMessageField.readOnly = false;
+            incidentMessageField.placeholder = "";
+        }
+    }
+
+    // Attach event listener to the Keywords field
+    document.getElementById("modalKeywords").addEventListener("input", toggleIncidentMessageField);
+
+    // Initialize the state when the page loads
+    window.addEventListener("load", toggleIncidentMessageField);
+
+    
+    dropdownList.addEventListener("click", async function (event) {
+        if (event.target && event.target.tagName === "DIV") {
+            const selectedSentence = event.target.textContent;
+    
+            // Set the selected sentence into the Report Message input
+            document.getElementById("modalReportMessage").value = selectedSentence;
+    
+            // Transform the sentence for Incident Message
+            const transformedMessage = transformToIncidentMessage(selectedSentence);
+    
+            // Update the Incident Message
+            incidentMessageTextArea.value = transformedMessage;
+    
+            // Check if sentence contains [n]
+            const hasN = transformedMessage.includes("[n]");
+            
+            if (hasN) {
+                // Open the Add Details modal only if [n] exists
+                openAddDetailsModal();
+    
+                // Extract entity type and populate dropdown
+                const entityTypeMatch = transformedMessage.match(/\[(Human|Animal|Vehicle)-Entity\]/);
+                if (entityTypeMatch) {
+                    const entityCategory = entityTypeMatch[1];
+                    const entityType = entityTypeMatch[2];
+    
+                    // Populate dropdown options
+                    await fetch(`/get_entity_titles/${entityType}?entity_category=${entityCategory}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const dropdown = document.getElementById("human_entity");
+                            dropdown.innerHTML = '';
+                            data.entity_titles.forEach(title => {
+                                const option = document.createElement("option");
+                                option.value = title;
+                                option.textContent = title;
+                                dropdown.appendChild(option);
+                            });
+                        });
+                }
+            }
+        }
+    });
+    
+    function continueAction(reportId, rowIndex) {
+        let row;
+        if (reportId) {
+            // Get the row corresponding to the clicked report
+            row = document.getElementById(`report-${reportId}`);
+        } else {
+            // In case of a new row, try to get the last row
+            row = document.getElementById(`report-`);
+        }
+        
+        if (!row) return;
+    
+        const clientName = document.getElementById(`clientNameSelect-${rowIndex}`).value;
+        const departmentName = document.getElementById(`departmentSelect-${rowIndex}`).value;
+        const cameraNumber = row.querySelector(`#cameraSelect-${rowIndex}`).value;
+        const shortMessage = row.querySelector('[data-key="short_message"]').textContent.trim();
+        // Check if the file name is stored in a hidden input or retrieved from the input field
+        const fileNameHidden = row.querySelector(`#fileNameHidden-${rowIndex}`);
+        const fileName = fileNameHidden ? fileNameHidden.value : row.querySelector('input[type="file"]').files[0]?.name || '';
+    
+        // Set the values in the modal inputs
+        document.getElementById("modalClientName").value = clientName;
+        document.getElementById("modalDepartmentName").value = departmentName;
+        document.getElementById("modalCameraNumber").value = cameraNumber;
+        document.getElementById("modalFileName").value = fileName;
+        document.getElementById("modalShortMessage").value = shortMessage;
+        
+        // Set the report ID in the modal
+        document.getElementById("reportId").value = reportId;
+    
+        // Show the modal
+        document.getElementById("continueModal").style.display = "block";
+    }
+    
+    function closeModal() {
+        // Close the modal
+        document.getElementById("continueModal").style.display = "none";
+    }
+
+    function submitReport() {
+        // You can submit the data here or process it further
+        console.log("Report Confirmed!");
+
+        // Close the modal after confirmation
+        closeModal();
+    }
+    
+    function cancelAction(reportId, serialNo) {
+        document.getElementById("reportPopupSerialNo").textContent = serialNo || "N/A"; // Display Serial No. or "N/A" if undefined
+        document.getElementById("reportPopupIdHidden").value = reportId; // Set the hidden field value with the report ID
+        document.getElementById("shortlistConfirmationPopup").style.display = "block"; // Show the popup
+    }
+
+    function closeConfirmationPopup() {
+        document.getElementById("shortlistConfirmationPopup").style.display = "none"; // Hide the confirmation popup
+    }
+
+    document.getElementById("removeReportForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+        const reportId = document.getElementById("reportPopupIdHidden").value;
+        updateReportStatus(reportId, "Removed");
+    });
+
+    // Listen for changes on the Incident Date-Time input
+    document.getElementById("modalIncidentDate").addEventListener("change", function () {
+        const incidentDateInput = this.value; // Get the selected date value
+        const modalMonthYearString = document.getElementById("modalMonthYearString");
+        const modalMonthYearNumber = document.getElementById("modalMonthYearNumber");
+
+        if (incidentDateInput) {
+            // Convert the date to a JavaScript Date object
+            const incidentDate = new Date(incidentDateInput);
+
+            // Format the Month Year (String)
+            const options = { year: 'numeric', month: 'long' };
+            const monthYearString = incidentDate.toLocaleDateString('en-US', options); // Example: "December 2024"
+
+            // Format the Month Year (Number) as YYYYMM
+            const year = incidentDate.getFullYear();
+            const month = String(incidentDate.getMonth() + 1).padStart(2, '0'); // Ensure two digits
+            const monthYearNumber = `${year}-${month}`; // Example: "2024-12"
+
+            // Update the input fields
+            modalMonthYearString.value = monthYearString;
+            modalMonthYearNumber.value = monthYearNumber;
+        } else {
+            // Clear fields if no date is selected
+            modalMonthYearString.value = "";
+            modalMonthYearNumber.value = "";
+        }
+    });
+
+    // Function to handle file upload
+    function handleFileUpload(event, rowIndex) {
+        const fileInput = document.getElementById(`fileNameInput-${rowIndex}`);
+        const fileNameLabel = document.getElementById(`fileNameLabel-${rowIndex}`);
+        const fileNameDisplay = document.getElementById(`fileNameDisplay-${rowIndex}`);
+        const removeFileButton = document.querySelector(`#fileNameLabel-${rowIndex} .close-button`);
+        const fileNameHidden = document.getElementById(`fileNameHidden-${rowIndex}`);
+
+        const file = event.target.files[0]; // Get the selected file
+        if (file) {
+            // Display the file name in the label
+            fileNameDisplay.textContent = file.name;
+
+            // Hide the file input and show the label and remove button
+            fileInput.style.display = 'none';
+            fileNameLabel.style.display = 'inline-block';
+            removeFileButton.style.display = 'inline-block';
+
+            // Save the file name in the hidden field
+            fileNameHidden.value = file.name;
+
+            // Send the file name to the backend (for persistence)
+            const reportId = getReportIdFromRow(rowIndex);
+            updateReportField(reportId, 'File Name', file.name);
+        }
+    }
+
+    // Function to remove the file (reset the input and show the file input again)
+    function removeFile(rowIndex) {
+        const fileInput = document.getElementById(`fileNameInput-${rowIndex}`);
+        const fileNameLabel = document.getElementById(`fileNameLabel-${rowIndex}`);
+        const removeFileButton = document.querySelector(`#fileNameLabel-${rowIndex} .close-button`);
+        const fileNameHidden = document.getElementById(`fileNameHidden-${rowIndex}`);
+
+        // Reset file input
+        fileInput.value = '';
+        fileInput.style.display = 'inline-block';
+        fileNameLabel.style.display = 'none';
+        removeFileButton.style.display = 'none';
+
+        // Clear the file name in the hidden field
+        fileNameHidden.value = '';
+
+        // Send empty value to the backend
+        const reportId = getReportIdFromRow(rowIndex);
+        updateReportField(reportId, 'File Name', '');
+    }
+
+    // Function to get report ID based on row index (assuming you have the report ID in each row)
+    function getReportIdFromRow(rowIndex) {
+        const row = document.querySelector(`#quickReportTable tbody tr:nth-child(${rowIndex})`);
+        return row ? row.id.replace('report-', '') : null;
+    }
+
+    // Function to load file data on page load
+    function loadFileDataOnPageLoad(rowIndex) {
+        const fileNameHidden = document.getElementById(`fileNameHidden-${rowIndex}`);
+        const fileInput = document.getElementById(`fileNameInput-${rowIndex}`);
+        const fileNameLabel = document.getElementById(`fileNameLabel-${rowIndex}`);
+        const fileNameDisplay = document.getElementById(`fileNameDisplay-${rowIndex}`);
+
+        const fileName = fileNameHidden.value; // Get the file name from the hidden field
+
+        if (fileName) {
+            // If the file name is already available, hide the input and display the file name label
+            fileInput.style.display = 'none';
+            fileNameLabel.style.display = 'inline-block';
+            fileNameDisplay.textContent = fileName;
+        } else {
+            // If no file name is available, keep the file input visible and hide the label
+            fileInput.style.display = 'inline-block';
+            fileNameLabel.style.display = 'none';
+        }
+    }
+
+    // Load file data for all rows on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('#quickReportTable tbody tr');
+        rows.forEach((row, index) => {
+            loadFileDataOnPageLoad(index + 1); // Load data for each row
+        });
+    });
+
+
+    // Function to handle live updates to MongoDB
+    function updateReportField(reportId, field, value) {
+        if (!reportId) return; // Don't update if no reportId
+
+        const data = {
+            [field]: value,
+            "Status Date-Time": new Date().toISOString(),
+        };
+
+        fetch(`/update_report_field/${reportId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                console.error('Failed to update:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating field:', error);
+        });
+    }
+
+    function loadReportDataOnPageLoad(rowIndex) {
+        const row = document.querySelector(`#quickReportTable tbody tr:nth-child(${rowIndex})`);
+        if (!row) return;
+    
+        const reportId = row.id.replace('report-', '');
+    
+        // Fetch saved report data
+        fetch(`/get_report_data/${reportId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const report = data.report;
+    
+                    // Populate Client Name dropdown
+                    const clientSelect = document.getElementById(`clientNameSelect-${rowIndex}`);
+                    if (clientSelect) {
+                        clientSelect.value = report.clientName || '';
+                    }
+    
+                    // Populate Department Name dropdown
+                    const departmentSelect = document.getElementById(`departmentSelect-${rowIndex}`);
+                    if (departmentSelect && report.clientName) {
+                        fetch(`/get_departments_by_client?client_name=${report.clientName}`)
+                            .then(response => response.json())
+                            .then(departmentData => {
+                                if (departmentData.success) {
+                                    departmentSelect.innerHTML = '<option selected disabled>Select Department</option>';
+                                    departmentData.departments.forEach(department => {
+                                        const option = document.createElement('option');
+                                        option.value = department;
+                                        option.textContent = department;
+                                        departmentSelect.appendChild(option);
+                                    });
+                                    departmentSelect.value = report.departmentName || ''; // Set value
+                                }
+                            });
+                    }
+    
+                    // Populate Camera Number dropdown
+                    const cameraSelect = document.getElementById(`cameraSelect-${rowIndex}`);
+                    if (cameraSelect && report.clientName && report.departmentName) {
+                        fetch(`/get_cameras_by_client_and_department?client_name=${report.clientName}&department_name=${report.departmentName}`)
+                            .then(response => response.json())
+                            .then(cameraData => {
+                                if (cameraData.success) {
+                                    cameraSelect.innerHTML = '<option selected disabled>Select Camera</option>';
+                                    cameraData.cameras.forEach(camera => {
+                                        const option = document.createElement('option');
+                                        option.value = camera;
+                                        option.textContent = camera;
+                                        cameraSelect.appendChild(option);
+                                    });
+                                    cameraSelect.value = report.cameraNumber || ''; // Set value
+                                }
+                            });
+                    }
+    
+                    // Populate Short Message field
+                    const shortMessageInput = document.querySelector(`#shortMessageInput-${rowIndex}`);
+                    if (shortMessageInput) {
+                        shortMessageInput.textContent = report.shortMessage || '';
+                    }
+    
+                    // Populate Uploaded File Name
+                    const fileNameDisplay = document.querySelector(`#fileNameDisplay-${rowIndex}`);
+                    if (fileNameDisplay) {
+                        fileNameDisplay.textContent = report.fileName || 'No file uploaded';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching report data:', error);
+            });
+    }
+    
+    // Load data for all rows on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        const rows = document.querySelectorAll('#quickReportTable tbody tr');
+        rows.forEach((row, index) => {
+            loadReportDataOnPageLoad(index + 1);
+        });
+    });
+    
+
+    function loadDepartmentsByClient(rowIndex) {
+        const clientName = document.getElementById(`clientNameSelect-${rowIndex}`).value;
+        const row = document.querySelector(`#quickReportTable tbody tr:nth-child(${rowIndex})`);
+        const reportId = row.id.replace('report-', '');
+    
+        // Update MongoDB immediately when client changes
+        updateReportField(reportId, 'Client Name', clientName);
+    
+        if (clientName) {
+            // Existing department fetching code
+            fetch(`/get_departments_by_client?client_name=${clientName}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const departmentSelect = document.getElementById(`departmentSelect-${rowIndex}`);
+                        departmentSelect.innerHTML = '<option selected disabled>Select Department</option>';
+                        
+                        data.departments.forEach(department => {
+                            const option = document.createElement("option");
+                            option.value = department;
+                            option.textContent = department;
+                            departmentSelect.appendChild(option);
+                        });
+    
+                        const cameraSelect = document.getElementById(`cameraSelect-${rowIndex}`);
+                        cameraSelect.innerHTML = '<option selected disabled>Select Camera</option>';
+    
+                        // Listen for changes on the department dropdown and save to the database
+                        departmentSelect.addEventListener('change', function () {
+                            const departmentName = departmentSelect.value;
+                            updateReportField(reportId, 'Department Name', departmentName);
+                        });
+                    } else {
+                        console.error('Failed to load departments:', data.message);
+                    }
+                });
+        }
+    }    
+    
+    function loadCamerasByDepartment(rowIndex) {
+        const clientName = document.getElementById(`clientNameSelect-${rowIndex}`).value;
+        const departmentName = document.getElementById(`departmentSelect-${rowIndex}`).value;
+        const row = document.querySelector(`#quickReportTable tbody tr:nth-child(${rowIndex})`);
+        const reportId = row.id.replace('report-', '');
+    
+        if (clientName && departmentName) {
+            // Save department name to the database before loading cameras
+            updateReportField(reportId, 'Department Name', departmentName);
+    
+            // Fetch cameras based on selected client and department
+            fetch(`/get_cameras_by_client_and_department?client_name=${clientName}&department_name=${departmentName}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const cameraSelect = document.getElementById(`cameraSelect-${rowIndex}`);
+                        cameraSelect.innerHTML = '<option selected disabled>Select Camera</option>';
+        
+                        data.cameras.forEach(camera => {
+                            const option = document.createElement("option");
+                            option.value = camera;
+                            option.textContent = camera;
+                            cameraSelect.appendChild(option);
+                        });
+                    } else {
+                        alert('Failed to load cameras: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while fetching cameras.');
+                });
+        } else {
+            // If no department is selected, clear the camera dropdown
+            const cameraSelect = document.getElementById(`cameraSelect-${rowIndex}`);
+            cameraSelect.innerHTML = '<option selected disabled>Select Camera</option>';
+        }
+    }
+    
+
+    // Add event listeners for live updates
+    document.addEventListener('DOMContentLoaded', function() {
+        const tbody = document.querySelector('#quickReportTable tbody');
+        
+        // Event delegation for the entire table
+        tbody.addEventListener('change', function(e) {
+            const row = e.target.closest('tr');
+            if (!row) return;
+            
+            const reportId = row.id.replace('report-', '');
+            const rowIndex = Array.from(row.parentNode.children).indexOf(row) + 1;
+
+            // Handle camera selection changes
+            if (e.target.id === `cameraSelect-${rowIndex}`) {
+                updateReportField(reportId, 'Camera Number', e.target.value);
+            }
+
+            // Handle file upload changes
+            if (e.target.type === 'file') {
+                const fileName = e.target.files[0]?.name || '';
+                updateReportField(reportId, 'File Name', fileName);
+            }
+        });
+
+        // Handle short message changes using input event for real-time updates
+        tbody.addEventListener('input', function(e) {
+            if (e.target.hasAttribute('data-key') && e.target.getAttribute('data-key') === 'short_message') {
+                const row = e.target.closest('tr');
+                const reportId = row.id.replace('report-', '');
+                updateReportField(reportId, 'Short Message', e.target.textContent.trim());
+            }
+        });
+    });
+
+    
+    function updateReportStatus(reportId, status) {
+        fetch(`/update_report_status_2/${reportId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ Status: status })
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    const row = document.getElementById(`report-${reportId}`);
+                    if (row) {
+                        row.remove();
+                    }
+                    updateSerialNumbers(); // Recalculate serial numbers after row removal
+                    closeConfirmationPopup();
+                } else {
+                    alert("Failed to update the report status.");
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("An error occurred while updating the report status.");
+            });
+    }
+
+    function updateSerialNumbers() {
+        const rows = document.querySelectorAll("#quickReportTable tbody tr");
+        rows.forEach((row, index) => {
+            const serialCell = row.cells[1]; // Assuming the second cell contains the serial number
+            serialCell.textContent = index + 1; // Update the serial number to the current index + 1
+
+            // Update the cancel button to pass the correct serial number
+            const cancelButton = row.querySelector(".cancel-button");
+            if (cancelButton) {
+                cancelButton.setAttribute("onclick", `cancelAction('${row.id.replace("report-", "")}', ${index + 1})`);
+            }
+        });
+    }
+
+    function addNewRow() {
+        const table = document.getElementById("quickReportTable").getElementsByTagName("tbody")[0];
+        const newRow = table.insertRow();
+    
+        // Create cells for the new row
+        const cancelCell = newRow.insertCell(0);
+        const noCell = newRow.insertCell(1);
+        const clientCell = newRow.insertCell(2);
+        const departmentCell = newRow.insertCell(3);
+        const cameraCell = newRow.insertCell(4);
+        const shortMessageCell = newRow.insertCell(5);
+        const fileNameCell = newRow.insertCell(6);
+        const statusCell = newRow.insertCell(7);
+        const actionCell = newRow.insertCell(8);
+    
+        // Populate the cells
+        cancelCell.innerHTML = `<button class="cancel-button" onclick="cancelAction('', ${table.rows.length})">X</button>`;
+        noCell.textContent = table.rows.length; // Assign a temporary serial number
+        clientCell.innerHTML = `
+            <select id="clientNameSelect-${table.rows.length}" onchange="loadDepartmentsByClient(${table.rows.length})">
+                <option selected disabled></option>
+                {% for client in clients %}
+                    <option value="{{ client }}">{{ client }}</option>
+                {% endfor %}
+            </select>`;
+        departmentCell.innerHTML = `
+            <select id="departmentSelect-${table.rows.length}">
+                <option selected disabled></option>
+            </select>`;
+        cameraCell.innerHTML = `
+            <select id="cameraSelect-${table.rows.length}">
+                <option selected disabled></option>
+                {% for camera in cameras %}
+                    <option value="{{ camera }}">{{ camera }}</option>
+                {% endfor %}
+            </select>`;
+        shortMessageCell.innerHTML = '<td contenteditable="true" data-key="short_message" placeholder="Short Message"></td>';
+        fileNameCell.innerHTML = '<input type="file" name="file_name" accept="image/*" style="width: 100%;">';
+        statusCell.innerHTML = '<span>Drafted</span>';
+        actionCell.innerHTML = '<button class="action-button" onclick="continueAction(\'\', ${table.rows.length})">Continue</button>';
+    
+        // Automatically make the "Short Message" cell editable
+        shortMessageCell.setAttribute("contenteditable", "true");
+    
+        // Add the empty report to MongoDB after adding the new row
+        const newReportData = {
+            "Client Name": "",
+            "Department Name": "",
+            "Camera Number": "",
+            "Short Message": "",
+            "File Name": "",
+            "Status": "Drafted"
+        };
+    
+        fetch('/add_report', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newReportData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("New report added:", data);
+                window.location.reload();
+            } else {
+                console.error("Error adding report:", data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Error adding new report:", error);
+        });
+    }
+
+    function cancelAction(reportId, index) {
+        // Show the confirmation popup
+        document.getElementById('shortlistConfirmationPopup').style.display = 'block';
+        document.getElementById('reportPopupSerialNo').innerText = document.getElementById('report-' + reportId).children[1].innerText; // Serial number
+        document.getElementById('reportPopupIdHidden').value = reportId;
+
+        // When 'Yes, Proceed' is clicked, ignore the report
+        document.getElementById('removeReportForm').onsubmit = function(event) {
+            event.preventDefault(); // Prevent form submission
+            ignoreReport(reportId); // Call the function to ignore the report
+        };
+    }
+    
+    function submitReport() {
+        // Collect the data from the modal
+        const reportId = document.getElementById("reportId").value;  // Assuming you are passing the report ID to the modal
+        const clientName = document.getElementById("modalClientName").value;
+        const departmentName = document.getElementById("modalDepartmentName").value;
+        const cameraNumber = document.getElementById("modalCameraNumber").value;
+        const shortMessage = document.getElementById("modalShortMessage").value;
+        const fileName = document.getElementById("modalFileName").value;
+        const incidentDate = document.getElementById("modalIncidentDate").value;
+        const incidentTime = document.getElementById("modalIncidentTime").value;
+        const keywords = document.getElementById("modalKeywords").value;
+        const reportMessage = document.getElementById("modalReportMessage").value;
+        const incidentMessage = document.getElementById("modalIncidentMessage").value;
+        const incidentCategory = document.getElementById("modalIncidentCategory").value;
+        const reportCategory = document.querySelector('input[name="reportCategory"]:checked')?.value;
+        const monthYearString = document.getElementById("modalMonthYearString").value;
+        const monthYearNumber = document.getElementById("modalMonthYearNumber").value;
+    
+        // Prepare the data to be sent to the backend
+        const updatedReport = {
+            clientName,
+            departmentName,
+            cameraNumber,
+            shortMessage,
+            fileName,
+            incidentDate,
+            incidentTime,
+            keywords,
+            reportMessage,
+            incidentMessage,
+            incidentCategory,
+            reportCategory,
+            monthYearString,
+            monthYearNumber
+        };
+    
+        // Send the data to the backend to update the report in MongoDB
+        fetch(`/update_report/${reportId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedReport)
+        })
+        .then(() => {
+            // Close the modal without handling the response data
+            closeModal();
+            window.location.reload();
+            
+        })
+        .catch(error => {
+            console.error('Error updating report:', error);
+            closeModal(); // You can also call closeModal here, just in case you want to close the modal on error too
+        });
+    }
+    
+</script>
+{% endblock %}
