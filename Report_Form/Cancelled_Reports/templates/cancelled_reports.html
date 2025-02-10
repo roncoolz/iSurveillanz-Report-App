@@ -1,0 +1,99 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Camera Issues View (Auditor View){% endblock %}
+
+{% block content %}
+    <h1>Cancelled Reports</h1>
+    <!-- Display flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table to display cancelled reports -->
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Client Name</th>
+                <th>Department Name</th>
+                <th>Camera Name</th>
+                <th>Final Report Statement</th>
+                <th>Incident Category</th>
+                <th>Camera Issue Category</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if data %}
+                {% for report in data %}
+                    <tr>
+                        <td>{{ report["Client Name"] }}</td>
+                        <td>{{ report["Department Name"] }}</td>
+                        <td>{{ report["Camera Name"] }}</td>
+                        <td>{{ report["Final Report Statement"] }}</td>
+                        <td>{{ report["Incident Category"] }}</td>
+                        <td>{{ report["Camera Issue Category"] }}</td>
+                        <td>
+                            <!-- Only show the "Call Back" button if call_back is "No" -->
+                            <button class="btn btn-primary" 
+                                    {% if report["call_back"] == "Yes" %} disabled {% endif %} 
+                                    onclick="confirmUpdateStatus('{{ report['_id'] }}')">Call Back</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="7">No records to display</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+<script>
+    // Function to prompt user for confirmation and send AJAX request to update status and callback
+    function confirmUpdateStatus(reportId) {
+        // Show a confirmation dialog before proceeding
+        var confirmation = confirm("Are you sure you want to Call Back this report?");
+        
+        if (confirmation) {
+            // Proceed to update the report status if user confirms
+            updateStatus(reportId);
+        }
+    }
+
+    // Function to send AJAX request to update status and callback
+    function updateStatus(reportId) {
+        fetch('/update_callback', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                _id: reportId
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to update the report');
+            }
+            return response.json();  // Parse JSON if the response is OK
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Report updated successfully!');
+                location.reload();  // Reload the page to reflect the changes
+            } else {
+                alert('Failed to update the report');
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error);
+        });
+    }
+</script>
+{% endblock %}
