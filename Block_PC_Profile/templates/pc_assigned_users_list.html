@@ -1,0 +1,29 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}PC-Assigned Users List{% endblock %}
+
+{% block content %}
+    <!-- Back to Selection Process Link -->
+    <div class="back-link">
+        <a href="{{ url_for('settings_BlockPCProfile') }}" class="back-button">Back to PC & Block Profile</a>
+    </div>
+<h2>PC-Assigned Users List</h2>
+
+    <!-- Table to display the data -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>PC Title</th>
+                <th>Employee Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user['PC Title'] }}</td>
+                    <td>{{ user['Employee Name'] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

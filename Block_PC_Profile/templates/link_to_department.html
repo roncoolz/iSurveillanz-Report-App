@@ -1,0 +1,158 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Link PC Profile to Department{% endblock %}
+
+{% block content %}
+    <!-- Back to PC Profiles Link -->
+    <div class="back-link">
+        <a href="{{ url_for('block_PC.view_pc_profiles') }}" class="back-button">Back to PC Profiles</a>
+    </div>
+
+    <h2>Link PC Profile to Department</h2>
+
+    <!-- Modal structure -->
+    <div id="linkToDepartmentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Link PC Profile to Department</h2>
+
+            <form id="linkToDepartmentForm" action="{{ url_for('block_PC.view_profiles', pc_id=pc_id) }}" method="POST">
+                <div class="input-container">
+                    <label for="pc_title">PC Title:</label>
+                    <input type="text" id="pc_title" name="pc_title" value="{{ pc_title }}" readonly>
+                </div>
+
+                <!-- Client Registration Name Dropdown -->
+                <div class="input-container">
+                    <label for="client">Client Registration Name:</label>
+                    <select id="client" name="client" onchange="enableClientIdDropdown()">
+                        <option value="">Select Client</option>
+                        {% for client in clients %}
+                            <option value="{{ client }}">{{ client }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Client ID Dropdown -->
+                <div class="input-container">
+                    <label for="client_id">Client ID:</label>
+                    <select id="client_id" name="client_id" disabled onchange="enableDepartmentDropdown()">
+                        <option value="">Select Client ID</option>
+                    </select>
+                </div>
+
+                <!-- Department Dropdown -->
+                <div class="input-container">
+                    <label for="department">Department:</label>
+                    <select id="department" name="department" disabled onchange="enableDepartmentIdField()">
+                        <option value="">Select Department</option>
+                    </select>
+                </div>
+
+                <!-- Department ID Field -->
+                <div class="input-container">
+                    <label for="department_id">Department ID:</label>
+                    <input type="text" id="department_id" name="department_id" readonly>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-button">Link Department</button>
+                    <a href="{{ url_for('block_PC.view_pc_profiles') }}" class="cancel-button" onclick="closeModal()">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal and JavaScript to control the modal behavior -->
+    <script>
+        // Function to open the modal and set the PC Title
+        function openModal(pc_title, pc_id) {
+            document.getElementById('pc_title').value = pc_title;
+            document.getElementById('linkToDepartmentForm').action = '/link_to_department/' + pc_id;
+            document.getElementById('linkToDepartmentModal').style.display = "block";
+        }
+
+        // Close the modal
+        function closeModal() {
+            document.getElementById('linkToDepartmentModal').style.display = "none";
+        }
+
+        // Close the modal if the user clicks outside of it
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('linkToDepartmentModal')) {
+                closeModal();
+            }
+        }
+
+        // Enable Client ID dropdown based on selected Client Registration Name
+        function enableClientIdDropdown() {
+            var clientSelect = document.getElementById("client");
+            var clientIdSelect = document.getElementById("client_id");
+            var selectedClient = clientSelect.value;
+
+            // Clear existing options in Client ID dropdown
+            clientIdSelect.innerHTML = '<option value="">Select Client ID</option>';
+
+            if (selectedClient) {
+                clientIdSelect.disabled = false;
+
+                // Fetch Client IDs based on the selected Client Registration Name
+                fetch(`/get_client_ids/${selectedClient}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.client_ids.forEach(function(client_id) {
+                            var option = document.createElement("option");
+                            option.value = client_id.id;
+                            option.text = client_id.name;
+                            clientIdSelect.appendChild(option);
+                        });
+                    });
+            } else {
+                clientIdSelect.disabled = true;
+            }
+        }
+
+        // Enable Department dropdown based on selected Client ID
+        function enableDepartmentDropdown() {
+            var clientIdSelect = document.getElementById("client_id");
+            var departmentSelect = document.getElementById("department");
+            var selectedClientId = clientIdSelect.value;
+
+            // Clear existing options in Department dropdown
+            departmentSelect.innerHTML = '<option value="">Select Department</option>';
+
+            if (selectedClientId) {
+                departmentSelect.disabled = false;
+
+                // Fetch Departments based on selected Client ID
+                fetch(`/get_departments/${selectedClientId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.departments.forEach(function(department) {
+                            var option = document.createElement("option");
+                            option.value = department.id;
+                            option.text = department.name;
+                            departmentSelect.appendChild(option);
+                        });
+                    });
+            } else {
+                departmentSelect.disabled = true;
+            }
+        }
+
+        // Enable Department ID field based on selected Department
+        function enableDepartmentIdField() {
+            var departmentSelect = document.getElementById("department");
+            var departmentIdInput = document.getElementById("department_id");
+
+            if (departmentSelect.value) {
+                departmentIdInput.readOnly = false;
+                departmentIdInput.value = departmentSelect.value;  // Populate with department ID
+            } else {
+                departmentIdInput.readOnly = true;
+                departmentIdInput.value = '';  // Clear value if no department selected
+            }
+        }
+    </script>
+
+{% endblock %}

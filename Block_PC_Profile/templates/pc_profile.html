@@ -1,0 +1,221 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}PC Profiles{% endblock %}
+
+{% block content %}
+    <!-- Back to Selection Process Link -->
+    <div class="back-link">
+        <a href="{{ url_for('settings_BlockPCProfile') }}" class="back-button">Back to PC & Block Profile</a>
+    </div>
+
+    <h2>PC Profiles</h2>
+
+    <!-- Table displaying the PC profiles -->
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Block Name</th>
+                <th>PC Title</th>
+                <th>PC Name</th>
+                <th>Machine ID/Product ID</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for profile in pc_profiles %}
+            <tr>
+                <td>{{ profile.block_name }}</td>
+                <td>{{ profile.pc_title }}</td>
+                <td>{{ profile.pc_name }}</td>
+                <td>{{ profile.machine_id }}</td>
+                <td>{{ profile.status }}</td>
+                <td>{{ profile.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td>
+                    <!-- Button to trigger the modal -->
+                    <button class="btn btn-primary" onclick="openModal('{{ profile.pc_title }}', '{{ profile._id }}')">Link to Department</button>
+                    <a href="{{ url_for('block_PC.view_all_links', pc_title=profile.pc_title) }}" class="btn btn-info">View All Links</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6">No profiles found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br><br>
+
+    <!-- Link to add new PC Profile -->
+    <a href="{{ url_for('block_PC.new_pc') }}">Add New PC Profile</a>
+
+    <!-- Modal content for Link to Department -->
+    <div id="linkToDepartmentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Link PC Profile to Department</h2>
+
+            <form id="linkToDepartmentForm" action="{{ url_for('block_PC.link_to_department') }}" method="POST" onsubmit="checkDepartmentExists(event)">
+                <div class="input-container">
+                    <label for="pc_title">PC Title:</label>
+                    <input type="text" id="pc_title" name="pc_title" readonly>
+                </div>
+
+                <!-- Client Registration Name Dropdown -->
+                <div class="input-container">
+                    <label for="client">Client Registration Name:</label>
+                    <select id="client" name="client" onchange="fetchClientIds()">
+                        <option value="">Select Client</option>
+                        <!-- Dynamic options will be populated here -->
+                    </select>
+                </div>
+
+                <!-- Client ID Dropdown -->
+                <div class="input-container">
+                    <label for="client_id">Client ID:</label>
+                    <select id="client_id" name="client_id" onchange="fetchDepartments()">
+                        <option value="">Select Client ID</option>
+                        <!-- Dynamic options will be populated here -->
+                    </select>
+                </div>
+
+                <!-- Department Dropdown -->
+                <div class="input-container">
+                    <label for="department">Department:</label>
+                    <select id="department" name="department" onchange="fetchDepartmentId()">
+                        <option value="">Select Department</option>
+                        <!-- Dynamic options will be populated here -->
+                    </select>
+                </div>
+
+                <!-- Department ID Field -->
+                <div class="input-container">
+                    <label for="department_id">Department ID:</label>
+                    <input type="text" id="department_id" name="department_id" readonly>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-button">Link Department</button>
+                    <a href="{{ url_for('block_PC.view_pc_profiles') }}" class="cancel-button" onclick="closeModal()">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript to control the modal and fetch data -->
+    <script>
+        // Fetch and populate the Client Registration Name dropdown
+        function fetchClients() {
+            fetch('/get_clients')
+                .then(response => response.json())
+                .then(data => {
+                    let clientSelect = document.getElementById("client");
+                    data.forEach(client => {
+                        let option = document.createElement("option");
+                        option.value = client;
+                        option.text = client;
+                        clientSelect.appendChild(option);
+                    });
+                });
+        }
+
+        // Fetch Client IDs based on selected Client Registration Name
+        function fetchClientIds() {
+            let clientName = document.getElementById("client").value;
+            if (clientName) {
+                fetch(`/get_client_ids/${clientName}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let clientIdSelect = document.getElementById("client_id");
+                        clientIdSelect.innerHTML = '<option value="">Select Client ID</option>';  // Reset the dropdown
+                        data.client_ids.forEach(client_id => {
+                            let option = document.createElement("option");
+                            option.value = client_id;
+                            option.text = client_id;
+                            clientIdSelect.appendChild(option);
+                        });
+                    });
+            }
+        }
+
+        // Fetch Departments based on selected Client ID
+        function fetchDepartments() {
+            let clientId = document.getElementById("client_id").value;
+            if (clientId) {
+                fetch(`/get_departments/${clientId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let departmentSelect = document.getElementById("department");
+                        departmentSelect.innerHTML = '<option value="">Select Department</option>';  // Reset the dropdown
+                        data.departments.forEach(department => {
+                            let option = document.createElement("option");
+                            option.value = department;
+                            option.text = department;
+                            departmentSelect.appendChild(option);
+                        });
+                    });
+            }
+        }
+
+        // Fetch Department ID based on selected Department Name
+        function fetchDepartmentId() {
+            let departmentName = document.getElementById("department").value;
+            if (departmentName) {
+                fetch(`/get_department_id/${departmentName}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("department_id").value = data.department_id || '';
+                    });
+            }
+        }
+
+        async function checkDepartmentExists(event) {
+        // Prevent form submission until we check if the department exists
+        event.preventDefault(); // Prevent form submission at the start
+
+        // Get department_id from the form
+        var departmentId = document.getElementById("department_id").value;
+
+        try {
+            // Make an asynchronous AJAX request to check if the department_id already exists
+            const response = await fetch('/check_department_exists/' + departmentId);
+            const data = await response.json();
+
+            if (data.exists) {
+                // If the department already exists, show the alert
+                alert("This department is already linked to a PC Profile.");
+            } else {
+                // If department does not exist, submit the form
+                document.getElementById("linkToDepartmentForm").submit(); // Submit the form manually
+            }
+        } catch (error) {
+            console.error("Error checking department:", error);
+            alert("There was an error while checking the department.");
+        }
+        }   
+
+        // Call fetchClients when the page loads to populate the Client dropdown
+        window.onload = function() {
+            fetchClients();
+        };
+
+        // Modal open/close functions
+        function openModal(pc_title) {
+            document.getElementById('pc_title').value = pc_title;
+            document.getElementById('linkToDepartmentModal').style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById('linkToDepartmentModal').style.display = "none";
+        }
+
+        // Close the modal if the user clicks outside of it
+        window.onclick = function(event) {
+        if (event.target == document.getElementById('linkToDepartmentModal')) {
+            closeModal();
+        }
+    }
+    </script>
+{% endblock %}

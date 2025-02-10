@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Bootstrap 4.6 link -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+<!-- jQuery (required for Bootstrap 4) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap 4.6 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="shortcut icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>{% block title %}Your App{% endblock %}</title>
+</head>
+<body>
+    <section id="content">
+        <!-- NAVBAR -->
+        <div class="navbar-top">
+            <div class="profile">
+                <img src="{{ url_for('static', filename='bussiness-man.png') }}" alt="Profile Image">
+                <!-- Profile information -->
+                <div class="profile-info">
+                    {% if 'logged_in' in session %}
+                        <!-- If logged in, show the username and logout option -->
+                        <div id="user-info" data-logged-in="true" data-username="{{ session['username'] }}"></div>
+                        <span id="profile-name">{{ session['username'] }}</span>
+                        <button id="login-btn" class="login-btn" style="display: none;" onclick="login()">Log In</button>
+                        <button id="logout-btn" class="logout-btn" onclick="logout()">Log Out</button>
+                    {% else %}
+                        <!-- If not logged in, show login button -->
+                        <div id="user-info" data-logged-in="false" data-username=""></div>
+                        <span id="profile-name" style="display: none;"></span>
+                        <button id="login-btn" class="login-btn" onclick="login()">Log In</button>
+                        <button id="logout-btn" class="logout-btn" style="display: none;" onclick="logout()">Log Out</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content will be injected here -->
+        <div class="main-content">
+            {% block content %}{% endblock %}
+        </div>
+    </section>
+
+    <!-- JavaScript code -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userInfo = document.getElementById('user-info');
+            const loggedIn = userInfo.getAttribute('data-logged-in') === 'true';
+            const username = userInfo.getAttribute('data-username');
+
+            if (loggedIn) {
+                document.getElementById("profile-name").textContent = username;
+                document.getElementById("profile-name").style.display = 'inline';
+                document.getElementById("login-btn").style.display = 'none';
+                document.getElementById("logout-btn").style.display = 'inline';
+            } else {
+                document.getElementById("profile-name").style.display = 'none';
+                document.getElementById("login-btn").style.display = 'inline';
+                document.getElementById("logout-btn").style.display = 'none';
+            }
+        });
+
+        function login() {
+            window.location.href = "/log_in.html"; // Redirect to login page
+        }
+
+        function logout() {
+            window.location.href = "/logout"; // Redirect to logout route
+        }
+    </script>
+</body>
+</html>

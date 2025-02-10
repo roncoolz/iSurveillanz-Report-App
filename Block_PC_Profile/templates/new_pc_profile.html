@@ -1,0 +1,50 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}PC Profile{% endblock %}
+
+{% block content %}
+        <!-- Back to Selection Process Link -->
+        <div class="back-link">
+            <a href="{{ url_for('block_PC.view_pc_profiles') }}" class="back-button">Back to PC Profile</a>
+        </div>
+    <h2>PC Profile</h2>
+    <form method="POST" action="{{ url_for('block_PC.new_pc') }}">
+        <!-- Block Field -->
+        <div class="row">
+            <div class="col-12">
+                <label for="block_name">Block:</label>
+                <select id="block_name" name="block_name" required>
+                    <option value="" disabled selected>Select Block</option>
+                    {% for block in block_names %}
+                        <option value="{{ block }}">{{ block }}</option>
+                    {% endfor %}
+                </select><br><br>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <label for="pc_name">PC Name:</label>
+                <input type="text" id="pc_name" name="pc_name" value="{{ pc_name }}" style="width: max-content;" required>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <label for="machine_id">Machine ID/Product ID:</label>
+                <input type="text" id="machine_id" name="machine_id" value="{{ machine_id }}" style="width: 350px;" required><br><br>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <label for="status">Status:</label>
+                <input type="text" id="status" name="status" value="{{ status or 'Active' }}" style="width: 350px;" required><br><br>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <label for="pc_title">PC Title:</label>
+                <input type="text" id="pc_title" name="pc_title" value="{{ pc_title }}" style="width: 350px;" required><br><br>
+            </div>
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+{% endblock %}

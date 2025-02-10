@@ -1,0 +1,48 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Block Profile Table{% endblock %}
+
+{% block content %}
+        <!-- Back to Selection Process Link -->
+        <div class="back-link">
+            <a href="{{ url_for('settings_BlockPCProfile') }}" class="back-button">Back to PC & Block Profile</a>
+        </div>
+<h2>Block Profile</h2>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Block ID</th>
+                <th>Block Name</th>
+                <th>Block Location</th>
+                <th>Actions</th>  <!-- New Actions column for buttons -->
+            </tr>
+        </thead>
+        <tbody>
+            {% if block_profiles %}
+                {% for profile in block_profiles %}
+                    <tr>
+                        <td>{{ profile.block_id }}</td>
+                        <td>{{ profile.block_name }}</td>
+                        <td>{{ profile.block_location if profile.block_location else 'N/A' }}</td>
+                        <td>
+                            <!-- Add New PC Button for each row -->
+                            <a href="{{ url_for('block_PC.new_pc') }}">
+                                <button>Add new PC</button>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4">No block profiles available.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+ 
+<br>
+<br>
+<a href="{{ url_for('block_PC.block_Profile') }}" class="back-button">Add a new block</a>
+
+{% endblock %}
