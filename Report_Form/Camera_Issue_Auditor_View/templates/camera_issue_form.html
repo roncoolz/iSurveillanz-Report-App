@@ -1,0 +1,47 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Camera Issue Form{% endblock %}
+
+{% block content %}
+    <h2>Camera Issue Category Form</h2>
+
+    <!-- Form to capture camera issue category and statement -->
+    <form action="/camera_issue_form" method="POST">
+        <div class="form-group">
+            <label for="cameraIssueCategory">Camera Issue Category</label>
+            <select id="cameraIssueCategory" name="cameraIssueCategory" required>
+                <option value="" disabled selected>Select Category</option>
+                {% for category in categories %}
+                    <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <!-- Input for custom category if "Other" is selected -->
+        <div class="form-group" id="customCategoryField" style="display: none;">
+            <label for="customCategory">Custom Camera Issue Category</label>
+            <input type="text" id="customCategory" name="customCategory" placeholder="Enter Custom Category">
+        </div>
+
+        <div class="form-group">
+            <label for="cameraIssueStatement">Camera Issue Statement</label>
+            <textarea id="cameraIssueStatement" name="cameraIssueStatement" placeholder="Describe the camera issue here" required></textarea><br><br>
+        </div>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        // Show the custom category input if "Other" is selected in the dropdown
+        document.getElementById('cameraIssueCategory').addEventListener('change', function() {
+            var customCategoryField = document.getElementById('customCategoryField');
+            if (this.value === 'Other') {
+                customCategoryField.style.display = 'block';
+            } else {
+                customCategoryField.style.display = 'none';
+            }
+        });
+    </script>
+
+{% endblock %}

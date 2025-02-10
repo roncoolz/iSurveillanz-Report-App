@@ -1,0 +1,476 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Camera Issue Reporter View{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('settings_reportform') }}">Back to Home</a>
+<div class="container2">
+    <h1>Camera Issue Reporter View</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            <script>
+                setTimeout(() => {
+                    const flashElements = document.querySelectorAll('.flashes .flash');
+                    flashElements.forEach(flash => flash.style.display = 'none');
+                }, 3000);
+            </script>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table to Display Camera Issue Reports -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>PC Title</th>
+                    <th>Client Name</th>
+                    <th>Department Name</th>
+                    <th>Camera Name</th>
+                    <th>Final Report Statement</th>
+                    <th>Submitted Date</th>
+                    <th>CR Status</th>
+                    <th>Hold Upto</th>
+                    <th>Overdue</th>
+                    <th>Reminder Count</th>
+                    <th>Take Action</th> <!-- Action button column -->
+                    <th>Change CR Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_records = data|length %}
+                {% for report in data %}
+                <tr>
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td>{{ report.get('PC title') }}</td>
+                    <td>{{ report.get('Client Name') }}</td>
+                    <td>{{ report.get('Department Name') }}</td>
+                    <td>
+                        {% if report['camera_select'] %}
+                            {{ report['camera_select'] | join('<br>') | safe }}
+                        {% else %}
+                            No cameras selected
+                        {% endif %}
+                    </td>
+                    <td>{{ report.get('Final Report Message') }}</td>
+                    <td>{{ report.get('Sub Date') }}</td>
+                    <td>{{ report.get('CR Status') }}</td>
+                    <td>{{ report.get('Hold Upto') }}</td>
+                    <td>{{ report.get('Overdue') }}</td>
+                    <td>{{ report.get('Reminder Count') }}</td>
+                    <td>
+                        <button class="action-button" onclick="openActionForm('{{ report['Client Name'] }}', '{{ report['CR Status'] }}', '{{ report['_id'] }}')">Action</button>
+                    </td>
+                    <td>
+                        <!-- Change CR Status button -->
+                        <button onclick="openChangeCRStatusForm('{{ report['Client Name'] }}', '{{ report['CR Status'] }}', '{{ report['Hold Upto'] }}', '{{ report['_id'] }}')">Change CR Status</button>                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal for Camera Issue Action -->
+    <div id="actionModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeActionForm()">x</span>
+            <h2>Camera Issue Action</h2>
+            <form id="actionForm" action="{{ url_for('report.submit_camera_issue') }}" method="post">
+                <!-- Field 1: Client Name -->
+                <label for="clientName">Client Name:</label>
+                <input type="text" id="clientName" name="clientName" readonly><br><br>
+
+                <!-- Field 2: CR Status -->
+                <label for="crStatus">CR Status:</label>
+                <input type="text" id="crStatus" name="crStatus" readonly><br><br>
+
+                <!-- Field 3: Client ID -->
+                <label for="clientId">Client ID:</label>
+                <input type="text" id="clientId" name="clientId" readonly><br><br>
+
+                <!-- Hidden input for clientId -->
+                <!-- <input type="hidden" id="clientId" name="clientId"> -->
+
+                <!-- Row of Buttons for Actions (below client name and CR status) -->
+                <div class="action-buttons-row">
+                    <button id="remindedButton" class="btn" onclick="requestToRemind()">Reminded</button>
+                    <button id="clearedButton" class="btn" onclick="requestToClear()">Cleared</button>
+                    <button id="directClearButton" class="btn" onclick="requestToDirectClear()">Direct Clear</button>
+                    <!--<button type="button" class="action-button" id="directClearButton" onclick="setAction('Direct Clear')">Direct Clear</button>-->
+                    <button id="cancelButton" class="btn" onclick="requestToCancel()">Cancel</button>
+                    <!-- <button type="button" class="action-button" id="cancelButton" onclick="requestToCancel">Cancel</button> -->
+                    <!-- <button id="changeCRStatusButton" class="btn" onclick="openChangeCRStatusForm()">Change CR Status</button> -->
+                    <!-- <button type="button" class="action-button" id="changeCRStatusButton" onclick="openChangeCRStatusForm()">Change CR Status</button> -->
+                </div>
+                <br><br>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Change CR Status -->
+    <div id="changeCRStatusModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeChangeCRStatusForm()">×</span>
+            <h2>Change CR Status</h2>
+
+            <form method="POST" action="{{ url_for('report.client_cr_status') }}" id="changeCRStatusForm">
+                <label for="changeClientName">Client Name:</label>
+                <input type="text" id="changeClientName" name="changeClientName" readonly><br><br>
+
+                <!-- Hidden Report ID -->
+                <input type="hidden" id="reportId" name="reportId">
+
+                <label for="changeCRStatus">CR Status:</label>
+                <input type="text" id="changeCRStatus" name="changeCRStatus" readonly><br><br>
+
+                <label for="holdUpto">Hold Upto:</label>
+                <input type="text" id="holdUpto" name="holdUpto" readonly><br><br>
+
+                <label for="status">Status:</label>
+                <select id="status" name="status" onchange="toggleDateField()">
+                    <option value="Select_Status">Select Status</option>
+                    <option value="Hold">Hold</option>
+                    <option value="Ignore">Ignore</option>
+                    <option value="In-Progress">In-Progress</option>
+                </select><br><br>
+
+                <label for="holdDate" id="holdDateLabel" style="display: none;">Hold upto Date:</label>
+                <input type="date" id="holdDate" name="holdDate" style="display: none;"><br><br>
+
+                <label for="remark">Remark:</label>
+                <textarea id="remark" name="remark" rows="4" cols="50"></textarea><br><br>
+
+                <button type="submit" id="submitBtn">Submit</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Function to open the Camera Issue Action form
+    function openActionForm(clientName, crStatus, reportId) {
+        document.getElementById('clientName').value = clientName;
+        document.getElementById('crStatus').value = crStatus;
+        document.getElementById('clientId').value = reportId;
+    
+        // Enable all buttons first (in case the modal was opened previously)
+        document.getElementById('remindedButton').disabled = false;
+        document.getElementById('clearedButton').disabled = false;
+        document.getElementById('directClearButton').disabled = false;
+        document.getElementById('cancelButton').disabled = false;
+    
+        // Disable buttons based on CR Status
+        if (crStatus === "Requested to Remind") {
+            document.getElementById('clearedButton').disabled = true; // Disable "Cleared" button
+        } else if (crStatus === "Requested to Clear") {
+            document.getElementById('remindedButton').disabled = true; // Disable "Reminded" button
+        }
+
+        // Disable "Reminded" and "Cleared" buttons if CR Status is "N/A"
+        if (crStatus === "N/A") {
+            document.getElementById('remindedButton').disabled = true;
+            document.getElementById('clearedButton').disabled = true;
+        }
+
+        // Disable "Reminded" and "Cleared" buttons if CR Status is "In-Progress"
+        if (crStatus === "In-Progress") {
+            document.getElementById('remindedButton').disabled = true;
+            document.getElementById('clearedButton').disabled = true;
+            document.getElementById('cancelButton').disabled = true;
+        }
+    
+        // Show the action modal
+        document.getElementById('actionModal').style.display = 'block';
+    
+        // Call the toggleDateField function to check if "Hold" status is selected and show/hide "Hold Upto"
+        toggleDateField();
+    }
+
+     // Ensure the correct form submission handling
+     /* document.getElementById("changeCRStatusForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        const formData = new FormData(this);
+
+        fetch("{{ url_for('report.client_cr_status') }}", {  
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("CR Status updated successfully!");
+                closeChangeCRStatusForm(); // Close modal
+            } else {
+                alert("Error updating CR Status: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An unexpected error occurred.");
+        });
+    }); */
+    
+    // Function to toggle the visibility of the date field based on selected status
+    function toggleDateField() {
+        var status = document.getElementById("status").value;
+        var holdDateField = document.getElementById("holdDate");
+        var holdDateLabel = document.getElementById("holdDateLabel");
+
+        if (status === "Hold") {
+            holdDateField.style.display = "block";
+            holdDateLabel.style.display = "block";
+        } else {
+            holdDateField.style.display = "none";
+            holdDateLabel.style.display = "none";
+        }
+    }
+    
+    // Function to close the Camera Issue Action form
+    function closeActionForm() {
+        document.getElementById('actionModal').style.display = 'none';
+    }
+
+        // Function to send an AJAX request
+    function sendRequest(url, requestData, successMessage) {
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(successMessage);
+                closeActionForm();
+            } else {
+                alert('Failed to update the status. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the status.');
+        });
+    }
+    
+    // Function to handle the reminder request
+    function requestToRemind() {
+    // Get the necessary client data from the form
+    const clientName = document.getElementById("clientName").value;
+    const clientId = document.getElementById("clientId").value;  // Make sure this is populated
+    const crStatus = document.getElementById("crStatus").value;
+
+    if (!clientName || !clientId || !crStatus) {
+        alert("Missing necessary client data.");
+        return;
+    }
+
+    // Prepare the data to send for reminder
+    const requestData = {
+        client_name: clientName,
+        client_id: clientId,  // Make sure clientId is passed
+        cr_status: "In-Progress",  // CR Status should be "Reminded"
+        status: "In-Progress"  // Status should be "In-Progress"
+    };
+
+    // Send the AJAX request to the backend to update the databases and reminder count
+    fetch('/update_reminder', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(requestData => {
+        if (requestData.success) {
+            alert('Reminder has been sent and status updated successfully!');
+            closeActionForm();  // Close the modal after successful update
+        } else {
+            alert('Failed to update the status. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the status.');
+    });
+}
+
+// Function to handle the cleared request
+function requestToClear() {
+    const clientName = document.getElementById("clientName").value;
+    const clientId = document.getElementById("clientId").value; // Assuming clientId is available
+    const crStatus = document.getElementById("crStatus").value;
+
+    if (!clientName || !clientId || !crStatus) {
+        alert("Missing necessary client data.");
+        return;
+    }
+
+    // Prepare the data to send for reminder
+    const requestData = {
+        client_name: clientName,
+        client_id: clientId,  // Make sure clientId is passed
+        cr_status: "Cleared",  // CR Status should be "Reminded"
+    };
+
+    // Send the AJAX request to the backend to update the databases and status
+    fetch('/update_clear', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(requestData => {
+        if (requestData.success) {
+            alert('Status has been cleared and updated successfully!');
+            closeActionForm();  // Close the modal after successful update
+        } else {
+            alert('Failed to update the status. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the status.');
+    });
+}
+
+// Function to handle the Direct cleared request
+function requestToDirectClear() {
+    const clientName = document.getElementById("clientName").value;
+    const clientId = document.getElementById("clientId").value; // Assuming clientId is available
+    const crStatus = document.getElementById("crStatus").value;
+
+    // Debugging: Log the data being sent to the server
+    console.log("clientName:", clientName);
+    console.log("clientId:", clientId);
+    console.log("crStatus:", crStatus);
+
+    if (!clientName || !clientId || !crStatus) {
+        alert("Missing necessary client data.");
+        return;
+    }
+
+    // Prepare the data to send for cleared status
+    const requestData = {
+        client_name: clientName,
+        client_id: clientId,  // Make sure clientId is passed
+        cr_status: "Cleared",  // CR Status should be "Cleared"
+        status: "Cleared"      // Status should be "Cleared"
+    };
+
+    // Send the AJAX request to the backend to update the databases and status
+    fetch('/update_direct_clear', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(requestData => {
+        if (requestData.success) {
+            alert('Status has been cleared and updated successfully!');
+            closeActionForm();  // Close the modal after successful update
+        } else {
+            alert('Failed to update the status. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the status.');
+    });
+}
+
+// Function to handle the Cancel action request
+function requestToCancel() {
+    const clientName = document.getElementById("clientName").value;
+    const clientId = document.getElementById("clientId").value;  // Make sure this element exists
+    const crStatus = document.getElementById("crStatus").value;  // Make sure this element exists
+
+    // Debugging: Log the data being sent to the server
+    console.log("clientName:", clientName);
+    console.log("clientId:", clientId);
+    console.log("crStatus:", crStatus);
+
+    if (!clientName || !clientId || !crStatus) {
+        alert("Missing necessary client data.");
+        return;
+    }
+
+    // Prepare the data to send for cancel action
+    const requestData = {
+        client_name: clientName,
+        client_id: clientId,  // Make sure clientId is passed
+        cr_status: "In-Progress",  // CR Status should be "Cancelled"
+        status: "In-Progress"      // Status should be "Cancelled"
+    };
+
+    // Send the AJAX request to the backend to update the databases and cancel status
+    fetch('/update_cancel', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(requestData => {
+        if (requestData.success) {
+            alert('Status has been cancelled and updated successfully!');
+            closeActionForm();  // Close the modal after successful update
+        } else {
+            alert('Failed to update the status. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the status.');
+    });
+}
+
+// Function to open the "Change CR Status" modal
+  function openChangeCRStatusForm(clientName, crStatus, holdUpto, reportId) {
+    // Set client name, CR status, and holdUpto dynamically when the modal opens
+    document.getElementById("changeClientName").value = clientName;
+    document.getElementById("changeCRStatus").value = crStatus;
+    //document.getElementById("finalReport").value = reportMessage;
+    document.getElementById("holdUpto").value = holdUpto;
+    document.getElementById("reportId").value = reportId; // Set the Report ID (_id) in the form
+
+    // Fetch client data (including Final Report Statement)
+    fetch(`/client_cr_status?client_name=${encodeURIComponent(clientName)}&client_id=${encodeURIComponent(clientId)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Populate Final Report Statement in the form
+                document.getElementById("finalReportStatement").value = data.finalReportStatement;
+            } else {
+                alert("Failed to retrieve CR Status.");
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching client data:', error);
+            alert("An error occurred while fetching client data.");
+        });
+
+    // Open the modal
+    document.getElementById("changeCRStatusModal").style.display = "block";
+} 
+
+
+
+</script>
+
+{% endblock %}

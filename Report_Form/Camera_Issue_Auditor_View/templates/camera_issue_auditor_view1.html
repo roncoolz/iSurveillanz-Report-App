@@ -1,0 +1,605 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Camera Issues View (Auditor View){% endblock %}
+
+{% block content %}
+<a href="{{ url_for('settings_reportform') }}">Back to Report Form Home Page</a>
+<div class="container2">
+    <h1>Camera Issues View (Auditor View)</h1>
+
+    <button class="add-button" onclick="openAddReasonModal()">+</button>
+    <br><br>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            <script>
+                setTimeout(() => {
+                    const flashElements = document.querySelectorAll('.flashes .flash');
+                    flashElements.forEach(flash => flash.style.display = 'none');
+                }, 3000);
+            </script>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table to Display Camera Issues -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Client Name</th>
+                    <th>Department Name</th>
+                    <th>Camera Name</th>
+                    <th>File Name</th>
+                    <th>Final Report</th>
+                    <th>SUB Date</th>
+                    <th>CR Status</th>
+                    <th>Hold Upto</th>        
+                    <th>Take Action</th>           
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_records = data|length %}
+                {% for issue in data %}
+                <tr>
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td>{{ issue['Client Name'] }}</td>
+                    <td>{{ issue['Department Name'] }}</td>
+                    <td>
+                        {% if issue['camera_select'] %}
+                            {{ issue['camera_select'] | join('<br>') | safe }}
+                        {% else %}
+                            No cameras selected
+                        {% endif %}
+                    </td>
+                    <td>{{ issue['File Name'] }}</td>
+                    <td>{{ issue['Incident Message'] }}</td>
+                    <td>{{ issue['Sub Date'] }}</td>
+                    <td>{{ issue['CR Status'] }}</td>
+                    <td>{{ issue['Hold Upto'] }}</td>
+                    <td>
+                        <button class="action-button" 
+                            onclick="openActionForm('{{ issue['_id'] }}')">
+                            Action
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Reason Modal -->
+    <div id="addReasonModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAddReasonModal()">&times;</span>
+            <h2>Add Reason</h2>
+
+            <div class="form-group">
+                <label for="pcTitle">PC Title</label>
+                <input type="text" id="pcTitle" placeholder="Enter PC Title" value="{{ pc_title if pc_title else '' }}" disabled />
+            </div>
+
+            <!-- Table inside the modal to list clients -->
+            <table id="reasonTable">
+                <thead>
+                    <tr>
+                        <th>Client Name</th>
+                        <th>Submit Issue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients_list %}
+                    <tr>
+                        <td>{{ client.name }}</td>
+                        <td><button class="submit-issue" onclick="openSubmitIssueForm(this, '{{ client.name }}')">Submit Issue</button></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <br>
+            <button onclick="saveReason()">Save</button>
+        </div>
+    </div>
+
+    <!-- Submit Issue Form Modal -->
+    <div id="submitIssueModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeSubmitIssueModal()">&times;</span>
+            <h2>Submit Issue Form</h2>
+            <form action="#" method="POST">
+                
+                <div class="form-group">
+                    <label for="clientName">Client Name</label>
+                    <input type="text" id="clientName" placeholder="Client Name" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label for="referenceId">Reference ID</label>
+                    <input type="text" id="referenceId" placeholder="Enter Reference ID" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label for="departmentName">Department Name</label>
+                    <select id="departmentName" multiple size="5" style="width: 100%; max-height: 150px; overflow-y: auto;"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="cameraSelect">Camera</label>
+                    <select id="cameraSelect" multiple size="5" style="width: 100%; max-height: 150px; overflow-y: auto;"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="cameraIssueCategory">Camera Issue Category</label>
+                    <select id="cameraIssueCategory" name="cameraIssueCategory" required>
+                        <option value="" disabled selected>Select Category</option>
+                        {% for category in categories %}
+                            <option value="{{ category }}">{{ category }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Keyword Search for Camera Issue Statements -->
+                <div class="form-group">
+                    <label for="cameraIssueSearch">Search Camera Issue Statement:</label>
+                    <input type="text" id="cameraIssueSearch" placeholder="Type a keyword..." />
+                </div>
+
+                <!-- Dropdown for Selecting Camera Issue Statement -->
+                <div class="form-group">
+                    <label for="cameraIssueStatement">Camera Issue Statement</label>
+                    <select id="cameraIssueStatement" name="cameraIssueStatement" required>
+                        <option value="" disabled selected>Select Statement</option>
+                    </select>
+                </div>
+
+                <!-- Final Report Statement (Auto-filled) -->
+                <div class="form-group">
+                    <label for="finalreportstatement">Final Report Statement</label>
+                    <textarea id="finalreportstatement" name="finalreportstatement" placeholder="Final Report Statement will appear here" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="attachment">Attachment</label>
+                    <input type="file" id="attachment" />
+                </div>
+
+                <br>
+                <button type="button" onclick="submitIssueForm()">Submit Issue</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Action Modal -->
+<div id="actionModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeActionModal()">&times;</span>
+        <h2>Take Action</h2>
+
+        <!-- Client Name Field -->
+        <div class="form-group">
+            <label for="actionClientName">Client Name</label>
+            <input type="text" id="actionClientName" readonly />
+        </div>
+
+        <!-- Client Name Field -->
+        <div class="form-group">
+            <label for="actionCameraName">Camera Name</label>
+            <input type="text" id="actionCameraName" readonly />
+        </div>
+
+        <!-- Reminder Count Field -->
+        <div class="form-group">
+            <label for="reminderCount">Reminder Count</label>
+            <input type="text" id="reminderCount" readonly />
+        </div>
+
+        <!-- CR Status Field -->
+        <div class="form-group">
+            <label for="crStatus">CR Status</label>
+            <input type="text" id="crStatus" placeholder="CR Status" readonly />
+        </div>
+
+        <!-- Report ID Field -->
+        <div class="form-group">
+            <label for="reportID">Report ID</label>
+            <input type="text" id="reportID" readonly />
+        </div>
+
+        <!-- Buttons for Actions -->
+        <button id="remindButton" class="btn btn-primary" onclick="requestToRemind()">Request to Remind</button>
+        <button id="clearButton" class="btn btn-primary" onclick="requestToClear()">Request to Clear</button>
+    </div>
+</div>
+
+<!-- Clearing Reasons Modal -->
+<div id="clearingReasonsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeClearingReasonsModal()">&times;</span>
+        <h2>Clearing Reasons</h2>
+
+        <!-- Client Name Field (Auto-populated) -->
+        <div class="form-group">
+            <label for="clearingClientName">Client Name</label>
+            <input type="text" id="clearingClientName" readonly />
+        </div>
+
+        <!-- Reason for Clearing Dropdown -->
+        <div class="form-group">
+            <label for="clearingReason">Reason for Clearing</label>
+            <select id="clearingReason">
+                <option value="It is online">It is online</option>
+                <option value="It is perfect">It is perfect</option>
+                <option value="No reason">No reason</option>
+            </select>
+        </div>
+
+        <!-- Submit Button -->
+        <button class="btn btn-primary" onclick="submitClearRequest()">Submit</button>
+    </div>
+</div>
+
+<script>
+    // Open Add Reason Modal
+    function openAddReasonModal() {
+        document.getElementById("addReasonModal").style.display = "block";
+    }
+    
+    // Close Add Reason Modal
+    function closeAddReasonModal() {
+        document.getElementById("addReasonModal").style.display = "none";
+    }
+    
+    // Open Submit Issue Form Modal
+    function openSubmitIssueForm(button, clientName) {
+        document.getElementById("clientName").value = clientName;
+
+        // Fetch the client data (including client_id and departments)
+        fetch(`/get_client_data?client_registration_number=${clientName}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.client_id) {
+                    document.getElementById("referenceId").value = data.client_id;
+
+                    // Populate the departments dropdown
+                    const departmentSelect = document.getElementById("departmentName");
+                    departmentSelect.innerHTML = '<option value="" disabled selected>Select Department</option>'; 
+
+                    data.departments.forEach(department => {
+                        const option = document.createElement("option");
+                        option.value = department;
+                        option.textContent = department;
+                        departmentSelect.appendChild(option);
+                    });
+
+                    // Clear cameras initially
+                    document.getElementById("cameraSelect").innerHTML = '<option value="" disabled selected>Select Camera</option>';
+                } else {
+                    console.error('Client data not found:', data.error);
+                }
+            })
+            .catch(error => console.error('Error fetching client data:', error));
+
+        document.getElementById("submitIssueModal").style.display = "block";
+    }
+
+    // Event listener to fetch cameras when department changes
+    document.getElementById("departmentName").addEventListener("change", function () {
+        const selectedDepartment = this.value;
+        const clientName = document.getElementById("clientName").value;
+
+        fetch(`/get_cameras_by_department?client_registration_number=${clientName}&department=${selectedDepartment}`)
+            .then(response => response.json())
+            .then(data => {
+                const cameraSelect = document.getElementById("cameraSelect");
+                cameraSelect.innerHTML = '<option value="" disabled selected>Select Camera</option>'; 
+
+                data.cameras.forEach(camera => {
+                    const option = document.createElement("option");
+                    option.value = camera;
+                    option.textContent = camera;
+                    cameraSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching cameras:', error));
+    });
+
+
+    // Close Submit Issue Modal
+    function closeSubmitIssueModal() {
+        const modal = document.getElementById("submitIssueModal");
+        modal.style.display = "none"; // Hide the modal
+    }
+    
+    // Listen for changes on the camera issue category dropdown
+    document.getElementById('cameraIssueCategory').addEventListener('change', function() {
+        var selectedCategory = this.value;
+    
+        // Fetch the camera issue statements based on the selected category
+        fetch(`/get_camera_issue_statements?category=${selectedCategory}`)
+            .then(response => response.json())
+            .then(data => {
+                // Get the camera issue statement dropdown
+                const statementSelect = document.getElementById('cameraIssueStatement');
+    
+                // Clear existing options
+                statementSelect.innerHTML = '<option value="" disabled selected>Select Statement</option>';
+    
+                // Populate the dropdown with new options
+                data.forEach(function(statement) {
+                    const option = document.createElement("option");
+                    option.value = statement;
+                    option.textContent = statement;
+                    statementSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching statements:', error));
+    });
+    
+    document.getElementById('cameraIssueStatement').addEventListener('change', function() {
+    // Update the Final Report Statement text area with the selected statement
+    const selectedStatement = this.value;
+    document.getElementById('finalreportstatement').value = selectedStatement;
+    console.log("Final Report Statement Updated:", selectedStatement);  // Debug log
+});
+    
+    // Submit Issue Form function
+    function submitIssueForm() {
+        const clientName = document.getElementById("clientName").value;
+        const referenceId = document.getElementById("referenceId").value;
+        const departmentName = document.getElementById("departmentName").value;
+        
+        // Handle multi-select 'Camera' field by getting all selected values
+        const cameraSelect = document.getElementById("cameraSelect");
+        const selectedCameras = Array.from(cameraSelect.selectedOptions).map(option => option.value);  // This creates an array of selected camera values
+
+        const cameraIssueCategory = document.getElementById("cameraIssueCategory").value;
+        const cameraIssueStatement = document.getElementById("cameraIssueStatement").value;
+        const finalReportStatement = document.getElementById("finalreportstatement").value;
+        const attachment = document.getElementById("attachment").files[0];
+
+    // Debugging log to check form data before submission
+    console.log("Submitting the following data:");
+    console.log("clientName:", clientName);
+    console.log("referenceId:", referenceId);
+    console.log("departmentName:", departmentName);
+    console.log("selectedCameras:", selectedCameras);
+    console.log("cameraIssueCategory:", cameraIssueCategory);
+    console.log("cameraIssueStatement:", cameraIssueStatement);
+    console.log("finalReportStatement:", finalReportStatement);  // This is the important one
+
+    // Proceed with the rest of the form submission
+    const formData = new FormData();
+        formData.append("clientName", clientName);
+        formData.append("referenceId", referenceId);
+        formData.append("departmentName", departmentName);
+        formData.append("cameraSelect", JSON.stringify(selectedCameras));
+        formData.append("cameraIssueCategory", cameraIssueCategory);
+        formData.append("cameraIssueStatement", cameraIssueStatement);
+        formData.append("finalReportStatement", finalReportStatement);
+        if (attachment) formData.append("attachment", attachment);
+
+    // Check FormData contents before submitting
+    for (var pair of formData.entries()) {
+    console.log(pair[0]+ ': ' + pair[1]);
+    }
+
+    // Submit the form via AJAX
+    fetch('/submit_camera_issue', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Issue submitted successfully!");
+            closeSubmitIssueModal(); // Close the modal after success
+        } else {
+            alert("Error submitting issue: " + data.error);
+        }
+    })
+    .catch(error => console.error('Error submitting issue:', error));
+}
+
+// Open Action Form Modal
+function openActionForm(clientId,cameraName) {
+    
+    document.getElementById("reportID").value = clientId;
+    document.getElementById("actionCameraName").value = cameraName;
+    // Fetch client data (including CR Status, Reminder Count, etc.)
+    fetch(`/get_client_cr_status?client_id=${encodeURIComponent(clientId)}&camera_name=${encodeURIComponent(cameraName)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Populate CR Status in the form
+                document.getElementById("crStatus").value = data.crStatus;
+
+                // Populate Reminder Count in the form
+                document.getElementById("reminderCount").value = data.reminderCount;
+                document.getElementById("actionClientName").value = data.clientName;
+                document.getElementById("actionCameraName").value = data.cameraName;
+
+                // Enable/Disable buttons based on the CR Status and Reminder Count
+                const remindButton = document.getElementById('remindButton');
+                const clearButton = document.getElementById('clearButton');
+
+                remindButton.disabled = data.remindButtonDisabled;
+                clearButton.disabled = data.clearButtonDisabled;
+
+                // Optionally, display messages for disabled buttons
+                if (data.remindButtonDisabled) {
+                    console.log("Request to Remind button is disabled.");
+                }
+
+                if (data.clearButtonDisabled) {
+                    console.log("Request to Clear button is disabled.");
+                }
+            } else {
+                alert("Failed to retrieve CR Status.");
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching client data:', error);
+            alert("An error occurred while fetching client data.");
+        });
+
+    document.getElementById("actionModal").style.display = "block";
+}
+
+function closeActionModal() {
+    document.getElementById("actionModal").style.display = "none";
+}
+
+// Function to request a reminder
+function requestToRemind() {
+    const reportID = document.getElementById("reportID").value;
+    // Send request to remind via AJAX
+    fetch('/request_to_remind', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'reportID=' + encodeURIComponent(reportID)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                closeActionModal();  // Close the modal after the action
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Function to request to clear
+/* function requestToClear() {
+    const reportID = document.getElementById("reportID").value;
+    // Send request to clear via AJAX
+    fetch('/request_to_clear', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'reportID=' + encodeURIComponent(reportID)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                closeActionModal();  // Close the modal after the action
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}*/
+
+    // Keyword Search for Camera Issue Statements
+    document.getElementById('cameraIssueSearch').addEventListener('input', function() {
+        var searchQuery = this.value.trim();  // Get user input
+
+        if (searchQuery.length < 2) return;  // Minimum 2 characters required to search
+
+        fetch(`/get_sentences_for_camera_issue?word=${encodeURIComponent(searchQuery)}`)
+            .then(response => response.json())
+            .then(data => {
+                const statementSelect = document.getElementById('cameraIssueStatement');
+
+                // Clear existing options
+                statementSelect.innerHTML = '<option value="" disabled selected>Select Statement</option>';
+
+                // Populate dropdown with search results
+                data.forEach(statement => {
+                    const option = document.createElement("option");
+                    option.value = statement;
+                    option.textContent = statement;
+                    statementSelect.appendChild(option);
+                });
+
+                // Auto-select first result if available
+                if (data.length > 0) {
+                    statementSelect.selectedIndex = 1;
+                    document.getElementById('finalreportstatement').value = data[0];  // Autofill Final Report
+                    autocorrectSentence(data[0]);  // Auto-correct selected statement
+                }
+            })
+            .catch(error => console.error('Error fetching statements:', error));
+    });
+
+    // When a user selects a statement, trigger grammar correction
+    document.getElementById('cameraIssueStatement').addEventListener('change', function() {
+        var selectedStatement = this.value;
+
+        // Autofill the Final Report Statement field
+        document.getElementById('finalreportstatement').value = selectedStatement;
+
+        // Call grammar correction function
+        autocorrectSentence(selectedStatement);
+    });
+
+    // Function to send statement for AI grammar correction
+    function autocorrectSentence(statement) {
+        fetch('/autocorrect_sentence_for_camera_issue', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sentence: statement })  // Send statement for correction
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.corrected_sentence) {
+                document.getElementById('finalreportstatement').value = data.corrected_sentence;  // Update Final Report
+            }
+        })
+        .catch(error => console.error('Error correcting sentence:', error));
+    }
+
+   // Open Clearing Reasons Modal
+function openClearingReasonsModal() {
+    // Get Client Name from the main modal
+    const clientName = document.getElementById("actionClientName").value;
+    
+    // Set Client Name in the Clearing Reasons Modal
+    document.getElementById("clearingClientName").value = clientName;
+    
+    // Show the Clearing Reasons Modal
+    document.getElementById("clearingReasonsModal").style.display = "block";
+}
+
+// Close Clearing Reasons Modal
+function closeClearingReasonsModal() {
+    document.getElementById("clearingReasonsModal").style.display = "none";
+}
+
+// Modify Request to Clear Button to Open the Clearing Reasons Form
+function requestToClear() {
+    openClearingReasonsModal(); // Open Clearing Reasons Modal
+}
+
+// Submit Clear Request with Selected Reason
+function submitClearRequest() {
+    const reportID = document.getElementById("reportID").value;
+    const clearingReason = document.getElementById("clearingReason").value;
+    const clientName = document.getElementById("clearingClientName").value; // Get Client Name
+
+    fetch('/request_to_clear', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'reportID=' + encodeURIComponent(reportID) +
+              '&clearingReason=' + encodeURIComponent(clearingReason) +
+              '&clientName=' + encodeURIComponent(clientName)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+            closeClearingReasonsModal(); // Close Clearing Reasons Modal
+            closeActionModal();  // Close Main Modal
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+</script>
+
+{% endblock %}

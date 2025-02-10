@@ -1,1 +1,504 @@
+{% extends "menu_bar.html" %}
 
+{% block title %}Cancellation Reasons{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('settings_reportform') }}">Back to Report Form Home Page</a>
+<div class="container2">
+    <h1>Camera Issues View (Auditor View)</h1>
+
+    <button class="add-button" onclick="openAddReasonModal()">+</button>
+    <br><br>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            <script>
+                setTimeout(() => {
+                    const flashElements = document.querySelectorAll('.flashes .flash');
+                    flashElements.forEach(flash => flash.style.display = 'none');
+                }, 3000);
+            </script>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table to Display Cancellation Reasons -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Client Name</th>
+                    <th>File Name</th>
+                    <th>Final Report</th>
+                    <th>SUB Date</th>
+                    <th>CR Status</th>
+                    <th>Hold Upto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_records = cancellation_reasons|length %}
+                {% for reason in cancellation_reasons %}
+                <tr>
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td>{{ reason.client_name }}</td>
+                    <td>{{ reason.file_name }}</td>
+                    <td>{{ reason.final_report }}</td>
+                    <td>{{ reason.sub_date }}</td>
+                    <td>{{ reason.cr_status }}</td>
+                    <td>{{ reason.hold_upto }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Reason Modal -->
+    <div id="addReasonModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAddReasonModal()">&times;</span>
+            <h2>Add Reason</h2>
+
+            <!-- PC Title Text Field -->
+            <div class="form-group">
+                <label for="pcTitle">PC Title</label>
+                <input type="text" id="pcTitle" placeholder="Enter PC Title" value="{{ pc_title if pc_title else '' }}" disabled />
+            </div>
+
+            <!-- Table inside the modal to list clients -->
+            <table id="reasonTable">
+                <thead>
+                    <tr>
+                        <th>Client Name</th>
+                        <th>Submit Issue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients_list %}
+                    <tr>
+                        <td>{{ client.name }}</td>
+                        <td><button class="submit-issue" onclick="openSubmitIssueForm(this, '{{ client.name }}')">Submit Issue</button></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <br>
+            <button onclick="saveReason()">Save</button>
+        </div>
+    </div>
+
+    <!-- Submit Issue Form Modal -->
+    <div id="submitIssueModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeSubmitIssueModal()">&times;</span>
+            <h2>Submit Issue Form</h2>
+
+            <!-- Client Name Field -->
+            <div class="form-group">
+                <label for="clientName">Client Name</label>
+                <input type="text" id="clientName" placeholder="Client Name" readonly />
+            </div>
+
+            <!-- Reference ID Field -->
+            <div class="form-group">
+                <label for="referenceId">Reference ID</label>
+                <input type="text" id="referenceId" placeholder="Enter Reference ID" readonly />
+            </div>
+
+            <!-- Department Name (Multiselect) -->
+            <div class="form-group">
+                <label for="departmentName">Department Name</label>
+                <select id="departmentName" multiple size="5" style="width: 100%; max-height: 150px; overflow-y: auto;">
+                    <!-- Options will be added dynamically here -->
+                </select>
+            </div>
+
+            <!-- Camera Issue Type (Dropdown) -->
+            <div class="form-group">
+                <label for="cameraIssueType">Camera Issue Type</label>
+                <select id="cameraIssueType">
+                    <option value="Lens Issue">Lens Issue</option>
+                    <option value="Battery Issue">Battery Issue</option>
+                    <option value="Storage Issue">Storage Issue</option>
+                    <option value="Overheating">Overheating</option>
+                </select>
+            </div>
+
+            <!-- Camera Numbers Dropdown -->
+            <div class="form-group">
+                <label for="cameraNumbers">Camera Numbers</label>
+                <select id="cameraNumbers" multiple size="5" style="width: 100%; max-height: 150px; overflow-y: auto;">
+                    <option value="1">1: Main Gate</option>
+                    <option value="2">2: Back Gate</option>
+                    <option value="4">3: QC Area</option>
+                    <option value="5">4: Moulding Area</option>
+                </select>
+            </div>
+
+            <!-- Report Statement Field (Initially Hidden) -->
+            <div class="form-group" id="reportStatementContainer" style="display: none;">
+                <label for="reportStatement">Report Statement</label>
+                <select id="reportStatement" style="width: 100%; max-height: 150px; overflow-y: auto;">
+                    <option value="" disabled selected>Select the Incidence Statement</option>
+                    <!-- Options will be added dynamically here -->
+                </select>
+            </div>
+
+            <!-- Attachment Field -->
+            <div class="form-group">
+                <label for="attachment">Attachment</label>
+                <input type="file" id="attachment" />
+            </div>
+
+            <!-- Final Report Statement Field (Always Visible) -->
+            <div class="form-group" id="finalReportStatementContainer">
+                <label for="finalReportStatement">Final Report Statement</label>
+                <input type="text" id="finalReportStatement" placeholder="Enter Final Report Statement" readonly />
+                <button type="button" id="finalReportStatementButton" onclick="openFinalReportModal()">+</button>
+            </div>
+
+            <br>
+            <button onclick="submitIssueForm()">Submit Issue</button>
+        </div>
+    </div>
+
+    <!-- New Modal for Final Report Statement -->
+    <div id="modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <!-- Close Button -->
+            <span class="close-button" id="close_modal">&times;</span>
+            <h2>Add Details</h2>
+
+            <!-- Report Statement Text Field -->
+            <div class="form-group">
+                <label for="report_statement">Report Statement</label>
+                <input type="text" id="report_statement" name="report_statement" placeholder="Enter Report Statement">
+            </div>
+
+            <!-- Table inside the modal -->
+            <table id="modal_table">
+                <tr>
+                    <td><label for="n_text">[n]</label></td>
+                    <td><input type="number" id="n_text" name="n_text" placeholder="Enter N-Text" min="1" max="10"></td>
+                </tr>
+                <tr>
+                    <td><label for="human_entity">[Entity]</label></td>
+                    <td>
+                        <select id="human_entity" name="human_entity">
+                            <option value="">Select...</option>
+                            <!-- Dynamically populate the dropdown with entity titles -->
+                            {% for title in entity_titles %}
+                                <option value="{{ title }}">{{ title }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="mark">[mark]</label></td>
+                    <td>
+                        <select id="mark" name="mark">
+                            <option value="">Select...</option>
+                            <option value="Red Arrow">Red Arrow</option>
+                            <option value="Yellow Pointer">Yellow Pointer</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Confirmation Checkbox below the table, but outside the table -->
+            <div id="confirmation_section">
+                <label for="confirmation_checkbox">
+                    <input type="checkbox" id="confirmation_checkbox" name="confirmation_checkbox">
+                    I confirm that the details are correct.
+                </label>
+            </div>
+            
+            <button type="button" id="save_modal" onclick="saveModalDetails()">Save</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Open Add Reason Modal
+function openAddReasonModal() {
+    document.getElementById("addReasonModal").style.display = "block";
+}
+
+// Close Add Reason Modal
+function closeAddReasonModal() {
+    document.getElementById("addReasonModal").style.display = "none";
+}
+
+// Open Submit Issue Form Modal
+function openSubmitIssueForm(button, clientName) {
+    document.getElementById("clientName").value = clientName;
+
+    // Fetch the client data (including client_id, departments, and camera options)
+    fetch(`/get_client_data?client_registration_number=${clientName}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.client_id) {
+                // Set the client ID to the Reference ID field
+                document.getElementById("referenceId").value = data.client_id;
+
+                // Populate the departments dropdown
+                const departmentSelect = document.getElementById("departmentName");
+                departmentSelect.innerHTML = ''; // Clear existing options
+
+                data.departments.forEach(department => {
+                    const option = document.createElement("option");
+                    option.value = department;
+                    option.textContent = department;
+                    departmentSelect.appendChild(option);
+                });
+
+                // Show report statement dropdown when conditions are met
+                handleDropdownVisibility(clientName);
+            } else {
+                console.error('Client data not found:', data.error);
+            }
+        })
+        .catch(error => console.error('Error fetching client data:', error));
+
+    document.getElementById("submitIssueModal").style.display = "block";
+}
+
+// Close Submit Issue Modal
+function closeSubmitIssueModal() {
+    document.getElementById("submitIssueModal").style.display = "none";
+}
+
+// Function to open the Final Report Statement modal
+function openFinalReportModal() {
+    const reportStatementSelect = document.getElementById("reportStatement");
+    const selectedReportStatement = reportStatementSelect.value;
+
+    if (selectedReportStatement) {
+        // Pre-fill the Final Report Input field with the selected value from the Report Statement dropdown
+        document.getElementById("finalReportInput").value = selectedReportStatement;
+    }
+
+    // Show the modal
+    document.getElementById("finalReportModal").style.display = "block";
+}
+
+// Function to close the Final Report Statement modal
+function closeFinalReportModal() {
+    document.getElementById("finalReportModal").style.display = "none";
+}
+
+// Function to save the Final Report Statement and update the field
+function saveFinalReportStatement() {
+    const finalReportStatement = document.getElementById("finalReportInput").value;
+    
+    if (finalReportStatement) {
+        // Set the Final Report Statement field with the value entered in the modal
+        document.getElementById("finalReportStatement").value = finalReportStatement;
+
+        // Close the modal
+        closeFinalReportModal();
+    } else {
+        alert("Please enter a Final Report Statement.");
+    }
+}
+
+// Handle dropdown visibility and fetching report statements
+function handleDropdownVisibility(clientName) {
+    const departmentSelect = document.getElementById("departmentName");
+    const cameraSelect = document.getElementById("cameraNumbers");
+    const reportStatementContainer = document.getElementById("reportStatementContainer");
+    const reportStatementSelect = document.getElementById("reportStatement");
+    const finalReportStatementField = document.getElementById("finalReportStatement");
+
+    // Function to update the report statement dropdown and show the final report statement field
+    function updateReportStatementDropdown() {
+        // Only update the report statement dropdown if it still has the default value
+        if (departmentSelect.selectedOptions.length > 0 && cameraSelect.selectedOptions.length > 0) {
+            // Check if the default "Select the Incidence Statement" is still the selected option
+            if (reportStatementSelect.value === "" || reportStatementSelect.value === null) {
+                // Fetch the report statements only if no option has been selected yet
+                fetch(`/get_report_statements?client_name=${clientName}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Clear existing options but keep the default one
+                        reportStatementSelect.innerHTML = '<option value="" disabled selected>Select the Incidence Statement</option>';
+
+                        // Populate with fetched options
+                        data.forEach(statement => {
+                            const option = document.createElement("option");
+                            option.value = statement;
+                            option.textContent = statement;
+                            reportStatementSelect.appendChild(option);
+                        });
+
+                        // Show the report statement dropdown
+                        reportStatementContainer.style.display = "block";
+                    })
+                    .catch(error => console.error('Error fetching report statements:', error));
+            }
+        } else {
+            // Hide the report statement dropdown if conditions are not met
+            reportStatementContainer.style.display = "none";
+        }
+    }
+
+    // Add event listener to update the Final Report Statement field when a report statement is selected
+    reportStatementSelect.addEventListener('change', function() {
+        const selectedReportStatement = reportStatementSelect.value;
+        if (selectedReportStatement) {
+            // Update the Final Report Statement field with the selected report statement
+            finalReportStatementField.value = selectedReportStatement;
+        }
+    });
+
+    departmentSelect.addEventListener("change", updateReportStatementDropdown);
+    cameraSelect.addEventListener("change", updateReportStatementDropdown);
+}
+
+// Function to open the modal
+function openFinalReportModal() {
+    document.getElementById("modal").style.display = "block";
+}
+
+// Function to close the modal
+document.getElementById("close_modal").addEventListener("click", function() {
+    document.getElementById("modal").style.display = "none";
+});
+
+// Save the modal details (you can modify this function as per your requirements)
+function saveModalDetails() {
+    const nText = document.getElementById("n_text").value;
+    const humanEntity = document.getElementById("human_entity").value;
+    const mark = document.getElementById("mark").value;
+
+    console.log({ nText, humanEntity, mark });
+
+    // Close the modal after saving details
+    document.getElementById("modal").style.display = "none";
+}
+
+ // Modal Functionality
+ const modal = document.getElementById('modal');
+    const addButton = document.getElementById('add_modal');
+    const closeButton = document.getElementById('close_modal');
+    const saveButton = document.getElementById('save_modal');
+    const incidentMessageTextArea = document.getElementById('report_statement');
+
+    addButton.addEventListener('click', () => {
+        modal.style.display = 'block';
+    });
+
+    closeButton.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    saveButton.addEventListener('click', () => {
+        const nText = document.getElementById('n_text').value; // Input value for [n]
+        const humanEntity = document.getElementById('human_entity').value; // Dropdown value for [human-entity-p]
+        const mark = document.getElementById('mark').value; // Dropdown value for [mark]
+
+        if (nText && humanEntity && mark) {
+            // Extract the current message
+            const currentMessage = incidentMessageTextArea.value;
+
+            // Replace the first occurrence of the placeholders with the updated values
+            const updatedDynamicPart = `[${nText}][${humanEntity}][${mark}]`;
+            const updatedMessage = currentMessage.replace(/\[.*?\]\[.*?\]\[.*?\]/, updatedDynamicPart);
+
+            // Update the textarea with the new message
+            incidentMessageTextArea.value = updatedMessage;
+
+            // Close the modal
+            modal.style.display = 'none';
+        } else {
+            alert('Please fill in all fields in the modal.');
+        }
+    });
+
+    // Function to open the modal and pre-fill the Report Statement field
+function openFinalReportModal() {
+    const finalReportStatement = document.getElementById("finalReportStatement").value;
+    
+    // Check if the Final Report Statement is not the default value
+    if (finalReportStatement !== 'Enter Final Report Statement') {
+        // Set the Report Statement field in the modal with the Final Report Statement value
+        document.getElementById("report_statement").value = finalReportStatement;
+    }
+
+    // Fetch the distinct Entity Titles from the backend
+    fetch('/get_entity_titles')  // This will call the Flask endpoint
+        .then(response => response.json())
+        .then(entityTitles => {
+            const entitySelect = document.getElementById("human_entity");
+            entitySelect.innerHTML = '';  // Clear the existing options
+            
+            // Add a default "Select..." option
+            const defaultOption = document.createElement("option");
+            defaultOption.value = "";
+            defaultOption.textContent = "Select...";
+            entitySelect.appendChild(defaultOption);
+
+            // Populate the dropdown with the distinct entity titles
+            entityTitles.forEach(title => {
+                const option = document.createElement("option");
+                option.value = title;
+                option.textContent = title;
+                entitySelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching entity titles:', error));
+
+    // Display the modal
+    document.getElementById("modal").style.display = "block";
+}
+
+// Function to close the modal
+document.getElementById("close_modal").addEventListener("click", function() {
+    document.getElementById("modal").style.display = "none";
+});
+
+// Save the modal details (you can modify this function as per your requirements)
+function saveModalDetails() {
+    const reportStatement = document.getElementById("report_statement").value;
+    const nText = document.getElementById("n_text").value;
+    const humanEntity = document.getElementById("human_entity").value;
+    const mark = document.getElementById("mark").value;
+
+    console.log({ reportStatement, nText, humanEntity, mark });
+
+    // Close the modal after saving details
+    document.getElementById("modal").style.display = "none";
+}
+
+// Submit the Issue Form
+function submitIssueForm() {
+    const clientName = document.getElementById("clientName").value;
+    const referenceId = document.getElementById("referenceId").value;
+    const departmentNames = Array.from(document.getElementById("departmentName").selectedOptions).map(option => option.value);
+    const cameraNumbers = Array.from(document.getElementById("cameraNumbers").selectedOptions).map(option => option.value);
+    const cameraIssueType = document.getElementById("cameraIssueType").value;
+    const reportStatement = document.getElementById("reportStatement").value;
+    const finalReportStatement = document.getElementById("finalReportStatement").value;  // Get the value from the Final Report Statement field
+    const attachment = document.getElementById("attachment").files[0];
+
+    console.log({
+        clientName, referenceId, departmentNames, cameraNumbers, cameraIssueType, attachment, reportStatement, finalReportStatement
+    });
+
+    // You can now submit this data to the server as needed
+}
+</script>
+
+{% endblock %}
