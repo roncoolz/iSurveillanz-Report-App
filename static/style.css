@@ -1,0 +1,2604 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+:root {
+    --gray: #f5f5f5; /* Light grey */
+    --grey: #f1f0f6;
+    --dark-grey: #8d8d8d;
+    --light: #ffffff; /* White */
+    --dark: #333333; /* Dark grey */
+    --primary: #4a90e2; /* Blue */
+    --primary-hover: #2c80b4; /* Darker blue for hover */
+    --logout-color: #d9534f; /* Red color for logout */
+    --logout-hover: #c12e2b; /* Darker red for logout hover */
+    --border: #ccc; /* Border color */
+    --blue: #1775f1;
+    --light-blue: #d0e4ff;
+    --dark-blue: #0c5fcd;
+    --indigo: #6610f2;
+    --purple: #6f42c1;
+    --pink: #e83e8c;
+    --red: #fc3b56;
+    --orange: #fd7e14;
+    --yellow: #ffdd00;
+    --green: #28a745;
+    --green2: #81d43a;
+    --light-green: #e3ffcb;
+    --teal: #20c997;
+    --cyan: #17a2b8;
+    --white: #fff;
+    --gray: #6c757d;
+    --gray-dark: #343a40;
+    --secondary: #6c757d;
+    --success: #28a745;
+    --info: #17a2b8;
+    --warning: #ffc107;
+    --danger: #dc3545;
+}
+
+body {
+    font-family: 'Poppins', sans-serif; /* Use a modern font */
+    /*background-image: url("body-BG.png");*/
+    /*background: rgba(66, 58, 179, 0.8);*/
+    background-repeat: repeat;
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: hue;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    /*background: #274c77;*/
+    background: hsla(208, 33%, 21%, 1);
+
+    /*background: linear-gradient(30deg, hsla(208, 33%, 21%, 1) 0%, hsla(211, 36%, 46%, 1) 100%);
+
+    background: -moz-linear-gradient(90deg, hsla(208, 33%, 21%, 1) 0%, hsla(211, 36%, 46%, 1) 100%);
+
+    background: -webkit-linear-gradient(90deg, hsla(208, 33%, 21%, 1) 0%, hsla(211, 36%, 46%, 1) 100%);*/
+
+    color: white;
+}
+
+.navbar {
+    width: 100%;
+    background-color: rgba(66, 58, 179, 0.8);
+    padding: 10px 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.navbar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.navbar li {
+    position: relative;
+    margin: 0 20px;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    transition: color 0.3s; /* Smooth color transition */
+}
+
+.navbar a:hover {
+    color: #bb9d23; /* Change link color on hover */
+}
+
+.dropdown-content {
+    display: none; /* Hide dropdown by default */
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    right: 0;
+    border-radius: 4px;
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth transition */
+    opacity: 0; /* Start invisible */
+    visibility: hidden; /* Prevent mouse interaction when hidden */
+    transform: translateY(10px); /* Slightly move down for smooth effect */
+}
+
+.dropdown:hover .dropdown-content {
+    display: block; /* Show dropdown on hover */
+    opacity: 1; /* Fade in */
+    visibility: visible; /* Allow mouse interaction */
+    transform: translateY(0); /* Reset position for smooth slide-up effect */
+}
+
+.dropdown-content a {
+    color: black; 
+    padding: 12px 16px; 
+    text-decoration: none; 
+    display: block; 
+    transition: background-color 0.3s; /* Smooth background transition */
+}
+
+.dropdown-content a:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* Light hover effect */
+}
+
+/* Table styling */
+.container2 {
+    max-width: 100%; /* Adjust the max-width as needed */
+    width: 1500px; /* Ensures container adapts to smaller screens */
+    margin: 0 auto; /* Centers the container */
+    padding: 20px; /* Adds padding inside the container */
+    background-color: black; /* Optional background color */
+    border-radius: 8px; /* Optional rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for depth */
+    box-sizing: border-box; /* Ensures padding is included in total width/height */
+}
+
+/*Form styling*/
+.container1 {
+    /*background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent container */
+    background-color: #263341;
+    padding: 40px;
+    border-radius: 20px; /* Adjusted border radius */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    align-items: center;
+    width: 100%;
+}
+
+input {
+    padding: 10px;
+    width: 20%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+input:focus {
+    border-color: #423ab3; /* Change border color on focus */
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 5px rgba(66, 58, 179, 0.5); /* Add subtle glow */
+}
+
+button {
+    padding: 8px 16px;
+    /*background-color: #423ab3;*/
+    background-color: #274c77;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s; /* Smooth background transition */
+    font-weight: 500;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #016e11;
+}
+
+h1 {
+    color: white; 
+    /*background-image: linear-gradient(45deg, #Bd2727 20%, #10A2A4 47%, #F4982D 67%, #E9522A 82%); 
+    background-clip: text; 
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent; */
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+h2 {
+    color: white;
+}
+
+/* Styling for labels */
+label {
+    font-weight: bold;
+    /*color: #423ab3; /* Same color as the button for consistency */
+    color: white;
+    font-size: 14px; /* Adjust size as needed */
+    font-display: var(--red);
+    margin-bottom: 5px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    /*margin-left: 30px;*/
+    text-align: left;
+    transition: color 0.3s, transform 0.3s;
+}
+
+/* Hover effect for labels */
+label:hover {
+    /*color: rgb(88, 56, 250);*/
+    color: #dee2e6;
+    transform: scale(1.05);
+}
+
+/* File upload styles */
+.form .file-upload-box {
+    margin-top: 20px;
+    border-radius: 50px;
+    padding: 2px;
+    font-size: 15px;
+}
+
+/* File upload box label styles */
+.form .file-upload-box label {
+    color: white;
+    display: block;
+    margin-bottom: 5px;
+    transition: color 0.3s, transform 0.3s;
+}
+
+/* Hover effect for the label */
+.form .file-upload-box label:hover {
+    /*color: rgb(88, 56, 250);*/
+    color: #dee2e6;
+    transform: scale(1.05);
+}
+
+/* Styling for the file upload button */
+.form .file-upload-box input[type="file"]::-webkit-file-upload-button {
+    /*background: rgb(88, 56, 250);
+    color: #fff;*/
+    background: #274c77;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.form .file-upload-box input[type="file"]::-webkit-file-upload-button:hover {
+    background-color: #037815;
+}
+
+/* General styling for the input container */
+.input-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+/* Styling for the icons */
+.input-container i.fa-regular,
+.input-container i.fa-solid,
+.input-container i.fa-light,
+.input-container i.fa-thin {
+    position: absolute;
+    left: 10px; /* Move the icon outside to the left */
+    top: 50%; /* Center vertically */
+    font-size: 15px;
+    /*color: #423ab3;*/
+    -webkit-text-fill-color: #203c58;
+}
+
+/* Styling for input fields */
+.input-container input[type="text"],
+.input-container input[type="email"],
+.input-container input[type="tel"],
+.file-upload-box input[type="file"],
+.input-container input[type="password"] {
+    width: 100%;
+    padding: 10px 10px 10px 30px; /* Left padding to make space for the icon */
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #5c728b;
+    color: white;
+    -webkit-text-fill-color: #1a3f63;
+}
+
+/* Styling for labels inside the input container */
+.input-container label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Styling for the file-upload box */
+.file-upload-box {
+    margin-bottom: 15px;
+    position: relative;
+}
+
+/* Styling for file upload icon */
+.file-upload-box i.fa-solid {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    /*color: #423ab3;*/
+    color: white;
+    margin-top: 5px;
+}
+
+.file-upload-box input[type="file"] {
+    width: 100%;
+    padding: 10px 10px 10px 30px; /* Left padding to make space for the icon */
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #5c728b;
+    color: white;
+    -webkit-text-fill-color: #e9eff4;
+}
+
+
+/* Container for the table */
+.table-container {
+    max-height: 600px; /* Adjust this value as needed */
+    overflow-y: auto; /* Enables vertical scrolling */
+    border: 1px solid #ccc; /* Adds a border around the container */
+}
+
+/* Styling the table */
+table {
+    width: 100%;
+    border-collapse: collapse; /* Ensures the table borders are merged */
+    /*margin: 20px 0;*/
+    font-size: 16px;
+    text-align: left;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    /*background-color: #577B8D; /* White background for clarity */
+    border-radius: 10px; /* Rounded corners */
+    overflow: hidden; /* Ensures rounded corners apply */
+    table-layout: auto;
+    background: #1E201E;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 15px;
+    text-align: left; /* Aligns text to the left */
+}
+
+table th {
+    background-color: #03403b; /* Dark header background */
+    color: #fff; /* White text for contrast */
+    font-weight: 600;
+    padding: 12px 15px;
+    text-transform: uppercase; /* Uppercase for header */
+    letter-spacing: 0.05em; /* Slight spacing */
+}
+
+tr:hover {
+    background-color: #2c3034; /* Light blue background color on hover */
+    
+}
+
+/* Center the Sr No column */
+th:nth-child(1), td:nth-child(1) {
+    text-align: center; /* Center text in the Sr No column */
+}
+
+/* Center the Action button */
+th:nth-child(7), td:nth-child(7) {
+    text-align: center; /* Center the Action column header */
+    width: 250px;
+}
+
+/* Center the View button */
+th:nth-child(6), td:nth-child(6) {
+    text-align: center; /* Center the View Column header */
+}
+
+/* Center the View button */
+th:nth-child(5), td:nth-child(5) {
+    text-align: center; /* Center the View Column header */
+}
+
+th:nth-child(11), td:nth-child(11) {
+    text-align: center; /* Center the View Column header */
+}
+
+/* Optional: Scrollbar styling */
+.table-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Flash Messages */
+.flashes {
+    margin: 20px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* Flash message styles */
+.flash {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px; /* Rounded corners */
+    font-size: 16px;
+    font-weight: bold;
+    /*width: 100%; /* Ensures full width */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+}
+
+/* Success message styles */
+.flash.success {
+    background-color: #d4edda; /* Light green background */
+    color: #155724; /* Dark green text */
+    border: 1px solid #c3e6cb; /* Soft green border */
+}
+
+/* Error message styles */
+.flash.error {
+    background-color: #f8d7da; /* Light red background */
+    color: #721c24; /* Dark red text */
+    border: 1px solid #f5c6cb; /* Soft red border */
+}
+
+/* General animation for flash messages */
+.flash {
+    animation: fadeInOut 4s ease-in-out; /* Fade in and out effect */
+}
+
+/*------ Joining Form ------*/
+
+.container4 {
+    background-image: url('/static/background_design7.svg');
+    background-size: 90%; /* Ensures the image covers the entire container */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    background-position: center; /* Centers the image */
+    background-attachment: fixed; /* Keeps the image fixed while scrolling */
+    background-color: rgba(27, 26, 26, 0.5); /* Slightly transparent container */
+    padding: 40px; /* Increased padding for more white space */
+    border-radius: 20px; /* Rounded corners */
+    border: 20px solid transparent; /* Add a white border with 10px size */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    text-align: center;
+    width: 100%;
+    max-width: 1200px;
+    height: 600px; /* Fixed height for scrolling */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align content at the top */
+    overflow-y: scroll; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+
+    /* Apply background blur */
+    backdrop-filter: blur(10px); /* Adjust the blur level (10px here) */
+    -webkit-backdrop-filter: blur(10px); /* For Safari */
+}
+
+/* Ensures the background image scales properly inside the container */
+/*.container4::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/static/background_design.svg');
+    background-size: 500px; /* Make sure the image covers the entire container */
+    /*background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    /*z-index: -1; /* Sends the background image to the back */
+/*}*/
+
+.JoinForm {
+    background-color: rgba(10, 10, 10, 0.5);
+    width: 1200px;
+    padding: 35px;
+    border-radius: 10px; /* Rounded corners */
+    overflow: hidden; /* Ensures content stays within rounded corners */
+}
+
+
+.section {
+    position: relative;
+    text-align: center; /* Center-align the content */
+    margin: 2rem 0; /* Space above and below the section */
+}
+
+.section::before {
+    position: absolute;
+    top: 50%; /* Center the line vertically */
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #ddd; /* Light gray line */
+    z-index: 0;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 1rem;
+    text-align: center;
+    padding: 10px; /* Space inside the background box */
+    border-radius: 6px; /* Rounded corners for the box */
+    /*background-color: rgba(57, 72, 91, 0.699); /* Background box color */
+    background-color: #5c728b;
+}
+
+.password-container {
+    position: relative;
+}
+
+.password-container .form-control {
+    padding-right: 40px; /* Leave space for the eye button */
+}
+
+.password-container .toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #666;
+}
+
+
+
+.input-group-text {
+    cursor: pointer;
+}
+
+/* Container to position icon inside the input field */
+.input-with-icon {
+    position: relative;
+}
+
+/* Styling for the icon inside the input */
+.input-with-icon i {
+    position: absolute;
+    left: 10px;  /* Adjust the left position to suit your design */
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;  /* Icon color */
+}
+
+/* Padding for the input to make room for the icon */
+.input-with-icon input {
+    padding-left: 35px;  /* Adjust to create space for the icon */
+}
+
+/* Container to position icon inside the input field */
+.input-with-icon2 {
+    position: relative;
+}
+
+/* Styling for the icon inside the input */
+.input-with-icon2 i {
+    position: absolute;
+    left: 10px;  /* Adjust the left position to suit your design */
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;  /* Icon color */
+}
+
+.input-with-icon2 select {
+    padding-left: 30px; /* Adjust for icon size */
+}
+
+/* Specific icon and input alignment */
+.section .row .col-md-6.d-flex {
+    display: flex;
+    align-items: center;  /* Vertically align icon and input */
+}
+
+.section .row .col-md-6 i {
+    margin-right: 10px;  /* Space between the icon and the input field */
+}
+
+/* File upload styles */
+.section .file-upload-box {
+    margin-top: 20px;
+    border-radius: 50px;
+    padding: 2px;
+    font-size: 15px;
+}
+
+/* Styling for the file upload button */
+.section .file-upload-box input[type="file"]::-webkit-file-upload-button {
+    background: rgb(88, 56, 250);
+    color: black;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.section .file-upload-box input[type="file"]::-webkit-file-upload-button:hover {
+    background-color: #12b92b;
+}
+
+.Add-btn {
+    background-color: rgba(53, 7, 64, 0.5); /* Green background */
+    color: white;
+    border: 2px solid #A888B5;
+    backdrop-filter: blur(10px); /* Apply blur */
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Custom styling for dropdown icons */
+.custom-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.custom-select {
+    width: 100%;
+    padding-left: 2.5rem; /* Space for the icon */
+    padding-right: 1rem;
+    font-size: 1rem;
+}
+
+.custom-select-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+}
+
+.custom-select-option {
+    display: flex;
+    align-items: center;
+}
+
+.custom-select-option i {
+    margin-right: 10px;
+}
+
+/* Styling for View Button */
+.view-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4f772d; /* Green background */
+    color: white;
+    font-size: 16px;
+    text-align: center;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none; /* Remove underline from the link */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover effect */
+.view-button:hover {
+    background-color: #4f772d; /* Darker green */
+    transform: scale(1.05); /* Slightly enlarge the button */
+}
+
+/* Focus effect */
+.view-button:focus {
+    outline: none; /* Remove default focus outline */
+    box-shadow: 0 0 0 2px rgba(72, 159, 72, 0.6); /* Green focus outline */
+}
+
+/* Disabled State (if needed) */
+.view-button:disabled {
+    background-color: #ccc; /* Light grey background */
+    cursor: not-allowed;
+}
+
+/* Style for disabled buttons */
+button:disabled {
+    background-color: #d3d3d3;  /* Light grey background for disabled button */
+    color: #a9a9a9;  /* Darker grey text */
+    cursor: not-allowed;  /* Change the cursor to indicate the button is not clickable */
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Black with transparency */
+    padding-top: 50px; /* Add padding to the top for modal content */
+    overflow: hidden; /* Disable scrolling */
+}
+
+
+/* Modal Content */
+.modal-content {
+    background-color: #584f4f;
+    margin: 5% auto;
+    padding: 30px;
+    border: 1px solid #888;
+    width: 60%;
+    max-width: 1200px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Animation for modal appearance */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Styling for the iframe for CV file */
+.modal-iframe {
+    display: block;
+    width: 100%; /* Full width of the modal */
+    height: 550px; /* Adjust height as needed */
+    border: none;
+    border-radius: 5px;
+}
+
+/* Close Button */
+.close-btn {
+    color: #aaa;
+    font-size: 25px;
+    font-weight: bold;
+    position: absolute;
+    top: -4px;
+    right: 10px;
+    transition: color 0.3s;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Style for the action buttons container */
+.action-buttons {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    justify-content: center; /* Center the buttons */
+}
+
+/* Style for individual buttons */
+.action-buttons button {
+    padding: -10px 20px; /* Add padding for a better click area */
+    font-size: 16px; /* Set font size */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Show pointer cursor on hover */
+    background-color: #6a00f4;
+    color: white;
+    transition: background-color 0.3s ease, transform 0.2s;
+    /*transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+
+/* Schedule Interview button */
+.action-buttons button:nth-child(1) {
+    background-color: rgba(53, 7, 64, 0.5); /* Green background */
+    color: white;
+    border: 2px solid #A888B5;
+    backdrop-filter: blur(10px); /* Apply blur */
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.action-buttons button:nth-child(1):hover {
+    background-color: #1f011d; /* Darker green on hover */
+}
+
+/* Cancel button */
+.action-buttons button:nth-child(2) {
+    background-color: rgba(53, 7, 64, 0.5);/* Purple background */
+    color: white;
+    border: 2px solid #A888B5;
+    backdrop-filter: blur(10px); /* Apply blur */
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.action-buttons button:nth-child(2):hover {
+    background-color: #1f011d; /* Darker red on hover */
+}
+
+/* Add Notes button */
+.action-buttons button:nth-child(3) {
+    background-color: rgba(53, 7, 64, 0.5);/* Purple background */
+    color: white;
+    border: 2px solid #A888B5;
+    backdrop-filter: blur(10px); /* Apply blur */
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.action-buttons button:nth-child(3):hover {
+    background-color: #1f011d; /* Darker blue on hover */
+}
+
+/* Add Notes button */
+.action-buttons button:nth-child(4) {
+    background-color: rgba(53, 7, 64, 0.5);/* Purple background */
+    color: white;
+    border: 2px solid #A888B5;
+    backdrop-filter: blur(10px); /* Apply blur */
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.action-buttons button:nth-child(4):hover {
+    background-color: #1f011d; /* Darker blue on hover */
+}
+
+.modal-content2 {
+    background-color: black;
+    margin: 5% auto;
+    padding: 30px;
+    border: 1px solid #888;
+    width: 60%;
+    max-width: 600px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal-content2 h2 {
+    text-align: center;
+    font-size: 30px;
+    font-weight: 600;
+    margin-bottom: 30px;
+}
+
+.modal-content2 .close {
+    cursor: pointer;
+    color: white;
+}
+
+/* scheduled_interviews -> Select interviews: Dropdown Styles */ 
+#interviewers {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Hover Effect for Dropdown */
+#interviewers:hover {
+    background-color: #f1f8ff; /* Light blue background */
+    border-color: #007bff; /* Highlighted border color */
+    cursor: pointer;
+}
+
+.datetime-input {
+    width: 100%; /* Full width of the container */
+    max-width: 300px; /* Set a maximum width */
+    padding: 10px; /* Add padding for a better look */
+    border: 1px solid #ccc; /* Add a border */
+    border-radius: 5px; /* Slightly rounded corners */
+    font-size: 16px; /* Font size for readability */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* Optional: Focus effect */
+.datetime-input:focus {
+    border-color: #6a00f4; /* Highlighted border on focus */
+    outline: none; /* Remove the default outline */
+    box-shadow: 0 0 5px rgba(106, 0, 244, 0.5); /* Add a subtle shadow */
+}
+
+/* Add Notes - Popup */
+/* Form Actions Container */
+.form-actions {
+    display: flex;
+    justify-content: center; /* Center align buttons */
+    gap: 10px; /* Add spacing between buttons */
+    margin-top: 20px; /* Add space above the buttons */
+}
+
+/* Button Styling */
+.form-actions button {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    padding: 10px 20px; /* Padding for a balanced button size */
+    font-size: 16px; /* Readable font size */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Slightly rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transitions for hover effect */
+}
+
+/* Hover Effect for Buttons */
+.form-actions button:hover {
+    background-color: #45a049; /* Darker green on hover */
+    transform: scale(1.05); /* Slightly enlarge button on hover */
+}
+
+/* Cancel Button (Optional: If you want a different style) */
+.form-actions button.cancel-btn {
+    background-color: #f44336; /* Red background for cancel */
+}
+
+.form-actions button.cancel-btn:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+}
+
+/* Form Group Styling */
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+}
+
+.form-group label {
+    flex: 0 0 150px; /* Set a fixed width for the label */
+    font-weight: bold;
+    margin-right: 10px; /* Add space between label and input */
+}
+
+.form-group input,
+.form-group .datetime-input {
+    flex: 1; /* Allow input to grow and take available space */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none; /* Prevent resizing */
+}
+
+/* Styling for the radio buttons */
+.form-check {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+}
+
+.form-check-input {
+    margin-right: 5px;
+}
+
+input[type=checkbox], 
+input[type=radio] {
+    box-sizing: border-box;
+    padding: 0;
+    margin-top: 10px;
+}
+
+/* Customizing the checkbox */
+.form-check-input {
+    width: 20px; /* Size of the checkbox */
+    height: 15px;
+    border: 2px solid #007bff; /* Blue border */
+    border-radius: 4px; /* Rounded edges */
+    background-color: #fff; /* White background */
+    transition: all 0.3s ease; /* Smooth transitions */
+}
+
+/* Change color when checkbox is checked */
+.form-check-input:checked {
+    background-color: #007bff; /* Blue background when checked */
+    border-color: #007bff; /* Border matches background */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.6); /* Glow effect */
+}
+
+/* Hover effect for checkbox */
+.form-check-input:hover {
+    cursor: pointer; /* Pointer cursor on hover */
+    border-color: #0056b3; /* Darker blue border on hover */
+}
+
+/* Styling the label */
+.form-check-label {
+    margin-left: 10px; /* Spacing between checkbox and text */
+    font-size: 16px; /* Font size */
+    color: #333; /* Text color */
+    transition: color 0.3s ease; /* Smooth text color transition */
+}
+
+/* Change label color on hover */
+.form-check-input:hover + .form-check-label {
+    color: #007bff; /* Blue color on hover */
+}
+
+/* Ensure that the form controls fill available space */
+textarea.form-control, select.form-select {
+    width: 100%;
+    resize: vertical; /* Allow vertical resizing only */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 14px;
+}
+
+select.form-select {
+    -webkit-appearance: none; /* Remove default styling for WebKit browsers */
+    -moz-appearance: none;    /* Remove default styling for Firefox */
+    appearance: none;         /* Remove default styling for other browsers */
+    border: 1px solid #ccc;   /* Border color */
+    border-radius: 4px;       /* Rounded corners */
+    padding: 10px 12px;       /* Padding for the dropdown */
+    background-color: #f8f9fa; /* Light background color */
+    color: #495057;           /* Text color */
+    font-size: 16px;           /* Font size */
+    width: 100%;               /* Full width */
+    transition: all 0.3s ease; /* Smooth transition for focus and hover */
+}
+
+/* Dropdown option hover effect */
+select.form-select option:hover {
+    background-color: #007bff; /* Blue background color for hovered options */
+    color: white;               /* White text color on hover */
+}
+
+/* Dropdown focused style */
+select.form-select:focus {
+    border-color: #007bff; /* Change border color when focused */
+    outline: none;         /* Remove outline */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Add shadow */
+}
+
+/* Style for the dropdown arrow */
+select.form-select::after {
+    content: '\25BC'; /* Downward arrow symbol */
+    font-size: 16px;
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    pointer-events: none; /* Make the arrow non-interactive */
+}
+
+
+.row {
+    /*margin-bottom: 1rem;*/
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.col-3 {
+    font-weight: bold;
+}
+
+.form-actions2 {
+    display: flex; /* Use flexbox for layout */
+    justify-content: center; /* Center the button horizontally */
+    margin-top: 20px; /* Add spacing above the button if needed */
+}
+
+.form-actions2 button {
+    background-color: #6a00f4;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.form-actions2 button:hover {
+    background-color: #286628;
+}
+
+/* Confirmation icon styling */
+.confirmation-icon {
+    width: 80px;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    background: #FBFBFB;
+}
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    background: rgba(0, 0, 0, 0.6); /* Semi-transparent black background */
+    z-index: 999; /* High z-index to ensure it appears above all elements */
+    justify-content: center; /* Center popup horizontally */
+    align-items: center; /* Center popup vertically */
+}
+
+/*.popup-content {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    position: relative;
+}*/
+
+/* Scheduled Interview*/
+#shortlistConfirmationPopup {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+#confirmationPopup {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+#portalApprovalPopup {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+/* When popup is open */
+/*#confirmationPopup.open-popup {
+    display: block; /* Make it visible */
+    /*opacity: 1; /* Ensure full opacity */
+    /*transform: translate(-50%, -50%) scale(1); /* No scaling effect when visible */
+/*}*/
+
+/* Popup content styling */
+.popup-content {
+    background: black;
+    border-radius: 8px;
+    text-align: center;
+    padding: 30px;
+    width: 350px;
+    color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    position: relative;
+    transition: transform 0.4s, top 0.4s; /* Smooth transition for popup */
+}
+
+/* Popup title and paragraph styling */
+.popup-content h2 {
+    font-size: 24px;
+    margin: 15px 0;
+}
+
+.popup-content p {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+/* Button container for popup */
+.button-container {
+    display: flex;
+    justify-content: space-between; /* Align buttons side by side */
+    gap: 10px; /* Space between buttons */
+}
+
+/* Button styles */
+.button-container button {
+    padding: 10px; /* Adjust padding for better appearance */
+    background: #6a00f4;
+    color: #fff;
+    border: none;
+    border-radius: 40px;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.2s;
+    text-align: center;
+    width: 140px;
+}
+
+/* Yes, Proceed button styles */
+.proceed-button {
+    background: #6a00f4; /* Default green */
+    margin-top: 15px;
+}
+
+.proceed-button:hover {
+    background: #4a9c34; /* Darker green on hover */
+    transform: scale(1.05); /* Slight enlarge on hover */
+}
+
+/* Cancel button styles */
+.cancel-button {
+    background: #6a00f4; /* Default red */
+    margin-top: 15px;
+}
+
+.cancel-button:hover {
+    background: #CC3636; /* Darker red on hover */
+    transform: scale(1.05); /* Slight enlarge on hover */
+}
+
+/* Full background color effect when popup is active */
+body.popup-open {
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+    overflow: hidden; /* Disable scrolling while popup is open */
+}
+
+/* Popup visibility class */
+.open-popup {
+    visibility: visible; /* Make popup visible */
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%) scale(1); /* Ensure proper scaling and centering */
+}
+
+.text-center {
+    display: flex;
+    justify-content: center; /* Horizontally center the button */
+    align-items: center; /* Vertically center if necessary */
+}
+
+/*---- Cancel Table ----*/
+
+/* Styling the filter container */
+.filter-container {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #03403b; /* Light background color */
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    display: flex;
+    align-items: center; /* Align label and dropdown horizontally */
+    justify-content: flex-start;
+}
+
+/* Label styling */
+.filter-container label {
+    font-size: 16px;
+    font-weight: bold;
+    color: white; /* Dark text for readability */
+    margin-right: 15px; /* Spacing between label and dropdown */
+}
+
+/* Styling the dropdown select element */
+#statusFilter {
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px; /* Rounded corners */
+    background-color: black;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+    outline: none; /* Remove default outline on focus */
+    color: white;
+}
+
+/* Adding focus effect on the dropdown */
+#statusFilter:focus {
+    border-color: white; /* Blue border on focus */
+    background-color: black; /* Light blue background on focus */
+    color: white;
+}
+
+/* Adding hover effect to the dropdown */
+/* Custom dropdown hover color for Select2 */
+.select2-results__option:hover {
+    background-color: #007bff !important; /* Blue color */
+    color: white !important; /* White text color */
+}
+
+/* Optional: Add a small margin to space out from other content */
+.filter-container {
+    margin-top: 20px;
+}
+
+
+
+/*Login Form*/
+
+.navbar-top {
+    background: var(--light); /* Adjust color as needed */
+    width: 100%; /* Full width */
+    height: 54px; /* Adjust height as needed */
+    padding: 0; /* Remove padding */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Align items to the right */
+    position: fixed; /* Fixed at the top */
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    border-bottom: 2px solid var(--primary); /* Optional border */
+}
+
+.navbar-top .profile {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Space between profile image, name, and buttons */
+}
+
+.navbar-top .profile img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.navbar-top .profile-info {
+    margin: 0; /* Remove margin */
+    padding: 0; /* Remove padding */
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Optional: Adjust space between icon and text */
+}
+
+.navbar-top .profile-info #profile-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark);
+    display: none; /* Hidden by default */
+}
+
+/* Log In Button */
+.login-btn {
+    background-color: var(--primary);
+    color: var(--light);
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-right: 10px; /* Added margin-right */
+}
+
+.login-btn:hover {
+    background-color: #28a745; /* Optional hover effect */
+}
+
+/* Log Out Button */
+.logout-btn {
+    background-color: var(--logout-color);
+    color: var(--light);
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-right: 10px; /* Added margin-right */
+}
+
+.logout-btn:hover {
+    background-color: #28a745; /* Optional hover effect */
+}
+
+
+/*----------------------------------- Admin Dashboard --------------------------------------*/
+
+
+body.dark {
+    --grey: #151818;
+    --dark: #fff;
+    --light: #1f2224;
+}
+
+a {
+    text-decoration: none;
+}
+
+li {
+    list-style: none;
+}
+
+/* SIDEBAR */
+
+/* Sidebar Adjustment - Make sure content does not overlap */
+#sidebar {
+    position: fixed;
+    max-width: 260px;
+    width: 100%;
+    background: var(--light);
+    top: 60px; /* Ensure sidebar is below the navbar */
+    left: 0;
+    height: calc(100% - 60px); /* Adjust sidebar height */
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+    transition: transform 0.3s ease-in-out;
+    z-index: 200;
+}
+
+/* Sidebar when collapsed */
+#sidebar.hidden {
+    width: 0;  /* Collapse the sidebar */
+    transition: width 0.3s ease;
+}
+
+#sidebar.show {
+    display: block;
+}
+
+/*#sidebar.hide:hover {
+    max-width: 260px;
+}*/
+
+/* Hide scrollbar for Chrome, Safari, and Edge */
+#sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+#sidebar .brand {
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    height: 64px;
+    font-weight: 700;
+    color: var(--blue);
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    background: var(--light);
+    transition: all .3s ease;
+    /*padding: 0 6px;*/
+}
+
+
+#sidebar .icon {
+    min-width: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 6px;
+    color: var(--dark-blue);
+}
+
+
+#sidebar .icon-right {
+    margin-left: auto;
+    transition: all .3s ease;
+}
+
+#sidebar .icon-right {
+    margin-left: auto;
+    transition: all .3s ease;
+    transform: rotate(0deg); /* Initial rotation */
+}
+
+#sidebar .side-menu > li > a.active .icon-right {
+    transform: rotate(90deg); /* Rotate by 90 degrees */
+}
+
+#sidebar .side-menu {
+    margin: 36px 0;
+    padding: 0 20px;
+    transition: all .3s ease;
+}
+
+#sidebar.hide .side-menu {
+    padding: 0 6px;
+}
+
+/*#sidebar.hide:hover .side-menu {
+    padding: 0 20px;
+}*/
+
+#sidebar .side-menu a {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: var(--dark);
+    padding: 12px 16px 12px 0;
+    transition: all .3s ease;
+    border-radius: 10px;
+    margin: 4px 0;
+    white-space: nowrap;
+}
+
+#sidebar .side-menu > li > a:hover {
+    background:var(--info);
+    color: var(--light);
+}
+
+
+/* Dropdown menu hover styling */
+#sidebar .side-dropdown a:hover {
+    /*background: var(--light-blue); /* Background color for dropdown menu hover */
+    color: var(--dark-blue); /* Text color for dropdown menu hover */
+}
+
+#sidebar .side-menu > li > a:active .icon-right {
+    transform: rotateZ(90deg);
+}
+
+#sidebar .side-menu > li > a:active,
+#sidebar .side-menu > li > a:active:hover {
+    background: var(--blue);
+    color: #fff;
+}
+
+#sidebar .divider {
+    margin-top: 24px;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--dark-grey);
+    transition: all .3s ease;
+    white-space: nowrap;
+}
+
+#sidebar.hide .divider {
+    text-align: center;
+}
+
+/* Dropdown Menu - Adjusted */
+#sidebar .side-dropdown {
+    max-height: 0;
+    overflow-y: hidden;
+    padding-left: 54px;
+    transition: max-height 0.3s ease;
+}
+
+#sidebar .side-dropdown.show {
+    max-height: 500px;
+}
+
+#sidebar .side-dropdown a:hover {
+    color: var(--blue);
+}
+
+#sidebar .ads {
+    width: 100%;
+    padding: 20px;
+}
+
+#sidebar.hide .ads {
+    display: none;
+}
+
+/*#sidebar.hide:hover .ads {
+    display: block;
+}*/
+
+#sidebar .ads .wrapper {
+    background: var(--grey);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+#sidebar .btn-upgrade {
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 0;
+    color: #fff;
+    background: var(--blue);
+    transition: all .3s ease;
+    border-radius: 5px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+#sidebar .btn-upgrade:hover {
+    background: var(--dark-blue);
+}
+
+#sidebar .ads .wrapper p {
+    font-size: 12px;
+    color: var(--dark-grey);
+    text-align: center;
+}
+
+#sidebar .ads .wrapper p span {
+    font-weight: 700;
+}
+
+/* SIDEBAR */
+
+
+/*Content*/
+#content {
+    position: relative;
+    margin-top: 80px;  /* Adjust this value based on the height of the navbar */
+}
+
+
+/* Make the main content area flexible when sidebar is hidden */
+#sidebar.hidden + #main-content {
+    padding-left: 0;  /* Remove padding when sidebar is hidden */
+}
+
+/*NAVBAR*/
+
+nav {
+    background: var(--light);
+    height: 64px;
+    width: 100%; /* Ensure navbar takes full width of the screen */
+    max-width: 100vw; /* Prevent it from being restricted by any container */
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    grid-gap: 28px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    justify-content: space-between;
+}
+
+nav .toggle-sidebar {
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--dark);
+}
+
+nav form {
+    max-width: 400px;
+    width: 100%;
+    margin-right: auto;
+}
+
+nav .from-group {
+    position: relative;
+    margin-top: 15px;
+}
+
+nav .from-group input {
+    width: 100%;
+    background: var(--grey);
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    /*padding: 10px 36px 10px 16px;*/
+    transition: all .3s ease;
+    color: var(--dark-grey);
+}
+
+nav .from-group input:focus {
+    box-shadow:  0 0 0 1px var(--blue), 0 0 0 4px var(--light-blue);
+}
+
+nav .from-group .icon {
+    position: absolute;
+    top: 40%;
+    transform: translateY(-50%);
+    right: 10px;
+    color: var(--dark-grey);
+}
+
+/* Styling the label that acts as the toggle switch */
+nav label[for="mode"] {
+    min-width: 60px; /* Flexible width */
+    height: 30px; /* Flexible height */
+    background: var(--yellow); /* Background color of the toggle */
+    border-radius: 30px; /* Round the edges to make it a circular toggle */
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px; /* Padding for a better fit */
+}
+
+/* Circle that moves when toggled */
+nav label[for="mode"]::before {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px; /* Position the circle to the left initially */
+    width: 22px; /* Adjust width to fit icon size */
+    height: 22px; /* Adjust height to fit icon size */
+    border-radius: 50%; /* Make it perfectly round */
+    background: var(--blue); /* Color of the circle */
+    transition: all 0.3s ease; /* Smooth transition when toggling */
+}
+
+/* When the mode is checked (dark mode), move the circle to the right */
+nav #mode:checked + label[for="mode"]::before {
+    left: calc(100% - 22px - 8px); /* Move the circle to the right */
+}
+
+/* Change the background color of the label when checked (dark mode) */
+nav #mode:checked + label[for="mode"] {
+    background: #608BC1; /* Dark background when toggled */
+}
+
+/* Position icons inside the toggle */
+nav label[for="mode"] i {
+    font-size: 20px; /* Icon size */
+    transition: all 0.3s ease;
+}
+
+/* Dark icon (moon) should appear on the right side in dark mode */
+nav #mode:checked + label[for="mode"] #dark-icon {
+    position: absolute;
+    right: 8px; /* Position the dark icon on the right */
+    display: block;
+}
+
+/* Light icon (sun) should appear on the left side in light mode */
+nav #mode:not(:checked) + label[for="mode"] #light-icon {
+    position: absolute;
+    left: 8px; /* Position the light icon on the left */
+    display: block;
+}
+
+/* Hide the light icon when dark mode is active */
+nav #mode:checked + label[for="mode"] #light-icon {
+    display: none;
+}
+
+/* Hide the dark icon when light mode is active */
+nav #mode:not(:checked) + label[for="mode"] #dark-icon {
+    display: none;
+}
+
+nav .nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 5px;
+    color: var(--dark); /* Use a custom color variable */
+    /*font-size: 18px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    border-radius: 5px;*/
+}
+
+nav .nav-link .icon {
+    font-size: 20px;
+    color: var(--dark);
+}
+
+nav .nav-link .badge {
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--light);
+    background: var(--red);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--light);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+nav .divider {
+    width: 1px;
+    background: var(--grey);
+    height: 12px;
+    display: block;
+}
+
+nav .profile {
+    position: relative;
+}
+
+nav .profile img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: default;
+    object-fit: cover;
+    /*background: red;*/
+}
+
+/* Hidden checkbox */
+nav .profile-checkbox {
+    display: none;
+}
+
+nav .profile .profile-link {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: var(--light);
+    padding: 10px 0;
+    box-shadow: 4px 4px 16px rgba(0, 0, 0, .1);
+    border-radius: 10px;
+    width: 160px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .3s ease;
+    /*z-index: 1000;*/
+}
+
+/* Profile dropdown show when checkbox is checked */
+nav .profile .profile-checkbox:checked + .profile-link {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Optional: Style for when the profile is clicked */
+nav .profile label {
+    cursor: pointer; /* Optional, to change cursor on label click */
+}
+
+nav .profile .profile-link li a {
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--dark);
+    transition: background 0.3s ease;
+}
+
+nav .profile .profile-link li a:hover {
+    background: var(--grey);
+}
+
+/*NAVBAR*/
+
+/*MAIN*/
+
+#main-content {
+    width: calc(100% - 270px);  /* Adjust width based on sidebar size */
+    padding: 24px 20px 20px 20px;
+   /* margin-top: 80px;*/
+    transition: margin-left 0.3s ease, width 0.3s ease; /* Smooth transition */
+    margin-left: 270px;  /* Adjusted for expanded sidebar */
+}
+
+#main-content.full-width {
+    margin-left: 0;
+    width: 100%;
+}
+
+main .title {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: white;
+    text-align: left;
+}
+
+main .breadcrumbs {
+    display: flex;
+    gap: 6px;
+    text-align: left;
+}
+
+main .breadcrumbs li,
+main .breadcrumbs li a {
+    font-size: 14px;
+}
+
+main .breadcrumbs li a {
+    color: var(--blue);
+}
+
+main .breadcrumbs li a.active,
+main .breadcrumbs li.divider {
+    color: var(--dark-grey);
+    pointer-events: none;
+}
+
+main .info-data {
+    margin-top: 36px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Corrected 'lfr' to '1fr' */
+    gap: 20px;
+}
+
+main .info-data .card {
+    background-color: var(--light); /* Card background color */
+    padding: 20px; /* Inner padding */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+}
+
+main .card .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+main .card .head h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+main .card .head p {
+    font-size: 14px;
+    color: var(--dark);
+}
+
+main .card .head .icon {
+    font-size: 20px;
+    color: var(--green2);
+}
+
+main .card .head .icon.down {
+    font-size: 20px;
+    color: var(--red);
+}
+
+main .card .progress {
+    display: block;
+    margin-top: 24px;
+    height: 10px;
+    width: 100%;
+    border-radius: 10px;
+    background: var(--grey);
+    overflow-y: hidden;
+    position: relative;
+    margin-bottom: 4px;
+}
+
+main .card .progress::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--blue);
+    width: var(--value);
+    transition: width 0.3s ease-in-out; /* Smooth progress bar animation */
+}
+
+main .card .label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+main .data {
+    display: flex;
+    grid-gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+main .data .content-data {
+    flex-grow: 1;
+    flex-basis: 400px;
+    padding: 20px;
+    background: var(--light);
+    border-radius: 10px;
+    box-shadow: 4px 4px 16px rgba(0, 0, 0, .1);
+}
+
+main .content-data .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    color: var(--dark);
+}
+
+main .content-data .head h3 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+main .content-data .head .menu {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+main .content-data .head .menu .icon {
+    cursor: pointer;
+}
+
+main .content-data .head .menu-link {
+    position: absolute;
+    top: calc(100% - 10px);
+    right: 0;
+    width: 140px;
+    background: var(--light);
+    border-radius: 10px;
+    box-shadow: 4px 4px 16px rgba(0, 0, 0, .1);
+    padding: 10px 0;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .3s ease;
+}
+
+main .content-data .head .menu-link.show {
+    top: 100%;
+    opacity: 1;
+    pointer-events: visible;
+}
+
+main .content-data .head .menu-link a {
+    display: block;
+    padding: 6px 16px;
+    font-size: 14px;
+    color: var(--dark);
+    transition: all .3s ease;
+}
+
+main .content-data .head .menu-link a:hover {
+    background: var(--grey);
+}
+
+main .content-data .chart {
+    width: 100%;
+    max-width: 100%;
+    scrollbar-width: none; /* Firefox */
+}
+
+/* Hide scrollbar for Chrome, Safari, and Edge */
+main .content-data .chart::-webkit-scrollbar {
+    display: none;
+}
+
+main .chat-box {
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+}
+
+/* Hide scrollbar for Chrome, Safari, and Edge */
+main .chat-box::-webkit-scrollbar {
+    display: none;
+}
+
+main .chat-box .day {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+main .chat-box .day span {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: var(--light-blue);
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+main .chat-box .msg img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+main .chat-box .msg {
+    display: flex;
+    grid-gap: 6px;
+    align-items: flex-start;
+}
+
+main .chat-box .profile .username {
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-block;
+    margin-right: 6px;
+    color: var(--dark);
+}
+
+main .chat-box .profile .time{
+    font-size: 12px;
+    color: var(--dark-grey);
+}
+
+main .chat-box .chat p {
+    font-size: 14px;
+    padding: 6px 10px;
+    display: inline-block;
+    max-width: 300px;
+    line-height: 150%;
+}
+
+main .chat-box .msg:not(.me) .chat p {
+    border-radius: 0 5px 5px 5px;
+    background: var(--blue);
+    color: #fff;
+}
+
+main .chat-box .msg.me {
+    justify-content: flex-end;
+}
+
+main .chat-box .msg.me .profile {
+    text-align: right;
+}
+
+main .chat-box .msg.me p {
+    background: var(--grey);
+    border-radius: 5px 0 5px 5px;
+    color: var(--dark);
+}
+
+main form {
+    margin-top: 6px;
+}
+
+main .form-group {
+    width: 100%;
+    display: flex;
+    grid-gap: 10px;
+}
+
+main .form-group input {
+    flex-grow: 1;
+    padding: 10px 16px;
+    border-radius: 5px;
+    outline: none;
+    background: var(--grey);
+    border: none;
+    transition: all .3s ease;
+    width: 100%;
+    color: var(--dark-grey);
+}
+
+main .form-group input:focus {
+    box-shadow: 0 0 0 1px var(--blue), 0 0 0 4px var(--light-blue);
+}
+
+main .btn-send {
+    background: var(--blue);
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+    border: none;
+    transition: all .3s ease;
+}
+
+main .btn-send:hover {
+    background: var(--dark-blue);
+}
+
+/*MAIN*/
+
+/*Content*/
+
+
+@media screen and (max-width: 760px) {
+    #content {
+        position: relative;
+        width: calc(100% - 0px);
+        transition: all .3s ease;
+    }
+    nav .nav-link,
+    nav .divider {
+        display: none;
+    }
+}
+
+/*----------------------------------- Card and Widgets --------------------------------------*/
+
+.card-body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #a9c9ff;
+    background-image: linear-gradient(180deg, #a9c9ff 0%, #ffbbec 100%);
+    background-size: cover;  /* Ensure the background covers the entire element */
+    background-position: center; /* Center the background image */
+    background-attachment: fixed; /* Keeps the background fixed while scrolling */
+    
+    /* Flexbox layout to center content */
+    display: flex;
+    justify-content: center;  /* Center cards horizontally */
+    align-items: center;      /* Center cards vertically */
+    flex-wrap: wrap;          /* Allow cards to wrap if needed */
+    min-height: 100vh;        /* Full viewport height */
+    overflow-x: hidden;       /* Prevent horizontal overflow */
+    width: 100%;              /* Ensure full width */
+}
+
+.container3 {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* Allow cards to wrap */
+    gap: 20px; /* Space between cards */
+    padding: 20px;
+    width: 100%;
+    max-width: 100%; /* Ensure container doesn’t overflow */
+    box-sizing: border-box;
+    /*justify-content: center;*/
+}
+
+
+.card1 {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    background: linear-gradient(90deg, #9ebd13 0%, #008552 80%);
+    border-radius: 15px;
+    box-shadow: 0 15px 60px rgba(0, 0, 0, 0.5);
+    color: #fff; /* Ensure content inside is visible */
+    overflow: hidden;
+    transition: transform 0.3s;
+}
+
+.card1:hover {
+    transform: scale(1.05);
+}
+
+.card-link {
+    display: block;
+    height: 100%; /* Make the link cover the entire card */
+    text-decoration: none;
+    color: inherit; /* Inherit text color */
+}
+
+/* Style for the first two cards to take full rows */
+/*.card1:nth-child(1),
+.card1:nth-child(2),
+.card1:nth-child(3),
+.card1:nth-child(4) {
+    width: calc(50% - 80px);
+    height: 200px;
+}
+
+.card1:nth-child(3),
+.card1:nth-child(4) {
+    width: calc(33% - 80px);
+    height: 200px;
+}
+
+/* Make sure the rest of the cards follow in a grid layout */
+/*.card1:nth-child(5),
+.card1:nth-child(6),
+.card1:nth-child(7),
+.card1:nth-child(8),
+.card1:nth-child(9),
+.card1:nth-child(10),
+.card1:nth-child(11),
+.card1:nth-child(12) {
+    width: calc(25% - 80px);  /* Regular width for the rest of the cards */
+    /*height: 200px;  /* Regular height for the rest of the cards */
+/*}
+
+.card1:nth-child(13),
+.card1:nth-child(14) {
+    width: calc(100% - 80px);
+    height: 200px;
+}*/
+
+.face {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center; /* Ensures text is centered */
+}
+
+.face.face1 {
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+
+.face.face2 {
+    display: flex; /* Flexbox to center content */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    flex-direction: column; /* Allow text to stack vertically if needed */
+    height: 60px; /* Ensure height is set */
+}
+
+.face.face2 h2 {
+    margin: 0;
+    padding: 10px;
+    font-size: 0.9em;
+    color: #fff;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    white-space: normal; /* Allows the text to wrap */
+    word-wrap: break-word; /* Ensures long words break and wrap to the next line */
+}
+  
+  /* Dynamically changing gradient for cards 1 to 14 */
+  /*.card:nth-child(1) .face.face2 { background-image: linear-gradient(90deg, #9ebd13 0%, #008552 100%); }
+  .card:nth-child(2) .face.face2 { background-image: linear-gradient(90deg, #9ebd13 0%, #008552 100%); }
+  .card:nth-child(3) .face.face2 { background-image: linear-gradient(90deg, #9ebd13 0%, #008552 100%); }
+  .card:nth-child(4) .face.face2 { background-image: linear-gradient(90deg, #9ebd13 0%, #008552 100%); }
+  .card:nth-child(5) .face.face2 { background-image: linear-gradient(90deg, #9ebd13 0%, #008552 100%); }
+  .card:nth-child(6) .face.face2 { background-image: linear-gradient(to right, #ee0979, #ff6a00); }
+  .card:nth-child(7) .face.face2 { background-image: linear-gradient(to right, #ee0979, #ff6a00);}
+  .card:nth-child(8) .face.face2 { background-image: linear-gradient(to right, #ee0979, #ff6a00); }
+  .card:nth-child(9) .face.face2 { background-image: linear-gradient(to right, #ee0979, #ff6a00); }
+  .card:nth-child(10) .face.face2 { background-image: linear-gradient(to right, #ee0979, #ff6a00);}
+  .card:nth-child(11) .face.face2 { background-image: linear-gradient(to right, #159957, #155799); }
+  .card:nth-child(12) .face.face2 { background-image: linear-gradient(to right, #159957, #155799);}
+  .card:nth-child(13) .face.face2 { background-image: linear-gradient(to right, #159957, #155799); }
+  .card:nth-child(14) .face.face2 { background-image: linear-gradient(to right, #159957, #155799); }*/
+  
+  .profile-header {
+      display: flex;
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically */
+      flex-direction: column;
+  }
+    
+  .icon {
+    font-size: 30px; /* Adjust size as needed */
+    color: #fff;
+  }
+  
+  .num {
+    font-size: 24px; /* Adjust the size as needed */
+    color: white; /* White text color */
+    margin-top: 10px; /* Adds some space between the icon and the number */
+    font-weight: bold; /* Make the number bold */
+  }
+
+/* Keyframes for fade animation */
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px); /* Start slightly above */
+    }
+    10% {
+        opacity: 1;
+        transform: translateY(0); /* Move to normal position */
+    }
+    90% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-10px); /* Fade out back to above */
+    }
+}
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Media query for iPads (portrait and landscape) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .container4 {
+        max-width: 90%; /* Slightly reduced width for iPads */
+        padding: 35px; /* Adjust padding */
+        height: 950px; /* Slightly reduced height */
+        background-size: 140%; /* Adjust background size */
+        border-radius: 18px;
+    }
+}
+
+/* Media Queries */
+
+/* For medium-large screens (992px to 1199px) */
+@media (max-width: 1200px) {
+    .container3 {
+        gap: 15px; /* Reduce the gap between cards */
+    }
+    .card {
+        width: 150px; /* Make cards smaller on medium screens */
+        height: 200px;
+        font-size: small;
+    }
+}
+
+@media (max-width: 992px) {
+    .container3 {
+        gap: 10px; /* Reduce the gap further for smaller screens */
+    }
+    .card {
+        width: 150px; /* Further reduce card size */
+        height: 200px;
+        font-size: small;
+    }
+
+    .container4 {
+        max-width: 95%;
+        padding: 35px;
+        height: 900px; /* Adjusted height for medium screens */
+        background-size: 170%; /* Adjust background size */
+        border-radius: 18px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .navbar ul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .container1 {
+        /*width: 90%;*/ 
+        max-width: 100%;
+        padding: 15px;
+    }
+
+    .table-container {
+        max-height: 400px;
+        overflow-x: auto;
+    }
+
+    input[type="text"], input[type="email"], input[type="tel"], input[type="password"] {
+        width: 100%;
+    }
+
+    .navbar {
+        padding: 5px 0;
+    }
+
+    .navbar li {
+        margin: 0 10px;
+    }
+
+    table {
+        font-size: 14px;
+    }
+
+    label {
+        font-size: 12px;
+        text-align: left;
+        /*margin-left: 30px;*/
+    }
+
+    button {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .container3 {
+        gap: 8px;
+        padding: 10px;
+    }
+    .card {
+        width: 150px; /* Cards will be even smaller */
+        height: 200px;
+        font-size: small;
+    }
+    .container4 {
+        max-width: 90%; /* Adjust the width for smaller screens */
+        padding: 30px; /* Reduce padding to fit smaller screens */
+        height: auto; /* Allow the height to adjust based on content */
+        background-size: cover; /* Ensure background fits the smaller width */
+        border-radius: 15px; /* Slightly smaller border radius */
+    }
+
+    #content {
+        position: relative;
+        width: calc(100% - 0px);
+        transition: all .3s ease;
+    }
+
+    nav .nav-link,
+    nav .divider {
+        display: none;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .container1 {
+        /*width: 80%;*/
+        padding: 15px;
+    }
+    .container4 {
+        width: 80%;
+        padding: 15px;
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    .view-button {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    /* Ensure modal content is appropriately sized on smaller screens */
+    .modal-content {
+        width: 90%;
+        max-width: 100%;
+        margin: 50px auto 20px; /* Top margin of 50px, auto for centering, 20px bottom margin */
+        padding: 20px;
+        box-sizing: border-box;
+        border-radius: 10px;
+        background-color: rgb(54, 49, 49);
+    }
+
+    .container3 {
+        flex-wrap: wrap;
+        flex-direction: column; /* Stack the cards vertically */
+        gap: 15px; /* Reduce the space between cards */
+        padding: 20px;
+        justify-content: center;
+    }
+
+    .card {
+        width: 150px; /* Further reduce the card size */
+        height: 150px;
+        font-size: small;
+    }
+
+    .profile-header {
+        font-size: 12px;
+    }
+
+    .num {
+        font-size: 16px; /* Reduce the font size for smaller screens */
+    }
+
+    .container4 {
+        max-width: 95%; /* Even smaller width for mobile screens */
+        padding: 20px; /* Further reduce padding */
+        height: auto; /* Allow the height to adjust */
+        background-size: cover; /* Make the background image cover the area */
+        border-radius: 10px; /* Smaller border radius for a compact look */
+    }
+}
+
+#sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Ensure the sidebar spans the full height of the viewport */
+}
+
+.side-menu {
+    flex-grow: 1; /* This ensures the menu items take up most of the space */
+}
+
+.sidebar-footer {
+    margin-bottom: 70px;
+    padding: 20px;  /* Optional padding around the footer */
+    text-align: left; /* Centers the icon */
+}
+
+.settings-link i {
+    color: #333; /* Adjust the color of the icon as needed */
+}
