@@ -1,0 +1,175 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Camera Issues View (Auditor View){% endblock %}
+
+{% block content %}
+    <h1>Rechecked Reports (Leader View)</h1>
+    <!-- Display flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table to display cancelled reports -->
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Client Name</th>
+                <th>Department Name</th>
+                <th>Camera Name</th>
+                <th>Final Report Statement</th>
+                <th>Incident Category</th>
+                <th>Wrong Reason</th>
+                <th>Accept/Reject</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if data %}
+                {% for report in data %}
+                    <tr>
+                        <td>{{ report["Client Name"] }}</td>
+                        <td>{{ report["Department Name"] }}</td>
+                        <td>{{ report["Camera Name"] }}</td>
+                        <td>{{ report["Final Report Statement"] }}</td>
+                        <td>{{ report["Incident Category"] }}</td>
+                        <td>
+                            <select class="wrong-reason" data-row-id="{{ loop.index }}">
+                                <option value="" selected>Select wrong reason</option>  <!-- Default option -->
+                                {% for reason in report["wrong_reasons"] %}
+                                    <option value="{{ reason }}">{{ reason }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <!-- Button for Accept (?) -->
+                            <form action="" method="post" style="display:inline;" class="accept-form" data-row-id="{{ loop.index }}">
+                                <input type="hidden" name="action" value="accept">
+                                <input type="hidden" name="row_id" value="{{ report['_id'] }}">
+                                <button type="button" class="accept-btn" onclick="handleAction('accept', '{{ report['_id'] }}')">✓</button>
+                            </form>
+                            
+                            <!-- Button for Reject (X) -->
+                            <form action="" method="post" style="display:none;" class="reject-form" data-row-id="{{ loop.index }}">
+                                <input type="hidden" name="action" value="reject">
+                                <input type="hidden" name="row_id" value="{{ report['_id'] }}">
+                                <input type="hidden" name="wrong_reason" value=""> <!-- This will be updated via JS -->
+                                <button type="button" class="reject-btn" onclick="handleReject('{{ report['_id'] }}', '{{ loop.index }}')">X</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="7">No records to display</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+<script>
+        document.addEventListener("DOMContentLoaded", function () {
+    const selectElements = document.querySelectorAll('.wrong-reason');
+    
+    selectElements.forEach(select => {
+        select.addEventListener('change', function () {
+            const rowId = select.getAttribute('data-row-id');
+            const acceptButton = document.querySelector(`.accept-form[data-row-id='${rowId}']`);
+            const rejectButton = document.querySelector(`.reject-form[data-row-id='${rowId}']`);
+            const wrongReasonInput = rejectButton.querySelector("input[name='wrong_reason']");
+
+            // Set the wrong reason value to the hidden input
+            wrongReasonInput.value = select.value;
+
+            if (select.value && select.value !== "") {
+                acceptButton.style.display = "none";
+                rejectButton.style.display = "inline";
+            } else {
+                acceptButton.style.display = "inline";
+                rejectButton.style.display = "none";
+            }
+        });
+    });
+});
+
+    // JavaScript function to handle the confirmation before submitting the form
+    function handleAction(action, _id) {
+        let confirmationMessage = "";
+
+        if (action === 'accept') {
+            confirmationMessage = "Are you sure you want to confirm this report'?";
+        } else if (action === 'reject') {
+            onfirmationMessage = "Are you sure you want to reject this report?";
+    }
+
+    // Show confirmation popup
+    if (confirm(confirmationMessage)) {
+            // Send POST request using fetch
+            fetch('/rechecked_records', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: action,
+                    _id: _id  // Ensure _id is passed as a string (e.g., "60d5ec49c1c1b0023e76f303")
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
+                    // Optionally, reload the page or update the UI
+                    window.location.reload();  // Reload the page to reflect the changes
+                } else {
+                    alert("Something went wrong: " + data.error);
+                }
+            })
+            .catch(error => {
+                alert("An error occurred: " + error);
+            });
+        }
+}
+
+    // Function for handling Reject action
+    function handleReject(_id, rowId) {
+            const wrongReason = document.querySelector(`.wrong-reason[data-row-id='${rowId}']`).value;
+
+            if (!wrongReason) {
+                alert("Please select a reason for rejecting the report.");
+                return;
+            }
+
+            const action = "reject";  // Action is 'reject'
+
+            // Send POST request to reject the report
+            fetch('/rechecked_records', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: action,
+                    _id: _id,  // Report _id
+                    wrong_reason: wrongReason  // Selected reason for rejection
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
+                    window.location.reload();  // Reload the page to reflect the changes
+                } else {
+                    alert("Something went wrong: " + data.error);
+                }
+            })
+            .catch(error => {
+                alert("An error occurred: " + error);
+            });
+        }
+</script>
+{% endblock %}
