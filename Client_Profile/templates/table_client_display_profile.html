@@ -1,0 +1,168 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}List of Client Display Profiles{% endblock %}
+
+{% block content %}
+        <!-- Back to Selection Process Link -->
+        <div class="back-link">
+            <a href="{{ url_for('settings_ClientProfile') }}" class="back-button">Back to Client Profile</a>
+        </div>
+<div class="container2">
+    <h1>List of Client Display</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table to Display Client Display Profiles -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Client ID</th>
+                    <th>Client Display ID</th>
+                    <th>Client Name</th>
+                    <th>Client Display Name</th>
+                    <th>Created On</th>
+                    <th>Status</th>
+                    <th>Status Date-Time</th>
+                    <th>Status Creator</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_records = display_profiles|length %}
+                {% for profile in display_profiles %}
+                <tr>
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td>{{ profile['Client ID'] }}</td>
+                    <td>{{ profile['Client Display ID'] }}</td>
+                    <td>{{ profile['Client Name'] }}</td>
+                    <td>{{ profile['Client Display Name'] }}</td>
+                    <td>{{ profile['Created On'] }}</td>
+                    <td>{{ profile['Status'] }}</td>
+                    <td>{{ profile['Status Date-Time']}}</td>
+                    <td>{{ profile['Status Creator Name'] }}</td>
+                    <td>
+                        <!-- Add Dept Name Button -->
+                        <button type="button" onclick="openAddDeptNameModal('{{ profile['Client Display ID'] }}', '{{ profile['Client ID'] }}', '{{ profile['Client Name'] }}')">Add Dept Name</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal for Adding Dept Name -->
+<div id="addDeptModal" class="modal">
+    <div class="modal-content2 p-4" style="max-height: 80vh; overflow-y: auto;">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Add Dept Names</h2>
+        <form method="POST" action="{{ url_for('client_profile.add_dept_name') }}">
+
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="client_id">Client ID:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="modal_client_id" name="client_id" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="client_id">Client Name:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="modal_client_name" name="client_name" readonly>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="client_display_id">Client Display ID:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="modal_client_display_id" name="client_display_id" readonly>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="num_of_dept">No. of Depts:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="number" class="form-control" id="num_of_dept" name="num_of_dept" min="1" max="100" required oninput="generateDeptFields(this.value)">
+                    </div>
+                </div>
+            </div>
+           
+            <div id="deptFieldsContainer"></div>
+            <div class="row text-center">
+                <div class="col-12">
+                    <button type="submit" class="proceed-button">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Function to open the modal and populate the Client Display ID
+    function openAddDeptNameModal(clientDisplayId,clientId,clientName) {
+        document.getElementById('modal_client_display_id').value = clientDisplayId;
+        document.getElementById('modal_client_id').value = clientId; // Set the Client ID
+        document.getElementById('modal_client_name').value = clientName;
+        document.getElementById('addDeptModal').style.display = 'block';
+        document.getElementById('deptFieldsContainer').innerHTML = ''; // Clear any existing inputs
+        document.getElementById('num_of_dept').value = ''; // Reset the number of departments field
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        document.getElementById('addDeptModal').style.display = 'none';
+    }
+
+    // Generate department name input fields dynamically
+    function generateDeptFields(num) {
+        const container = document.getElementById('deptFieldsContainer');
+        container.innerHTML = ''; // Clear existing inputs
+
+        for (let i = 1; i <= num; i++) {
+            const row = document.createElement('div');
+            row.className = 'row';
+            row.innerHTML = `
+                <label for="dept_name_${i}" class="col-md-4 col-form-label">Dept Name ${i}:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="dept_name_${i}" name="dept_names[]" required>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+    }
+
+    // Close modal when clicked outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('addDeptModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+</script>
+{% endblock %}

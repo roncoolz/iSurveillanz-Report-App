@@ -1,0 +1,124 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Camera Profiles{% endblock %}
+
+{% block content %}
+    <!-- Back to Selection Process Link -->
+    <div class="back-link">
+        <a href="{{ url_for('settings_ClientProfile') }}" class="back-button">Back to Client Profile</a>
+    </div>
+<div class="container2">
+    <h1> List Of Camera Profiles </h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            <script>
+                // Hide flash messages after 4 seconds
+                setTimeout(() => {
+                    const flashElements = document.querySelectorAll('.flashes .flash');
+                    flashElements.forEach(flash => flash.style.display = 'none');
+                }, 3000);
+            </script>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Save Changes Button -->
+    <!--<button id="saveChangesBtn">Save Changes</button>--> 
+    <!-- Save Changes Button -->
+    <div style="text-align: right; padding-bottom: 10px;">
+        <button id="saveChangesBtn">Confirm</button>
+    </div>
+
+    <!-- Table to Display Cameras -->
+    <div class="table-container">
+        <table id="cameraTable">
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Client ID</th>
+                    <th>Department ID</th>
+                    <th>Camera ID</th>
+                    <th>Client Name</th>
+                    <th>Department Name</th>
+                    <th>Camera Number</th>
+                    <th>Camera Name</th>
+                    <th>Location Type</th>
+                    <th>Working Shift</th>
+                    <th>Status</th>
+                    <th>Status Date-Time</th>
+                    <th>Status Creator Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_records = camera_profiles|length %}
+                {% for camera in camera_profiles %}
+                <tr>
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td contenteditable="false" data-key="Client ID">{{ camera['Client ID'] }}</td>
+                    <td contenteditable="false" data-key="Department ID">{{ camera['Department ID'] }}</td>
+                    <td contenteditable="false" data-key="Camera ID">{{ camera['Camera ID'] }}</td>
+                    <td contenteditable="false" data-key="Client Name">{{ camera['Client Name'] }}</td>
+                    <td contenteditable="false" data-key="Department Name">{{ camera['Department Name'] }}</td>
+                    <td contenteditable="false" data-key="Camera Number">{{ camera['Camera Number'] }}</td>
+                    <td contenteditable="true" data-key="Camera Name">{{ camera['Camera Name'] }}</td>
+                    <td contenteditable="true" data-key="Location Type">{{ camera['Location Type'] }}</td>
+                    <td contenteditable="true" data-key="Working Shift">{{ camera['Working Shift'] }}</td>
+                    <td contenteditable="false" data-key="Status">{{ camera['Status'] }}</td>
+                    <td contenteditable="false" data-key="Status Date-Time">{{ camera['Status Date-Time'] }}</td>
+                    <td contenteditable="false" data-key="Status Creator Name">{{ camera['Status Creator Name'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>            
+        </table>
+    </div>
+</div>
+
+<script>
+    document.getElementById('saveChangesBtn').addEventListener('click', function() {
+        const updatedData = [];
+
+        // Collect updated values from the table
+        document.querySelectorAll('#cameraTable tbody tr').forEach(function(row) {
+            const rowData = {};
+            row.querySelectorAll('td').forEach(function(cell) {
+                const key = cell.getAttribute('data-key');
+                if (key) {
+                    rowData[key] = cell.innerText.trim();
+                }
+            });
+            updatedData.push(rowData);
+        });
+
+        // Send the updated data to the server
+        fetch('/update_camera', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ updatedData }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Changes saved successfully!');
+                location.reload();
+            } else {
+                alert('Error saving changes: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while saving changes.');
+        });
+    });
+</script>
+
+<a href="{{ url_for('client_profile.table_camera_profile') }}" class="back-button">Go to Camera Profile</a>
+
+{% endblock %}

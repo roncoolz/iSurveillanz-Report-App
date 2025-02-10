@@ -1,0 +1,160 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Field Profiles{% endblock %}
+
+{% block content %}
+        <!-- Back to Selection Process Link -->
+        <div class="back-link">
+            <a href="{{ url_for('settings_ClientProfile') }}" class="back-button">Back to Client Profile</a>
+        </div>
+<div class="container2">
+    <h1>List Of Fields</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table to Display Field Profiles -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Field ID</th>
+                    <th>Field Name</th>
+                    <th>Short Name</th>
+                    <th>Status</th>
+                    <th>Status Date/Time</th>
+                    <th>Status Creator</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_records = field_profiles|length %}
+                {% for profile in field_profiles %}
+                <tr>
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td>{{ profile['Field ID'] }}</td>
+                    <td>{{ profile['Field Name'] }}</td> <!-- Corrected to bracket notation -->
+                    <td>{{ profile['Short Name'] }}</td> 
+                    <td>{{ profile.Status }}</td>
+                    <td>{{ profile['Status Date-Time'] }}</td>
+                    <td>{{ profile['Status Creator Name'] }}</td>
+                    <td>
+                        <!-- Trigger Button for Modal -->
+                        <button type="button" onclick="openAddGroupModal('{{ profile['Field ID']}}','{{ profile['Field Name'] }}')">Add Group Name</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    <!-- Link to add new PC Profile -->
+    <a href="{{ url_for('client_profile.form_field_profile') }}">Add New Field</a>
+
+<!-- Add Group Modal -->
+<div id="addGroupModal" class="modal">
+    <div class="modal-content2">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Add Group Name</h2>
+        <form method="POST" action="{{ url_for('client_profile.add_group_name') }}" enctype="multipart/form-data">
+           
+            <input type="hidden" name="field_id" id="modal_field_id">
+
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="field_id_display">Field ID:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="field_id_display" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group Name Input -->
+             <div class="mb-3">
+                <div class="from-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="group_name">Field Name:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="field_name" name="field_name" readonly>
+                    </div>
+                </div>
+             </div>
+            
+            <!-- Group Name Input -->
+             <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="group_name">Group Name:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="group_name" name="group_name" required>
+                    </div>
+                </div>
+             </div>
+
+            <!-- Logo Upload Input -->
+             <div class="mb-3">
+                <div class="file-upload-box row">
+                    <div class="col-12 col-md-4">
+                        <label for="logo">Logo:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <i class="fa-solid fa-arrow-up-from-bracket" style="top: 35%; left: 20px;"></i>
+                        <input type="file"id="logo" name="logo" accept="image/*" style="height: 50px;">
+                    </div>
+                </div>
+             </div>
+
+            <!-- Submit Button -->
+            <div class="row text-center">
+                <div class="col-12">
+                    <button type="submit" class="proceed-button">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Include Modal Script -->
+<script>
+    function openAddGroupModal(fieldId,fieldName) {
+        const modal = document.getElementById('addGroupModal');
+        const fieldIdInput = document.getElementById('modal_field_id');
+        const fieldIdDisplay = document.getElementById('field_id_display');
+        const fieldNameDisplay = document.getElementById('field_name');
+
+        fieldIdInput.value = fieldId; // Set the field ID in the hidden input
+        fieldIdDisplay.value = fieldId; // Set the field ID in the display input
+        fieldNameDisplay.value = fieldName;
+
+        modal.style.display = 'block'; // Show the modal
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('addGroupModal');
+        modal.style.display = 'none'; // Hide the modal
+    }
+
+    // Close the modal if the user clicks outside the modal content
+    window.onclick = function (event) {
+        const modal = document.getElementById('addGroupModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+
+{% endblock %}

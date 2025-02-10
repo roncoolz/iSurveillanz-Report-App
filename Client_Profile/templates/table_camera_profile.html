@@ -1,0 +1,174 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Active Camera Profile{% endblock %}
+
+{% block content %}
+    <div class="back-link">
+        <a href="{{ url_for('settings_ClientProfile') }}" class="back-button">Back to Client Profile</a>
+    </div>
+<div class="container2">
+    <h1>Active Camera Profile</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            <script>
+                // Hide flash messages after 4 seconds
+                setTimeout(() => {
+                    const flashElements = document.querySelectorAll('.flashes .flash');
+                    flashElements.forEach(flash => flash.style.display = 'none');
+                }, 3000);
+            </script>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table to Display Active Cameras -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Client ID</th>
+                    <th>Department ID</th>
+                    <th>Camera ID</th>
+                    <th>Client Name</th>
+                    <th>Department Name</th>
+                    <th>Camera Number</th>
+                    <th>Camera Name</th>
+                    <th>Location Type</th>
+                    <th>Working Shift</th>
+                    <th>Status</th>
+                    <th>Status Date-Time</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_records = active_camera_profiles|length %}
+                {% for camera in active_camera_profiles %}
+                <tr>
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td>{{ camera['Client ID'] }}</td>
+                    <td>{{ camera['Department ID'] }}</td>
+                    <td>{{ camera['Camera ID'] }}</td>
+                    <td>{{ camera['Client Name'] }}</td>
+                    <td>{{ camera['Department Name/Port Number'] }}</td>
+                    <td>{{ camera['Camera Number'] }}</td>
+                    <td>{{ camera['Camera Name'] }}</td>
+                    <td>{{ camera['Location Type'] }}</td>
+                    <td>{{ camera['Working Shift'] }}</td>
+                    <td>{{ camera['Status'] }}</td>
+                    <td>{{ camera['Status Date-Time'] }}</td>
+                    <td>
+                        <!-- Modify Button -->
+                        <button type="button" onclick="openModifyModal('{{ camera['Camera ID'] }}', '{{ camera['Client Name'] }}', '{{ camera['Department Name'] }}', '{{ camera['Camera Number'] }}', '{{ camera['Camera Name'] }}', '{{ camera['Status'] }}')">Modify</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal for Modifying Camera Details -->
+<div id="modifyModal" class="modal">
+    <div class="modal-content2 p-4" style="max-height: 80vh; overflow-y: auto;">
+        <span class="close" onclick="closeModifyModal()">&times;</span>
+        <h2>Modify Camera Details</h2>
+        <form method="POST" action="{{ url_for('client_profile.update_camera_details') }}">
+            <input type="hidden" id="camera_id" name="camera_id" />
+
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="client_name">Client Name:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="client_name" name="client_name" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="department_name">Department Name:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="department_name" name="department_name" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="camera_number">Camera Number:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="camera_number" name="camera_number" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="camera_name">Camera Name:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="camera_name" name="camera_name">
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="status">Status:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <select class="form-control" id="status" name="status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Non-Selection">Non-Selection</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center">
+                <div class="col-12">
+                    <button type="submit" class="proceed-button">Save Changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Function to open the modify modal and populate fields
+    function openModifyModal(cameraId, clientName, departmentName, cameraNumber, cameraName, status) {
+        document.getElementById('camera_id').value = cameraId;
+        document.getElementById('client_name').value = clientName;
+        document.getElementById('department_name').value = departmentName;
+        document.getElementById('camera_number').value = cameraNumber;
+        document.getElementById('camera_name').value = cameraName;
+        document.getElementById('status').value = status;
+        document.getElementById('modifyModal').style.display = 'block';
+    }
+
+    // Function to close the modal
+    function closeModifyModal() {
+        document.getElementById('modifyModal').style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('modifyModal');
+        if (event.target === modal) {
+            closeModifyModal();
+        }
+    }
+</script>
+
+{% endblock %}

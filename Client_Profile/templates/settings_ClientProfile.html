@@ -1,0 +1,122 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Client Profile{% endblock %}
+
+{% block content %}
+
+    <!--Widget Start-->
+    <div class="card-body">
+        <div class="container3">
+
+            <!-- Back to Selection Process Link -->
+            <div class="back-link">
+                <a href="{{ url_for('settings') }}" class="back-button">Back to Settings home page</a>
+            </div>
+
+            <div class="row">
+                <div class="mb-3 col-md-6 col-12">
+                    <div class="card1">
+                        <a href="{{ url_for('client_profile.table_field_profiles') }}" class="card-link"> <!-- Make the whole card clickable -->
+                            <div class="face">
+                                <div class="content">
+                                    <i class="fa-solid fa-user-gear icon"></i>
+                                    <span class="num" data-val="5">5</span>
+                                    <h3 style="font-size: 15px; margin-top: 15px;">Field Profile</h3>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+            <div class="row">
+                <div class="mb-3 col-md-6 col-12">
+                    <div class="card1">
+                        <a href="{{ url_for('client_profile.table_group_profile') }}" class="card-link"> <!-- Make the whole card clickable -->
+                            <div class="face">
+                                <div class="content">
+                                    <i class="fa-solid fa-user-gear icon"></i>
+                                    <span class="num" data-val="5">5</span>
+                                    <h3 style="font-size: 15px; margin-top: 15px;">Group Profile</h3>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="mb-3 col-md-6 col-12">
+                        <div class="card1">
+                            <a href="{{ url_for('client_profile.table_client_profile') }}" class="card-link"> <!-- Make the whole card clickable -->
+                                <div class="face">
+                                    <div class="content">
+                                        <i class="fa-solid fa-user-gear icon"></i>
+                                        <span class="num" data-val="5">5</span>
+                                        <h3 style="font-size: 15px; margin-top: 15px;">Client Profile</h3>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                <div class="row">
+                    <div class="mb-3 col-md-6 col-12">
+                        <div class="card1">
+                            <a href="{{ url_for('client_profile.table_client_display_profile') }}" class="card-link"> <!-- Make the whole card clickable -->
+                                <div class="face">
+                                    <div class="content">
+                                        <i class="fa-solid fa-user-gear icon"></i>
+                                        <span class="num" data-val="5">5</span>
+                                        <h3 style="font-size: 15px; margin-top: 15px;">Client-Display Profile</h3>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                
+                <div class="row">
+                    <div class="mb-3 col-md-6 col-12">
+                        <div class="card1">
+                            <a href="{{ url_for('client_profile.table_dept_profile') }}" class="card-link"> <!-- Make the whole card clickable -->
+                                <div class="face">
+                                    <div class="content">
+                                        <i class="fa-solid fa-user-gear icon"></i>
+                                        <span class="num" data-val="5">5</span>
+                                        <h3 style="font-size: 15px; margin-top: 15px;">Department Profile</h3>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                <div class="row">
+                    <div class="mb-3 col-md-6 col-12">
+                        <div class="card1">
+                            <a href="{{ url_for('client_profile.table_camera_pending_list') }}" class="card-link"> <!-- Make the whole card clickable -->
+                                <div class="face">
+                                    <div class="content">
+                                        <i class="fa-solid fa-user-gear icon"></i>
+                                        <span class="num" data-val="5">5</span>
+                                        <h3 style="font-size: 15px; margin-top: 15px;">Camera Profile Confirmation</h3>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                <div class="row">
+                    <div class="mb-3 col-md-6 col-12">
+                        <div class="card1">
+                            <a href="{{ url_for('client_profile.table_camera_profile') }}" class="card-link"> <!-- Make the whole card clickable -->
+                                <div class="face">
+                                    <div class="content">
+                                        <i class="fa-solid fa-user-gear icon"></i>
+                                        <span class="num" data-val="5">5</span>
+                                        <h3 style="font-size: 15px; margin-top: 15px;">Camera Profile</h3>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+    
+
+{% endblock %}

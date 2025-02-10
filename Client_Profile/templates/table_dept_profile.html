@@ -1,0 +1,156 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Department Profiles{% endblock %}
+
+{% block content %}
+        <!-- Back to Selection Process Link -->
+        <div class="back-link">
+            <a href="{{ url_for('settings_ClientProfile') }}" class="back-button">Back to Client Profile</a>
+        </div>
+<div class="container2">
+    <h1> List Of Department Names </h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table to Display Departments -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Client ID</th>
+                    <th>Client Name</th>
+                    <th>Client Display ID</th>
+                    <th>Department ID</th>
+                    <th>Dept Name</th>
+                    <th>Created On</th>
+                    <th>Status</th>
+                    <th>Status Date-Time</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_records = dept_profiles|length %}
+                {% for dept in dept_profiles %}
+                <tr>
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td>{{ dept['Client ID'] }}</td>
+                    <td>{{ dept['Client Name'] }}</td>
+                    <td>{{ dept['Client Display ID'] }}</td>
+                    <td>{{ dept['Department ID']}}</td>
+                    <td>{{ dept['Department Name/Port Number'] }}</td>
+                    <td>{{ dept['Created On']}}</td>
+                    <td>{{ dept['Status']}}</td>
+                    <td>{{ dept['Status Date-Time']}}</td>
+                    <td>
+                        <!-- Add Cameras Button -->
+                        <button type="button" onclick="openAddCamerasModal('{{ dept['Client ID'] }}', '{{ dept['Department ID'] }}','{{ dept['Client Name'] }}','{{ dept['Department Name/Port Number'] }}')">Add Cameras</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>            
+        </table>
+    </div>
+</div>
+
+<!-- Modal for Adding Cameras -->
+<div id="addCamerasModal" class="modal">
+    <div class="modal-content2 p-4" style="max-height: 80vh; overflow-y: auto;">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Add Cameras</h2>
+        <form method="POST" action="{{ url_for('client_profile.add_camera') }}">
+            <input type="hidden" id="dept_id" name="dept_id" />
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="client_id">Client ID:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="client_id" name="client_id" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="department_id">Department ID:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="department_id" name="department_id" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="client_name">Client Name:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="client_name" name="client_name" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="department_name">Department Name:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="department_name" name="department_name" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="camera_number">No. Of Cameras:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="number" class="form-control" id="camera_number" name="camera_number" min="1" max="100" required>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center">
+                <div class="col-12">
+                    <button type="submit" class="proceed-button">Save Camera</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Function to open the modal and populate the Client ID and Department ID
+    function openAddCamerasModal(clientId, departmentId,clientName, departmentName) {
+        document.getElementById('client_id').value = clientId;
+        document.getElementById('department_id').value = departmentId;
+        document.getElementById('client_name').value = clientName
+        document.getElementById('department_name').value = departmentName
+        document.getElementById('dept_id').value = departmentId; // Hidden field for server use
+        document.getElementById('addCamerasModal').style.display = 'block';
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        document.getElementById('addCamerasModal').style.display = 'none';
+    }
+
+    // Close modal when clicked outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('addCamerasModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+</script>
+
+{% endblock %}

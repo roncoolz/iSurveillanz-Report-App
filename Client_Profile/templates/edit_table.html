@@ -1,1 +1,108 @@
+{% extends "report_master.html" %}
 
+{% block title %}List of Client Display Profiles{% endblock %}
+
+{% block content %}
+<div class="container2">
+    <h1>List of Client Display Profiles</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Editable Table -->
+    <div class="table-container">
+        <button id="editModeToggle" onclick="toggleEditMode()">Enable Edit Mode</button>
+        <button id="saveChanges" onclick="saveChanges()" style="display: none;">Save Changes</button>
+        <table id="editableTable">
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Client ID</th>
+                    <th>Client Display ID</th>
+                    <th>Client Name</th>
+                    <th>Client Display Name</th>
+                    <th>Created On</th>
+                    <th>Status</th>
+                    <th>Status Date-Time</th>
+                    <th>Status Creator</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_records = display_profiles|length %}
+                {% for profile in display_profiles %}
+                <tr>
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td contenteditable="false" data-key="client_id">{{ profile['client_id'] }}</td>
+                    <td contenteditable="false" data-key="Client Display ID">{{ profile['Client Display ID'] }}</td>
+                    <td contenteditable="false" data-key="Client Name">{{ profile['Client Name'] }}</td>
+                    <td contenteditable="false" data-key="Client Display Name">{{ profile['Client Display Name'] }}</td>
+                    <td contenteditable="false" data-key="Created On">{{ profile['Created On'] | format_datetime }}</td>
+                    <td contenteditable="false" data-key="Status">{{ profile['Status'] }}</td>
+                    <td contenteditable="false" data-key="Status Date-Time">{{ profile['Status Date-Time'] | format_datetime }}</td>
+                    <td contenteditable="false" data-key="Status Creator Name">{{ profile['Status Creator Name'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let editMode = false;
+
+    // Toggle edit mode
+    function toggleEditMode() {
+        const table = document.getElementById('editableTable');
+        const cells = table.querySelectorAll('[contenteditable]');
+        editMode = !editMode;
+
+        document.getElementById('editModeToggle').innerText = editMode ? 'Disable Edit Mode' : 'Enable Edit Mode';
+        document.getElementById('saveChanges').style.display = editMode ? 'inline-block' : 'none';
+
+        cells.forEach(cell => {
+            cell.contentEditable = editMode;
+            cell.style.backgroundColor = editMode ? '#fff5d7' : ''; // Highlight editable cells
+        });
+    }
+
+    // Save changes
+    function saveChanges() {
+        const table = document.getElementById('editableTable');
+        const rows = table.querySelectorAll('tbody tr');
+        const updatedData = [];
+
+        rows.forEach(row => {
+            const rowData = {};
+            row.querySelectorAll('[contenteditable]').forEach(cell => {
+                const key = cell.getAttribute('data-key');
+                rowData[key] = cell.innerText.trim();
+            });
+            updatedData.push(rowData);
+        });
+
+        // Send data to the server via POST
+        fetch('{{ url_for("table_client_display_profile") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ profiles: updatedData })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Changes saved successfully!');
+            toggleEditMode(); // Disable edit mode
+        })
+        .catch(error => {
+            console.error('Error saving changes:', error);
+            alert('Error saving changes. Please try again.');
+        });
+    }
+</script>
+{% endblock %}

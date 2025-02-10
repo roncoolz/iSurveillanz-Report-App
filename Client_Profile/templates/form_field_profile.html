@@ -1,0 +1,40 @@
+{% extends "menu_bar.html" %}
+
+{% block content %}
+<div class="container1">
+    
+    <!-- Back to Selection Process Link -->
+    <div class="back-link">
+        <a href="{{ url_for('client_profile.table_field_profiles') }}" class="back-button">Back to Field Profile</a>
+    </div>
+
+    <h1>Create Field Profile</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('client_profile.form_field_profile') }}" method="POST" class="form">
+        <!-- Field Name -->
+        <div class="input-container">
+            <i class="fa-solid fa-users-line"></i>
+            <label for="field_name" class="required">Field Name:</label>
+            <input type="text" id="field_name" name="field_name" placeholder="Enter Field Name" required>
+        </div>
+
+        <!-- Short Name -->
+        <div class="input-container">
+            <i class="fa-solid fa-id-badge"></i>
+            <label for="short_name" class="required">Short Name:</label>
+            <input type="text" id="short_name" name="short_name" placeholder="Enter Short Name" required>
+        </div>
+
+        <button type="submit">Create Field Profile</button>
+    </form>
+</div>
+{% endblock %}

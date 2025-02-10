@@ -1,0 +1,230 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Client Group Profiles{% endblock %}
+
+{% block content %}
+        <!-- Back to Selection Process Link -->
+        <div class="back-link">
+            <a href="{{ url_for('settings_ClientProfile') }}" class="back-button">Back to Client Profile</a>
+        </div>
+<div class="container2">
+    <h1>List Of Client Group</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            <script>
+                // Hide flash messages after 4 seconds
+                setTimeout(() => {
+                    const flashElements = document.querySelectorAll('.flashes .flash');
+                    flashElements.forEach(flash => flash.style.display = 'none');
+                }, 3000); // 5000ms = 5 seconds
+            </script>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table to Display Client Group Profiles -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Group ID</th>
+                    <th>Group Name</th>
+                    <th>Field Name</th>
+                    <th>Logo</th>
+                    <th>Created On</th>
+                    <th>Status</th>
+                    <th>Status Date/Time</th>
+                    <th>Status Creator</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_records = group_profiles|length %}
+                {% for profile in group_profiles %}
+                <tr>
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td>{{ profile['Group ID'] }}</td>
+                    <td>{{ profile['Group Name'] }}</td>
+                    <td>{{ profile['Field Name']}}</td>
+                    <td>
+                        <img src="{{ url_for('client_profile.serve_image', image_id=profile['Logo File ID']) }}" alt="Logo" width="70">
+                    </td>
+                    
+                    <td>{{ profile['Created On'] }}</td>
+                    <td>{{ profile.Status }}</td>
+                    <td>{{ profile['Status Date-Time'] }}</td>
+                    <td>{{ profile['Status Creator Name']}}</td>
+                    <td>
+                        <!-- Trigger Button for Modal -->
+                        <button type="button" onclick="openClientRegistrationModal('{{ profile['Group ID'] }}', '{{ profile['Group Name'] }}','{{ profile['Field Name'] }}')">Register Client</button>
+                        
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Client Registration Modal -->
+<div id="clientRegistrationModal" class="modal">
+    <div class="modal-content2 p-4" style="max-height: 80vh; overflow-y: auto;">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Client Registration</h2>
+        <form method="POST" action="{{ url_for('client_profile.register_client') }}">
+            <input type="hidden" name="group_id" id="modal_group_id">
+            <!-- Field Name -->
+            <div class="row">
+                <label for="field_name" class="col-md-4 col-form-label">Field Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="field_name" name="field_name" readonly>
+                </div>
+            </div>
+        
+            <!-- Group Name -->
+            <div class="row">
+                <label for="group_name" class="col-md-4 col-form-label">Group Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="group_name" name="group_name" readonly>
+                </div>
+            </div>    
+
+            <!-- Client Registration Name -->
+            <div class="row">
+                <label for="client_registration_name" class="col-md-4 col-form-label">Client Registration Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="client_name" name="client_registration_name" required>
+                </div>
+            </div>
+
+            <!-- Reference -->
+            <div class="row">
+                <label for="reference" class="col-md-4 col-form-label">Reference:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="reference" name="reference">
+                </div>
+            </div>
+
+            <!-- GST Number -->
+            <div class="row">
+                <label for="gst_number" class="col-md-4 col-form-label">GST Number:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="gst_number" name="gst_number">
+                </div>
+            </div>
+
+            <!-- Client Requirements -->
+            <div class="row">
+                <label for="client_requirements" class="col-md-4 col-form-label">Client Requirements:</label>
+                <div class="col-8">
+                    <textarea class="form-control" id="client_requirements" name="client_requirements"></textarea>
+                </div>
+            </div>
+
+            <!-- Client Name -->
+            <div class="row">
+                <label for="client_name" class="col-md-4 col-form-label">Client Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="client_name" name="client_name">
+                </div>
+            </div>
+            <!-- PDF Upload -->
+            <div class="row">
+                <label for="client_file" class="col-md-4 col-form-label">Upload PDF:</label>
+                <div class="col-8">
+                    <input type="file" class="form-control" id="client_file" name="client_file" accept="application/pdf">
+                </div>
+            </div>
+
+            <!-- Radio Buttons for Uploading Face Photo -->
+            <div class="row">
+                <label class="col-md-4 col-form-label">Upload a Face Photo?:</label>
+                <div class="col-8 d-flex">
+                    <div class="form-check me-3">
+                        <input type="radio" id="upload_yes" name="upload_photo" value="Yes" style="width: 12px; height:12px" required>
+                        <label for="upload_yes">Yes</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" id="upload_no" name="upload_photo" value="No" style="width: 12px; height:12px" required>
+                        <label for="upload_no">No</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connecting Date -->
+            <div class="row">
+                <label for="connecting_date" class="col-md-4 col-form-label">Connecting Date:</label>
+                <div class="col-8">
+                    <input type="date" class="form-control" id="connecting_date" name="connecting_date">
+                </div>
+            </div>
+
+            <!-- Contact Person Details -->
+            <h3>Contact Person Details</h3>
+            <div class="row">
+                <label for="contact_name" class="col-md-4 col-form-label">Contact Person Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="contact_name" name="contact_name">
+                </div>
+            </div>
+            <div class="row">
+                <label for="contact_destination" class="col-md-4 col-form-label">Contact Person Destination:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="contact_destination" name="contact_destination">
+                </div>
+            </div>
+            <div class="row">
+                <label for="contact_mobile" class="col-md-4 col-form-label">Contact Person Mobile:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="contact_mobile" name="contact_mobile">
+                </div>
+            </div>
+            <div class="row">
+                <label for="contact_email" class="col-md-4 col-form-label">Contact Person Email:</label>
+                <div class="col-8">
+                    <input type="email" class="form-control" id="contact_email" name="contact_email">
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="row text-center">
+                <div class="col-12">
+                    <button type="submit" class="proceed-button">Register</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Include Modal Script -->
+<script>
+    function openClientRegistrationModal(groupId, groupName,fieldName) {
+        const modal = document.getElementById('clientRegistrationModal');
+        document.getElementById('modal_group_id').value = groupId;
+        document.getElementById('group_name').value = groupName;
+        document.getElementById('field_name').value = fieldName;
+
+        modal.style.display = 'block';
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('clientRegistrationModal');
+        modal.style.display = 'none';
+    }
+
+    // Close modal on outside click
+    window.onclick = function (event) {
+        const modal = document.getElementById('clientRegistrationModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,259 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}List of Clients{% endblock %}
+
+{% block content %}
+        <!-- Back to Selection Process Link -->
+        <div class="back-link">
+            <a href="{{ url_for('settings_ClientProfile') }}" class="back-button">Back to Client Profile</a>
+        </div>
+<div class="container2">
+    <h1>List of Clients</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table to Display Clients -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Client ID</th>
+                    <th>Group Name</th>
+                    <th>Client Registration Name</th>
+                    <th>Client Name</th>
+                    <th>Client Registration Date-Time</th>
+                    <th>Connecting Date</th>
+                    <th>Status</th>
+                    <th>Status Creator</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_records = clients|length %}
+                {% for client in clients %}
+                <tr>
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td>{{ client['Client ID'] }}</td>
+                    <td>{{ client['Group Name'] }}</td>
+                    <td>{{ client['Client Registration Name'] }}</td>
+                    <td>{{ client['Client Name'] }}</td>
+                    <td>{{ client['Registration Date-Time']}}</td>
+                    <td>{{ client['Connecting Date-Time'] }}</td>
+                    <td>{{ client.Status }}</td>
+                    <td>{{ client['Status Creator Name'] }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <!-- Add Client Display Name and Edit action -->
+                            <button type="button" onclick="openAddClientDisplayNameModal('{{ client['Client ID'] }}', '{{ client['Client Name'] }}')">Add Client Display Name</button>
+                            <button type="button" onclick="openEditClientModal('{{ client['Client ID'] }}', '{{ client['Field Name'] }}', '{{ client['Group Name'] }}', '{{ client['Client Registration Name'] }}', '{{ client['Reference'] }}', '{{ client['GST Number'] }}', '{{ client['Client Requirements'] }}', '{{ client['Client Name'] }}', '{{ client['Connecting Date-Time'] }}', '{{ client['Contact Person']['Contact Person Name'] }}', '{{ client['Contact Person']['Contact Person Mobile'] }}', '{{ client['Contact Person']['Contact Person Email'] }}')">Edit</button>
+                        </div>
+                        
+                        
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal for Adding Client Display Name -->
+<div id="clientDisplayModal" class="modal">
+    <div class="modal-content2">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Add Client Display Name</h2>
+        <form method="POST" action="{{ url_for('client_profile.add_client_display_name') }}">
+
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="client_id">Client ID:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="modal_client_id" name="client_id" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="client_name">Client Name:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="modal_client_name" name="client_name" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="client_display_name">Client Display Name:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="client_display_name" name="client_display_name" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row text-center">
+                <div class="col-12">
+                    <button type="submit" class="proceed-button">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Client Modal -->
+<div id="editClientModal" class="modal">
+    <div class="modal-content2" style="max-height: 80vh; overflow-y: auto;">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Edit Client</h2>
+        <form method="POST" action="{{ url_for('client_profile.update_client_details') }}">
+
+            <input type="hidden" name="client_id" id="edit_client_id">
+
+            <div class="row">
+                <label for="edit_field_name" class="col-md-4 col-form-label">Field Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_field_name" name="field_name" readonly>
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_group_name" class="col-md-4 col-form-label">Group Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_group_name" name="group_name" readonly>
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_client_registration_name" class="col-md-4 col-form-label">Client Registration Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_client_registration_name" name="client_registration_name" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_reference" class="col-md-4 col-form-label">Reference:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_reference" name="reference">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_gst_number" class="col-md-4 col-form-label">GST Number:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_gst_number" name="gst_number">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_client_requirements" class="col-md-4 col-form-label">Client Requirements:</label>
+                <div class="col-8">
+                    <textarea class="form-control" id="edit_client_requirements" name="client_requirements"></textarea>
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_client_name" class="col-md-4 col-form-label">Client Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_client_name" name="client_name" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_connecting_date" class="col-md-4 col-form-label">Connecting Date:</label>
+                <div class="col-8">
+                    <input type="date" class="form-control" id="edit_connecting_date" name="connecting_date">
+                </div>
+            </div>
+
+            <h3>Contact Person Details</h3>
+
+            <div class="row">
+                <label for="edit_contact_name" class="col-md-4 col-form-label">Contact Person Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_contact_name" name="contact_name" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_contact_mobile" class="col-md-4 col-form-label">Contact Person Mobile:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_contact_mobile" name="contact_mobile" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_contact_email" class="col-md-4 col-form-label">Contact Person Email:</label>
+                <div class="col-8">
+                    <input type="email" class="form-control" id="edit_contact_email" name="contact_email" required>
+                </div>
+            </div>
+
+            <div class="row text-center">
+                <div class="col-12">
+                    <button type="submit" class="proceed-button">Save Changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    // Function to open the modal and populate client data for adding display name
+    function openAddClientDisplayNameModal(clientId, clientName) {
+        document.getElementById('modal_client_id').value = clientId;
+        document.getElementById('modal_client_name').value = clientName;
+        document.getElementById('clientDisplayModal').style.display = 'block';
+    }
+
+    // Function to open the modal and populate client data for editing
+    function openEditClientModal(clientId, fieldName, groupName, registrationName, reference, gstNumber, requirements, clientName, connectingDate, contactName, contactMobile, contactEmail) {
+        document.getElementById('edit_client_id').value = clientId;
+        document.getElementById('edit_field_name').value = fieldName;
+        document.getElementById('edit_group_name').value = groupName;
+        document.getElementById('edit_client_registration_name').value = registrationName;
+        document.getElementById('edit_reference').value = reference;
+        document.getElementById('edit_gst_number').value = gstNumber;
+        document.getElementById('edit_client_requirements').value = requirements;
+        document.getElementById('edit_client_name').value = clientName;
+        document.getElementById('edit_connecting_date').value = connectingDate;
+        document.getElementById('edit_contact_name').value = contactName;
+        document.getElementById('edit_contact_mobile').value = contactMobile;
+        document.getElementById('edit_contact_email').value = contactEmail;
+
+        document.getElementById('editClientModal').style.display = 'block';
+    }
+
+    // Function to close modals
+    function closeModal() {
+        document.getElementById('clientDisplayModal').style.display = 'none';
+        document.getElementById('editClientModal').style.display = 'none';
+    }
+
+    // Close modal when clicked outside
+    window.onclick = function(event) {
+        const displayModal = document.getElementById('clientDisplayModal');
+        const editModal = document.getElementById('editClientModal');
+        if (event.target === displayModal || event.target === editModal) {
+            closeModal();
+        }
+    }
+</script>
+
+{% endblock %}

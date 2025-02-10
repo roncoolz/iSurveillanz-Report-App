@@ -1,0 +1,74 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}List of All Links{% endblock %}
+
+{% block content %}
+    <!-- Back to Selection Process Link -->
+    <div class="back-link">
+        <a href="{{ url_for('block_PC.view_pc_profiles') }}" class="back-button">Back to PC Profile</a>
+    </div>
+
+    <h2>List of All Links</h2>
+
+    <!-- Form to enter PC Title -->
+    <form method="POST">
+        <label for="pc_title">PC Title:</label>
+        <!-- Text field to enter PC Title -->
+        <input type="text" id="pc_title" name="pc_title" placeholder="Enter PC Title" value="{{ pc_title or '' }}" readonly>
+        <button type="submit">View Links</button>
+    </form>
+
+    <!-- Table to display linked departments -->
+    {% if links %}
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Client Registration Number</th>
+                <th>Client ID</th>
+                <th>Department</th>
+                <th>Department ID</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for link in links %}
+            <tr>
+                <td>{{ link.client_registration_number }}</td>
+                <td>{{ link.client_id }}</td>
+                <td>{{ link.department }}</td>
+                <td>{{ link.department_id }}</td>
+                <td>
+                    <!-- Remove button for removing a link -->
+                    <form action="{{ url_for('block_PC.remove_link') }}" method="POST" class="remove-link-form">
+                        <input type="hidden" name="link_id" value="{{ link._id }}">
+                        <button type="button" class="btn btn-danger" onclick="confirmRemove(this)">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No links found for the entered PC Title.</p>
+    {% endif %}
+
+
+<!-- JavaScript for confirmation dialog -->
+<script>
+    // Function to trigger confirmation before removing a link
+    function confirmRemove(button) {
+        var form = button.closest('form'); // Get the form associated with the button
+        var linkId = form.querySelector('input[name="link_id"]').value; // Get the link ID
+        
+        // Show confirmation dialog
+        var isConfirmed = confirm("Are you sure you want to remove this link?");
+        
+        if (isConfirmed) {
+            form.submit(); // Submit the form if the user confirms
+        } else {
+            // If user cancels, do nothing
+            console.log("Link removal canceled for ID:", linkId);
+        }
+    }
+</script>
+{% endblock %}
