@@ -1,0 +1,53 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Client Rules Linking{% endblock %}
+
+{% block content %}
+<div class="container2">
+    <h1>Client Rules Linking</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <select id="clientNameSelect" onchange="updateClientDetails()">
+            <option selected disabled>Select a client</option>
+            {% for client in clients %}
+                <option value="{{ client }}">{{ client }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="client_name">Client Name:</label>
+        <input type="text" name="client_name" id="client_name" required><br><br>
+
+        <!-- Display client_id in a text field -->
+        <label for="client_id">Client ID:</label>
+        <input type="text" name="client_id" id="client_id" readonly><br><br>
+
+        <label for="file">Select File:</label>
+        <input type="file" name="file" required><br><br>
+        
+        <button type="submit">Upload</button>
+    </form>
+</div>
+
+<script>
+    function updateClientDetails() {
+        var selectedClientName = document.getElementById("clientNameSelect").value;
+        
+        // Make an AJAX request to fetch the client ID for the selected client name
+        fetch(`/get_client_id_2?client_name=${selectedClientName}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.client_id) {
+                    // Populate the client_id input field with the fetched client ID
+                    document.getElementById("client_id").value = data.client_id;
+                    // Optionally, update the text input field with the selected client name
+                    document.getElementById("client_name").value = selectedClientName;
+                } else {
+                    alert("Client not found!");
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    
+</script>
+
+{% endblock %}
