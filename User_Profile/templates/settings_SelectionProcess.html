@@ -1,0 +1,302 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Log Records{% endblock %}
+
+{% block content %}
+
+    <!--Widget Start-->
+    <div class="card-body">
+        <div class="container3">
+
+            <!-- Back to Selection Process Link -->
+            <div class="back-link">
+                <a href="{{ url_for('settings') }}" class="back-button">Back to Settings home page</a>
+            </div>
+
+            <div class="card1">
+              <a href="{{ url_for('register.active_employees_list') }}" class="card-link"> <!-- Make the whole card clickable -->
+                <div class="face face1">
+                    <div class="content">
+                        <div class="profile-header">
+                            <i class="fa-solid fa-user-gear icon"></i>
+                            <span class="num" data-val="{{ selected_count }}">{{ active_count }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="face face2">
+                    <h2>Active Employee Profile</h2>
+                </div>
+              </a>
+            </div>
+
+            <div class="card1">
+              <a href="#" class="card-link">
+                <div class="face face1">
+                    <div class="content">
+                        <div class="profile-header">
+                            <i class="fa-solid fa-user-slash icon"></i>
+                            <span class="num" data-val="{{ selected_count }}">{{ inactive_count }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="face face2">
+                    <h2>Inactive Employee Profile</h2>
+                </div>
+              </a>
+            </div>
+
+            <div class="card1">
+                <a href="#" id="showRegistrationForm" class="card-link">
+                  <div class="face face1">
+                      <div class="content">
+                          <div class="profile-header">
+                              <i class="fa-solid fa-id-card icon"></i>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="face face2">
+                      <h2>Registration Form</h2>
+                  </div>
+                </a>
+              </div>
+    
+              <div class="card1">
+                <a href="{{ url_for('register.show_table') }}" class="card-link">  <!-- Updated link to registered_users route -->
+                    <div class="face face1">
+                        <div class="content">
+                            <div class="profile-header">
+                                <i class="fa-solid fa-user-clock icon"></i>
+                                <span class="num" data-val="{{ registered_count }}">{{ registered_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="face face2">
+                        <h2>Registered Users List</h2>
+                    </div>
+                </a>
+            </div>
+    
+            <div class="card1">
+                <a href="{{ url_for('register.scheduled_interviews') }}" class="card-link">
+                    <div class="face face1">
+                        <div class="content">
+                            <div class="profile-header">
+                                <i class="fa-solid fa-user-clock icon"></i>
+                                <span class="num" data-val="{{ scheduled_count }}">{{ scheduled_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="face face2">
+                        <h2>Scheduled Interviews List</h2>
+                    </div>
+                </a>
+            </div>
+    
+            <div class="card1">
+              <a href="{{ url_for('register.interview_reviewed_list') }}" class="card-link">
+                <div class="face face1">
+                    <div class="content">
+                        <div class="profile-header">
+                          <i class="fa-solid fa-person-circle-question icon"></i>
+                          <span class="num" data-val="{{ shortlisted_count }}">{{ shortlisted_count }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="face face2">
+                    <h2>Interview Reviewed List</h2>
+                </div>
+              </a>
+            </div>
+    
+            <div class="card1">
+              <a href="{{ url_for('register.selected_candidates') }}" class="card-link">
+                <div class="face face1">
+                    <div class="content">
+                        <div class="profile-header">
+                            <i class="fa-solid fa-person-circle-check icon"></i>
+                            <span class="num" data-val="{{ selected_count }}">{{ selected_count }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="face face2">
+                    <h2>Selected Candidate List</h2>
+                </div>
+              </a>
+            </div>
+    
+            <div class="card1">
+              <a href="{{ url_for('register.on_trial_list') }}" class="card-link">
+                <div class="face face1">
+                    <div class="content">
+                        <div class="profile-header">
+                            <i class="fa-solid fa-clipboard-check icon"></i>
+                            <span class="num" data-val="{{ trialperiod_count }}">{{ trialperiod_count }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="face face2">
+                    <h2>On Trial List</h2>
+                </div>
+              </a>
+            </div>
+    
+            <div class="card1">
+              <a href="{{ url_for('register.joining_form_list') }}" class="card-link">
+                <div class="face face1">
+                    <div class="content">
+                        <div class="profile-header">
+                            <i class="fa-solid fa-right-to-bracket icon"></i>
+                            <span class="num" data-val="{{ joiningform_count }}">{{ joiningform_count }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="face face2">
+                    <h2>Joining Form List</h2>
+                </div>
+              </a>
+            </div>
+
+            <div class="card1">
+                <a href="{{ url_for('register.pre_hr_approved') }}" class="card-link">
+                  <div class="face face1">
+                      <div class="content">
+                          <div class="profile-header">
+                              <i class="fa-solid fa-right-to-bracket icon"></i>
+                              <span class="num" data-val="{{ prehr_count }}">{{ prehr_count }}</span>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="face face2">
+                      <h2>Pre HR Approved List</h2>
+                  </div>
+                </a>
+              </div>
+    
+            <div class="card1">
+              <a href="#" class="card-link">
+                <div class="face face1">
+                    <div class="content">
+                        <div class="profile-header">
+                            <i class="fa-solid fa-user-check icon"></i>
+                            <span class="num" data-val="0">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="face face2">
+                    <h2>HR Approved List</h2>
+                </div>
+              </a>
+            </div>
+    
+            <div class="card1">
+              <a href="#" class="card-link">
+                <div class="face face1">
+                    <div class="content">
+                        <div class="profile-header">
+                            <i class="fa-solid fa-image-portrait icon"></i>
+                            <span class="num" data-val="5">5</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="face face2">
+                    <h2>Post Selection Processes CheckList</h2>
+                </div>
+              </a>
+            </div>
+    
+            <div class="card1">
+              <a href="#" class="card-link">
+                <div class="face face1">
+                    <div class="content">
+                        <div class="profile-header">
+                            <i class="fa-solid fa-user-xmark icon"></i>
+                            <span class="num" data-val="17">17</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="face face2">
+                    <h2>Excluded candidate List</h2>
+                </div>
+              </a>
+            </div>
+    
+        </div>
+    </div>
+
+    <!-- Modal for Registration Form -->
+<div id="registrationFormModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeRegistrationFormModal()">&times;</span>
+        <h2>Registration Form</h2>
+
+        <!-- Include the registration form -->
+        <form action="/register_form" method="POST" class="form" enctype="multipart/form-data">
+            <!-- Full Name Field -->
+            <div class="input-container">
+                <i class='bx bx-user'></i>
+                <label for="full_name" class="required">Full Name:</label>
+                <input type="text" id="full_name" name="full_name" placeholder="Full Name" required>
+            </div>
+
+            <!-- Email Address Field -->
+            <div class="input-container">
+                <i class='bx bx-envelope'></i>
+                <label for="email_address" class="required">Email Address:</label>
+                <input type="email" id="email_address" name="email_address" placeholder="Email Address" required><br>
+            </div>
+
+            <!-- Mobile Number Field -->
+            <div class="input-container">
+                <i class='bx bx-phone'></i>
+                <label for="mobile_number" class="required">Mobile Number:</label>
+                <input type="tel" id="mobile_number" name="mobile_number" placeholder="Mobile Number" pattern="\d{10}" title="Mobile number must be exactly 10 digits" required><br>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="file-upload-box">
+                <i class='bx bx-upload'></i>
+                <label for="cv_file" class="required">Upload CV (PDF only):</label>
+                <input type="file" id="files" name="cv_file" accept="application/pdf">
+            </div>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+<script>
+
+// JavaScript for opening the Registration Form modal
+    document.getElementById("showRegistrationForm").addEventListener("click", function(event) {
+        event.preventDefault();
+        var modal = document.getElementById("registrationFormModal");
+        modal.style.display = "block"; // Show the modal
+    });
+
+    // Function to close the Registration Form Modal
+    function closeRegistrationFormModal() {
+        var modal = document.getElementById("registrationFormModal");
+        modal.style.display = "none"; // Hide the modal
+    }
+
+    // Close the modal and redirect after form submission
+    function handleFormSubmit(event) {
+        event.preventDefault();  // Prevent the default form submission behavior
+
+        // Close the modal
+        closeRegistrationFormModal();
+
+        // Redirect to the desired page after form submission
+        window.location.href = "http://127.0.0.1:5000/settings_SelectionProcess";  // Redirect to the selection process page
+    }
+
+    // Close the modal if the user clicks outside of it
+    window.onclick = function(event) {
+        var modal = document.getElementById("registrationFormModal");
+        if (event.target === modal) {
+            closeRegistrationFormModal();
+        }
+    };
+
+</script>
+      
+{% endblock %}

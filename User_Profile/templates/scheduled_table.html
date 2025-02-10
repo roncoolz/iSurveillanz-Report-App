@@ -1,0 +1,438 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Scheduled Interviews List{% endblock %}
+
+{% block content %}
+    <div class="container2">
+        <h1>Scheduled Interviews</h1>
+
+        <!-- Back to Selection Process Link -->
+        <div class="back-link">
+            <a href="{{ url_for('settings_SelectionProcess') }}" class="back-button">Back to Selection Process</a>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Table with Scrollbar -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sr No.</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Mobile Number</th>
+                        <th>Registration Number</th>
+                        <th>Interview Date</th>
+                        <th>Status</th>
+                        <th>Comments</th>
+                        <th>Interview Review Marks</th>
+                        <th>Interviewers List</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_records = records|length %}
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ total_records - loop.index +1 }}</td>
+                        <td>{{ record['full_name'] }}</td>
+                        <td>{{ record['email_address'] }}</td>
+                        <td>{{ record['mobile_number'] }}</td>
+                        <td>{{ record['registration_number'] }}</td>
+                        <td>{{ record['interview_date'] }}</td>
+                        <td>{{ record['Status'] }}</td>
+                        <td>{{ record['comments'] or 'No comments' }}</td> <!-- Display Comments -->
+                        <td>{{ record['interview_review_marks'] or 'Not Evaluated' }}</td> <!-- Display Interview Review Marks -->
+                        <td id="interviewers_list_{{ record['registration_number'] }}">
+                            {{ record['interviewers_list'] or 'No interviewers selected' }}
+                        </td>
+
+                        <!-- Hidden <td> for full name and status -->
+                        <td id="user_full_name_{{ record['registration_number'] }}" style="display: none;">{{ record['full_name'] }}</td>
+                        <td id="user_status_{{ record['registration_number'] }}" style="display: none;">{{ record['Status'] }}</td>
+                        
+                        <td>
+
+                            <button type="button" onclick="confirmShortlist('{{ record['full_name'] }}', '{{ record['registration_number'] }}')" class="btn">Add to Shortlist</button>
+                            
+                            <form action="{{ url_for('register.scheduled_interviews') }}" method="POST">
+                                <input type="hidden" name="record_id" value="{{ record['registration_number'] }}">
+                                <button type="submit" id="cancel_button_{{ record['registration_number'] }}" name="action" value="cancel" class="btn">Cancel</button>
+                                <button type="button" id="review_button_{{ record['registration_number'] }}" onclick="openReviewForm('{{ record['registration_number'] }}', '{{ record['full_name'] }}', '{{ record['email_address'] }}')" class="btn">Review Form</button>
+                                <button type="button" id="updates_button_{{ record['registration_number'] }}" onclick="openInterviewUpdatesModal('{{ record['registration_number'] }}', '{{ record['full_name'] }}', '{{ record['email_address'] }}', '{{ record['interview_date'] }}')" class="btn">Interview Updates</button>
+                                <button type="button" id="interviewers_button_{{ record['registration_number'] }}" onclick="openSelectInterviewersModal('{{ record['registration_number'] }}')" class="btn">Select Interviewers</button> <!-- New Button -->
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Review Form Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content2">
+            <span class="close-btn" onclick="closeReviewForm()">&times;</span>
+            <h2>Interview Review Form</h2>
+            <form action="{{ url_for('register.review_form') }}" method="POST" id="reviewForm">
+                <input type="hidden" name="registration_number" id="registration_number">
+                <input type="hidden" name="full_name" id="full_name">
+                <input type="hidden" name="interview_status" id="interview_status">
+        
+                <!-- Row for Relevant Skills -->
+                <div class="row">
+                    <div class="col-3">
+                        <label class="form-label">Relevant Skills:</label>
+                    </div>
+                    <div class="col-9">
+                        <div class="col-3">
+                            <div class="form-label-group">
+                                <input type="radio" name="relevant_skills" value="Poor" class="form-check-input" id="relevant_skills_poor" style="height: 12px; width: 12px;" CssClass="form-control">
+                                <label for="relevant_skills_poor" class="form-check-label" AssociatedControlID="relevant_skills_poor">Poor</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-label-group">
+                                <input type="radio" name="relevant_skills" value="Average" class="form-check-input" id="relevant_skills_average" style="height: 12px; width: 12px;" CssClass="form-control">
+                                <label for="relevant_skills_average" class="form-check-label" AssociatedControlID="relevant_skills_average">Average</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-label-group">
+                                <input type="radio" name="relevant_skills" value="Good" class="form-check-input" id="relevant_skills_good" style="height: 12px; width: 12px;" CssClass="form-control">
+                                <label for="relevant_skills_good" class="form-check-label" AssociatedControlID="relevant_skills_good">Good</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row"><div class="col-12"></div></div>
+
+                <!-- Row for Communication Skills -->
+                <div class="row">
+                    <div class="col-3">
+                        <label class="form-label">Communication Skills:</label>
+                    </div>
+                    <div class="col-9">
+                        <div class="col-3">
+                            <div class="form-label-group">
+                                <input type="radio" name="communication_skills" value="Poor" class="form-check-input" id="communication_skills_poor" style="height: 12px; width: 12px;" CssClass="form-control">
+                                <label for="communication_skills_poor" class="form-check-label" AssociatedControlID="communication_skills_poor">Poor</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-label-group">
+                                <input type="radio" name="communication_skills" value="Average" class="form-check-input" id="communication_skills_average" style="height: 12px; width: 12px;" CssClass="form-control">
+                                <label for="communication_skills_average" class="form-check-label" AssociatedControlID="communication_skills_average">Average</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-label-group">
+                                <input type="radio" name="communication_skills" value="Good" class="form-check-input" id="communication_skills_good" style="height: 12px; width: 12px;" CssClass="form-control">
+                                <label for="communication_skills_good" class="form-check-label" AssociatedControlID="communication_skills_good">Good</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row"></div>
+
+                <!-- Row for Problem Solving Ability -->
+                <div class="row">
+                    <div class="col-3">
+                        <label class="form-label">problem Solving:</label>
+                    </div>
+                    <div class="col-9">
+                        <div class="col-3">
+                            <div class="form-label-group">
+                                <input type="radio" name="problem_solving" value="Poor" class="form-check-input" id="problem_solving_poor" style="height: 12px; width: 12px;" CssClass="form-control">
+                                <label for="problem_solving_poor" class="form-check-label" AssociatedControlID="problem_solving_poor">Poor</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-label-group">
+                                <input type="radio" name="problem_solving" value="Average" class="form-check-input" id="problem_solving_average" style="height: 12px; width: 12px;" CssClass="form-control">
+                                <label for="problem_solving_average" class="form-check-label" AssociatedControlID="problem_solving_average">Average</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-label-group">
+                                <input type="radio" name="problem_solving" value="Good" class="form-check-input" id="problem_solving_good" style="height: 12px; width: 12px;" CssClass="form-control">
+                                <label for="problem_solving_good" class="form-check-label" AssociatedControlID="problem_solving_good">Good</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row"></div>
+                <!-- Row for Culture Fit -->
+                <div class="row">
+                    <div class="col-3">
+                        <label class="form-label">Culture Fit:</label>
+                    </div>
+                    <div class="col-9">
+                        <div class="col-3">
+                            <div class="form-label-group">
+                                <input type="radio" name="culture_fit" value="Poor" class="form-check-input" id="culture_fit_poor" style="height: 12px; width: 12px;" CssClass="form-control">
+                                <label for="culture_fit_poor" class="form-check-label" AssociatedControlID="culture_fit_poor">Poor</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-label-group">
+                                <input type="radio" name="culture_fit" value="Average" class="form-check-input" id="culture_fit_average" style="height: 12px; width: 12px;" CssClass="form-control">
+                                <label for="culture_fit_average" class="form-check-label" AssociatedControlID="culture_fit_average">Average</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-label-group">
+                                <input type="radio" name="culture_fit" value="Good" class="form-check-input" id="culture_fit_good" style="height: 12px; width: 12px;" CssClass="form-control">
+                                <label for="culture_fit_good" class="form-check-label" AssociatedControlID="culture_fit_good">Good</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row"></div>
+                <!-- Row for Comments -->
+                <div class="row">
+                    <div class="col-12">
+                        <label for="comments" class="form-label">Comments:</label>
+                        <textarea name="comments" id="comments" rows="4" class="form-control" required></textarea>
+                    </div>
+                </div>
+        
+                <!-- Row for Submit Button -->
+                <div class="row">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary w-100">Submit Review</button>
+                    </div>
+                </div>
+            </form>
+        </div>        
+    </div>
+
+    <div class="popup" id="shortlistConfirmationPopup" style="display: none;">
+        <div class="popup-content">
+            <img src="{{ url_for('static', filename='question-mark-circle-outline-icon.svg') }}" alt="Confirmation Icon" class="confirmation-icon">
+            <h2>Shortlist Confirmation</h2>
+            <p>Are you sure you want to add <span id="shortlistPopupFullName"></span> to the shortlist?</p>
+            
+            <div class="button-container">
+                <form id="shortlistForm" method="post" style="display: inline;">
+                    <input type="hidden" id="shortlistPopupRegistrationNumber" name="record_id">
+                    <button type="button" onclick="proceedWithShortlist()">Yes, Proceed</button>
+                </form>
+                <button type="button" onclick="closeShortlistConfirmationPopup()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interview Updates Modal -->
+    <div id="interviewUpdatesModal" class="modal">
+        <div class="modal-content2">
+            <span class="close" onclick="closeInterviewUpdatesModal()">&times;</span>
+            <h2>Update Interview Status</h2>
+            <form action="{{ url_for('register.interview_updates') }}" method="POST" id="interviewUpdatesForm">
+                <input type="hidden" name="registration_number" id="update_registration_number">
+                <label for="update_full_name">Full Name:</label>
+                <input type="text" name="full_name" id="update_full_name" readonly>
+
+                <label for="update_email">Email:</label>
+                <input type="email" name="email" id="update_email" readonly>
+
+                <label for="interview_scheduled_time">Interview Scheduled Time:</label>
+                <input type="text" name="interview_scheduled_time" id="interview_scheduled_time" readonly>
+
+                <label for="interview_status">Interview Updates:</label>
+                <select name="interview_status" id="interview_status">
+                    <option value="Interview Missed">Interview Missed</option>
+                    <option value="Interview Reschedule">Interview Reschedule</option>
+                    <option value="Interview Cancel">Interview Cancel</option>
+                </select>
+
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Select Interviewers Modal -->
+    <div id="selectInterviewersModal" class="modal">
+        <div class="modal-content2">
+            <span class="close" onclick="closeSelectInterviewersModal()">&times;</span>
+            <h2>Select Interviewers</h2>
+            <form action="{{ url_for('register.assign_interviewers') }}" method="POST" id="selectInterviewersForm">
+                <input type="hidden" name="registration_number" id="modal_registration_number">
+    
+                <label for="interviewers">Choose Interviewers:</label>
+                <select name="interviewers" id="interviewers" multiple required>
+                    {% for interviewer in interviewer11 %}
+                        <option value="{{ interviewer }}">{{ interviewer }}</option>
+                    {% endfor %}
+                </select>
+    
+                <button type="submit">Assign Interviewers</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+    function updateButtonState(interviewerslist, reviewMarks, recordId) {
+        // Get buttons related to the record by using recordId
+        var shortlistButton = document.getElementById('shortlist_button_' + recordId);
+        var cancelButton = document.getElementById('cancel_button_' + recordId);
+        var reviewButton = document.getElementById('review_button_' + recordId);
+        var updatesButton = document.getElementById('updates_button_' + recordId);
+        var interviewersButton = document.getElementById('interviewers_button_' + recordId);
+
+        // Disable or enable buttons based on the status
+        if (interviewerslist === 'No interviewers selected') {
+            shortlistButton.disabled = false;
+            cancelButton.disabled = false;
+            reviewButton.disabled = true;
+            updatesButton.disabled = false;
+            interviewersButton.disabled = false;
+        
+        } else {
+            shortlistButton.disabled = true;
+            cancelButton.disabled = false;
+            reviewButton.disabled = false;
+            updatesButton.disabled = false;
+            interviewersButton.disabled = true;
+        }
+
+        // Disable the "Add to Shortlist" button if Interview Review Marks are "Not Evaluated"
+        if (reviewMarks === 'Not Evaluated') {
+            shortlistButton.disabled = true;
+        }
+    }
+
+    // Run the updateButtonState for each record in the loop
+    {% for record in records %}
+        updateButtonState(
+            '{{ record['interviewers_list'] or 'No interviewers selected' }}', 
+            '{{ record['interview_review_marks'] or 'Not Evaluated' }}', 
+            '{{ record['registration_number'] }}'
+        );
+    {% endfor %}
+
+    function openInterviewUpdatesModal(registrationNumber, fullName, email, interviewTime) 
+    {
+        document.getElementById('update_registration_number').value = registrationNumber;
+        document.getElementById('update_full_name').value = fullName;
+        document.getElementById('update_email').value = email;
+        document.getElementById('interview_scheduled_time').value = interviewTime;
+        
+        document.getElementById('interviewUpdatesModal').style.display = 'block';
+    }
+
+    function closeInterviewUpdatesModal() {
+        document.getElementById('interviewUpdatesModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        var modal = document.getElementById('interviewUpdatesModal');
+        if (event.target == modal) 
+        {
+            closeInterviewUpdatesModal();
+        }
+    }
+
+    // Function to check the Interviewers List and enable/disable Review Form button
+    /*<function checkInterviewersList() {
+        {% for record in records %}
+            var interviewersList = document.getElementById('interviewers_list_{{ record['registration_number'] }}').innerText;
+            var reviewButton = document.getElementById('reviewButton_{{ record['registration_number'] }}');
+
+            // Disable the button if 'No interviewers selected' else enable it
+            if (interviewersList === 'No interviewers selected') {
+                reviewButton.disabled = true;
+            } else {
+                reviewButton.disabled = false;
+            }
+        {% endfor %}
+    }*/
+
+    // Call the function on page load
+    window.onload = checkInterviewersList;
+
+    // Function to open the Review Form modal and populate hidden fields
+    function openReviewForm(registrationNumber, fullName, emailAddress) {
+        document.getElementById('registration_number').value = registrationNumber;
+        document.getElementById('full_name').value = fullName;
+        document.getElementById('interview_status').value = "Scheduled"; // or the actual status
+        document.getElementById('reviewModal').style.display = "block";
+    }
+
+    // Function to close the Review Form modal
+    function closeReviewForm() {
+        document.getElementById('reviewModal').style.display = "none";
+    }
+
+    function confirmShortlist(fullName, registrationNumber) {
+        // Update the popup content dynamically
+        document.getElementById("shortlistPopupFullName").innerText = fullName;
+    
+        // Update the hidden input field
+        document.getElementById("shortlistPopupRegistrationNumber").value = registrationNumber;
+    
+        // Set the form action dynamically
+        const form = document.getElementById("shortlistForm");
+        form.action = '/add_to_shortlist/'+registrationNumber;
+    
+        // Show the popup
+        document.getElementById("shortlistConfirmationPopup").style.display = "block";
+    }
+    
+    function closeShortlistConfirmationPopup() {
+        document.getElementById("shortlistConfirmationPopup").style.display = "none";
+    }
+    
+    function proceedWithShortlist() {
+        // Submit the form
+        document.getElementById("shortlistForm").submit();
+    }
+
+    // If Interviewers List changes dynamically, call the function again
+    /*function updateInterviewersList(registrationNumber) {
+        var interviewersList = document.getElementById('interviewers_list_' + registrationNumber).innerText;
+        var reviewButton = document.getElementById('reviewButton_' + registrationNumber);
+
+        if (interviewersList === 'No interviewers selected') {
+            reviewButton.disabled = true;
+        } else {
+            reviewButton.disabled = false;
+        }
+    }*/
+
+    function openSelectInterviewersModal(registrationNumber) 
+    {
+        document.getElementById('modal_registration_number').value = registrationNumber;
+        document.getElementById('selectInterviewersModal').style.display = 'block';
+    }
+
+    function closeSelectInterviewersModal() 
+    {
+        document.getElementById('selectInterviewersModal').style.display = 'none';
+    }
+
+    // Close the modal if the user clicks outside of it
+    window.onclick = function(event) 
+    {
+        var modal = document.getElementById('selectInterviewersModal');
+        if (event.target == modal) {
+            closeSelectInterviewersModal();
+        }
+        if (event.target == confirmationPopup) {
+            closeShortlistConfirmationPopup();
+        }
+    }
+
+</script>
+{% endblock %}

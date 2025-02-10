@@ -1,0 +1,242 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Interview Reviewed List{% endblock %}
+
+{% block content %}
+    <div class="container2">
+        <h1>Selected Candidate List</h1>
+
+        <!-- Back to Selection Process Link -->
+        <div class="back-link">
+            <a href="{{ url_for('settings_SelectionProcess') }}" class="back-button">Back to Selection Process</a>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Table with Scrollbar -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sr No.</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Mobile Number</th>
+                        <th>Registration Number</th>
+                        <th>Interview Date</th>
+                        <th>Status</th>
+                        <th>CV</th> <!-- New CV column -->
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_records = records|length %}
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ total_records - loop.index }}</td>
+                        <td>{{ record['full_name'] }}</td>
+                        <td>{{ record['email_address'] }}</td>
+                        <td>{{ record['mobile_number'] }}</td>
+                        <td>{{ record['registration_number'] }}</td>
+                        <td>{{ record['interview_date'] }}</td>
+                        <td>{{ record['Status'] }}</td>
+                        
+                          <!-- CV button with modal trigger -->
+                        <td class="view-cell">
+                            {% if record['cv_file_id'] %}
+                                <button class="view-button" data-file-url="{{ url_for('register.view_cv', file_id=record['cv_file_id']) }}">View</button>
+                            {% else %}
+                                No file uploaded
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <!-- Trail button -->
+                            <button class="trail-btn" data-reg-num="{{ record['registration_number'] }}" 
+                                    data-name="{{ record['full_name'] }}" data-email="{{ record['email_address'] }}">
+                                Trail
+                            </button>
+
+                    
+                            <!-- Send Joining Form button -->
+                            <button class="joining-btn" data-reg-num="{{ record['registration_number'] }}" 
+                                    data-name="{{ record['full_name'] }}" data-email="{{ record['email_address'] }}">
+                                Send Joining Form
+                            </button>
+                            
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal for Viewing CV -->
+    <div id="cvModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeCvModal()">&times;</span>
+            <iframe id="cvIframe" src="" width="100%" height="500px" style="border: none;"></iframe>
+        </div>
+    </div>
+
+    <!-- Modal for Trail Details -->
+    <div id="trailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeTrailModal()">&times;</span>
+            <h2>Trail Details</h2>
+            <form id="trailForm" action="{{ url_for('register.schedule_trial') }}" method="POST">
+                <div class="form-group">
+                    <label for="regNumber">Registration Number</label>
+                    <input type="text" id="regNumber" name="regNumber" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="purpose">Purpose</label>
+                    <input type="text" id="purpose" name="purpose" value="On Trail" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="trailStartDate">Trail Start Date</label>
+                    <input type="date" id="trailStartDate" name="trialStartDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="trialEndDate">Trail End Date</label>
+                    <input type="date" id="trialEndDate" name="trialEndDate" required>
+                </div>
+                <button type="submit" class="btn">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Sending Joining Form -->
+    <div id="joiningModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeJoiningModal()">&times;</span>
+            <h2>Send Joining Form</h2>
+            <form id="joiningForm" action="{{ url_for('register.send_joining_form') }}" method="POST">
+                <div class="form-group">
+                    <label for="regNumberJoining">Registration Number</label>
+                    <input type="text" id="regNumberJoining" name="regNumber" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="fullNameJoining">Full Name</label>
+                    <input type="text" id="fullNameJoining" name="fullName" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="emailJoining">Email</label>
+                    <input type="email" id="emailJoining" name="email" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Are you sure you want to send the Joining Form?</label>
+                    <div>
+                        <input type="radio" id="yes" name="confirm" value="yes" required>
+                        <label for="yes">Yes</label>
+                        <input type="radio" id="no" name="confirm" value="no" required>
+                        <label for="no">No</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Get the CV modal
+        var cvModal = document.getElementById("cvModal");
+        var cvIframe = document.getElementById("cvIframe");
+        var viewButtons = document.querySelectorAll(".view-button");
+
+        // Loop through the view buttons to attach modal open behavior for CV
+        viewButtons.forEach(function(button) {
+            button.addEventListener("click", function() {
+                var fileUrl = button.getAttribute("data-file-url");
+                cvIframe.src = fileUrl;
+                cvModal.style.display = "block";
+            });
+        });
+
+        // Close the CV modal
+        function closeCvModal() {
+            cvModal.style.display = "none";
+        }
+
+        // Get the Trail modal
+        var trailModal = document.getElementById("trailModal");
+        var trailButtons = document.querySelectorAll(".trail-btn");
+
+        // Loop through the trail buttons to add event listeners
+        trailButtons.forEach(function(button) {
+            button.addEventListener("click", function() {
+                var regNum = button.getAttribute("data-reg-num");
+                var name = button.getAttribute("data-name");
+                var email = button.getAttribute("data-email");
+
+                // Populate the modal form with the candidate's details
+                document.getElementById("regNumber").value = regNum;
+                document.getElementById("fullName").value = name;
+                document.getElementById("email").value = email;
+                document.getElementById("purpose").value = "On Trail";
+
+                // Open the modal
+                trailModal.style.display = "block";
+            });
+        });
+
+
+       // Modal JavaScript code
+        var joiningModal = document.getElementById("joiningModal");
+        var joiningButtons = document.querySelectorAll(".joining-btn");
+
+        joiningButtons.forEach(function(button) {
+            button.addEventListener("click", function() {
+                var regNum = button.getAttribute("data-reg-num");
+                var name = button.getAttribute("data-name");
+                var email = button.getAttribute("data-email");
+
+                document.getElementById("regNumberJoining").value = regNum;
+                document.getElementById("fullNameJoining").value = name;
+                document.getElementById("emailJoining").value = email;
+
+                joiningModal.style.display = "block";
+            });
+        });
+
+        // Close the Trail modal
+        function closeTrailModal() {
+            trailModal.style.display = "none";
+        }
+
+         // Close the Joining Form modal
+         function closeJoiningModal() {
+            joiningModal.style.display = "none";
+        }
+
+        // Close the modal if the user clicks outside of it
+        window.onclick = function(event) {
+            if (event.target === trailModal) {
+                closeTrailModal();
+            }
+            if (event.target === joiningModal) {
+                closeJoiningModal();
+            }
+            
+        };
+
+    </script>
+{% endblock %}

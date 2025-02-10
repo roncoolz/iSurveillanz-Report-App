@@ -1,0 +1,230 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Registered Users{% endblock %}
+
+{% block content %}
+    <div class="container2">
+        <h1>Registration User Data</h1>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Back to Selection Process Link -->
+        <div class="back-link">
+            <a href="{{ url_for('settings_SelectionProcess') }}" class="back-button">Back to Selection Process</a>
+        </div>
+
+        <!-- Table with Scrollbar -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sr No.</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Mobile Number</th>
+                        <th>Registration Number</th>
+                        <th>CV File</th>
+                        <th>Comment</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_records = records|length %}
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ total_records - loop.index +1 }}</td>
+                        <td>{{ record['full_name'] }}</td>
+                        <td>{{ record['email_address'] }}</td>
+                        <td>{{ record['mobile_number'] }}</td>
+                        <td>{{ record['registration_number'] }}</td>
+                        <td class="view-cell">
+                            {% if record['cv_file_id'] %}
+                                <button class="view-button" data-file-url="{{ url_for('register.view_cv', file_id=record['cv_file_id']) }}">View</button>
+                            {% else %}
+                                No file uploaded
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if record['notes'] %}
+                                {{ record['notes'] }} <!-- Display the saved notes if they exist -->
+                            {% else %}
+                                No notes yet <!-- Display this message if there are no notes -->
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form action="{{ url_for('register.handle_user_action') }}" method="post" id="cancelForm_{{ record['email_address'] }}">
+                                <input type="hidden" name="email_address" value="{{ record['email_address'] }}">
+                                <input type="hidden" name="registration_number" value="{{ record['registration_number'] }}">
+                                <input type="hidden" name="full_name" value="{{ record['full_name'] }}">
+                                
+                                <!-- Action Buttons -->
+                                <div class="action-buttons">
+                                    <button type="button" onclick="openScheduleModal('{{ record['full_name'] }}', '{{ record['registration_number'] }}')">Schedule Interview</button>
+                                    <button type="submit" name="action" value="cancel" onclick="return confirmCancel('{{ record['full_name'] }}')">Cancel</button> <!-- Modified Cancel Button -->
+                                    <button type="button" onclick="openNotesModal('{{ record['full_name'] }}', '{{ record['registration_number'] }}', '{{ record['notes']|default('') }}')">Add Notes</button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal for Viewing CV -->
+    <div id="cvModal" class="modal">
+        <div class="modal-content2">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <iframe id="cvIframe" src="" width="100%" height="500px" style="border: none;"></iframe>
+        </div>
+    </div>
+
+    <!-- Modal for Adding Notes -->
+    <div id="notesModal" class="modal">
+        <div class="modal-content2">
+            <span class="close-btn" onclick="closeNotesModal()">&times;</span>
+            <h2>Add Notes</h2>
+            <form id="addNotesForm" action="{{ url_for('register.handle_notes_submission') }}" method="post">
+                <input type="hidden" id="modalFullName" name="full_name">
+                <input type="hidden" id="modalRegistrationNumber" name="registration_number">
+                <div>
+                    <label>Full Name:</label>
+                    <span id="displayFullName"></span>
+                </div>
+                <div>
+                    <label>Registration Number:</label>
+                    <span id="displayRegistrationNumber"></span>
+                </div>
+                <div>
+                    <label for="notes">Notes:</label>
+                    <textarea id="notes" name="notes" rows="4" cols="50"></textarea>
+                </div>
+                <button type="submit">Save Note</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Scheduling Interview -->
+    <div id="scheduleInterviewModal" class="modal">
+        <div class="modal-content2">
+            <span class="close-btn" onclick="closeScheduleModal()">&times;</span>
+            <h2>Schedule Interview</h2>
+            <form id="scheduleInterviewForm" action="{{ url_for('register.schedule_interview') }}" method="post">
+                <input type="hidden" id="modalScheduleFullName" name="full_name">
+                <input type="hidden" id="modalScheduleRegistrationNumber" name="registration_number">
+                <div>
+                    <label>Full Name:</label>
+                    <span id="displayScheduleFullName"></span>
+                </div>
+                <div>
+                    <label>Registration Number:</label>
+                    <span id="displayScheduleRegistrationNumber"></span>
+                </div>
+                <div>
+                    <label for="interview_date">Interview Date and Time:</label>
+                    <input type="datetime-local" id="interview_date" name="interview_date" required>
+                </div>
+                <button type="submit">Schedule</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Add event listener to all view buttons after the page loads
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get all buttons with the class 'view-button'
+            var viewButtons = document.querySelectorAll('.view-button');
+            
+            viewButtons.forEach(function(button) {
+                // Add click event to each button
+                button.addEventListener('click', function() {
+                    var fileUrl = button.getAttribute('data-file-url');
+                    openModal(fileUrl); // Call the openModal function with the file URL
+                });
+            });
+        });
+
+        // Function to open the CV modal and display the file in the iframe
+        function openModal(fileUrl) {
+            var modal = document.getElementById("cvModal");
+            var iframe = document.getElementById("cvIframe");
+            iframe.src = fileUrl;
+            modal.style.display = "block";
+        }
+
+        // Function to close the CV modal
+        function closeModal() {
+            var modal = document.getElementById("cvModal");
+            var iframe = document.getElementById("cvIframe");
+            iframe.src = ""; // Clear the iframe source
+            modal.style.display = "none"; // Hide the modal
+        }
+
+        // Function to open the Add Notes modal and populate it with existing data
+        function openNotesModal(fullName, registrationNumber, existingNotes) {
+            document.getElementById("modalFullName").value = fullName;
+            document.getElementById("modalRegistrationNumber").value = registrationNumber;
+            document.getElementById("displayFullName").innerText = fullName;
+            document.getElementById("displayRegistrationNumber").innerText = registrationNumber;
+            document.getElementById("notes").value = existingNotes;  // Pre-fill with existing notes
+
+            var modal = document.getElementById("notesModal");
+            modal.style.display = "block";
+        }
+
+        // Function to close the Add Notes modal
+        function closeNotesModal() {
+            var modal = document.getElementById("notesModal");
+            modal.style.display = "none";
+        }
+
+        function openScheduleModal(fullName, registrationNumber) {
+            document.getElementById("modalScheduleFullName").value = fullName;
+            document.getElementById("modalScheduleRegistrationNumber").value = registrationNumber;
+            document.getElementById("displayScheduleFullName").innerText = fullName;
+            document.getElementById("displayScheduleRegistrationNumber").innerText = registrationNumber;
+    
+            var modal = document.getElementById("scheduleInterviewModal");
+            modal.style.display = "block";
+        }
+    
+        function closeScheduleModal() {
+            var modal = document.getElementById("scheduleInterviewModal");
+            modal.style.display = "none";
+        }
+
+        // Close the modal if the user clicks outside of the modal content
+        window.onclick = function(event) {
+            var notesModal = document.getElementById("notesModal");
+            var cvModal = document.getElementById("cvModal");
+            var scheduleModal = document.getElementById("scheduleInterviewModal");
+            if (event.target == notesModal) {
+                closeNotesModal();
+            }
+            if (event.target == cvModal) {
+                closeModal();
+            }
+            if (event.target == scheduleModal) {
+                closeScheduleModal();
+            }
+        };
+
+        // Confirmation for Cancel button
+        function confirmCancel(fullName) 
+        {
+            var message = "Are you sure you want to cancel the registration for " + fullName + "?";
+            return confirm(message); // This will show the confirm popup
+        }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Joining Form Sent List</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Joining Form Sent List</h1>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Table displaying the joining form records -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Registration Number</th>
+                    <th>Status</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ record['full_name'] }}</td>
+                    <td>{{ record['email'] }}</td>
+                    <td>{{ record['registration_number'] }}</td>
+                    <td>{{ record['status'] }}</td>
+                    <td>{{ record['timestamp'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

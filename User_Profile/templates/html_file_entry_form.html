@@ -1,0 +1,79 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}HTML Files List{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('settings_permission') }}">Back to Permission Profile</a>
+    <div class="container mt-5">
+        <h2>HTML File Entry</h2>
+
+        <form method="POST" action="{{ url_for('portal.html_file_entry_form') }}">
+            <!-- Category Dropdown -->
+            <!--<div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category_html" class="form-control" onchange="toggleManualCategoryInput()">
+                    Display dynamic categories from MongoDB
+                    {% for category in categories %}
+                        <option value="{{ category }}" {% if form_data_html.category_html == category %}selected{% endif %}>{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>-->
+
+            <!-- Manual Category Input (only visible if "Other" is selected) -->
+            <div class="form-group" id="manual-category-input" style="display: {% if form_data_html.category_html == 'Other' %}block{% else %}none{% endif %}">
+                <label for="manual_html_category">Manual HTML Category</label>
+                <input type="text" id="manual_category_html" name="manual_category_html" class="form-control" value="{{ form_data_html.manual_category_html }}">
+            </div>
+
+            <!-- HTML File Name Input -->
+            <div class="form-group">
+                <label for="html_file_name">HTML File Name</label>
+                <input type="text" id="html_file_name" name="html_file_name" class="form-control" value="{{ form_data_html.html_file_name }}">
+            </div>
+
+            <!-- Permission Parameter Input (Manual Entry) -->
+            <div class="form-group">
+                <label for="parameter">Permission Parameter</label>
+                <input type="text" id="parameter" name="parameter" class="form-control" value="{{ form_data_html.parameter }}">
+            </div>
+
+            <!-- Action Details Input (Manual Entry) -->
+            <div class="form-group">
+                <label for="action">Action</label>
+                <input type="text" id="action" name="action" class="form-control" value="{{ form_data_html.action }}">
+            </div>
+
+            <!-- Menu 1 Input (Manual Entry) -->
+            <div class="form-group">
+                <label for="menu_1">Menu 1</label>
+                <input type="text" id="menu_1" name="menu_1" class="form-control" value="{{ form_data_html.menu_1 }}">
+            </div>
+
+            <!-- Menu 2 Input (Manual Entry) -->
+            <div class="form-group">
+                <label for="menu_2">Menu 2</label>
+                <input type="text" id="menu_2" name="menu_2" class="form-control" value="{{ form_data_html.menu_2 }}">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+    <script>
+        // Function to toggle the visibility of the manual category input
+        function toggleManualCategoryInput() {
+            var categorySelect = document.getElementById('category');
+            var manualCategoryInput = document.getElementById('manual-category-input');
+            if (categorySelect.value === 'Other') {
+                manualCategoryInput.style.display = 'block';
+            } else {
+                manualCategoryInput.style.display = 'none';
+            }
+        }
+
+        // Ensure the correct visibility on page load (in case of previously selected "Other")
+        document.addEventListener('DOMContentLoaded', function () {
+            toggleManualCategoryInput();
+        });
+    </script>
+{% endblock %}

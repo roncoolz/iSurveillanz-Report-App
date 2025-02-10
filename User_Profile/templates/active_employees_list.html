@@ -1,0 +1,65 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Active Employees{% endblock %}
+
+{% block content %}
+    <div class="container2">
+        <h1>Active Employees</h1>
+
+        <!-- Back to Selection Process Link -->
+        <div class="back-link">
+            <a href="{{ url_for('settings_SelectionProcess') }}" class="back-button">Back to Selection Process</a> <br> <br>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Table with Scrollbar -->
+        <div class="table-container">
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Registration Number</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Phone Number</th>
+                        <th>Status</th>
+                        <th>Date Joined</th>
+                        <th>Elective Subject</th>
+                        <th>Organization</th>
+                        <th>Location</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th>Shift</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ user['Registration Number'] }}</td>
+                            <td>{{ user['First Name'] }} {{ user['Middle Name'] }}  {{ user['Last Name'] }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.phone_number }}</td>
+                            <td>{{ user.Status }}</td>
+                            <td>{{ user.date_joined }}</td>
+                            <td>{{ user.elective_subject }}</td>
+                            <td>{{ user.organization }}</td>
+                            <td>{{ user.location }}</td>
+                            <td>{{ user.department }}</td>
+                            <td>{{ user.designation }}</td>
+                            <td>{{ user.shift }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

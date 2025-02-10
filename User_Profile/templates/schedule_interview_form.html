@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Schedule Interview</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Schedule Interview</h1>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Schedule Interview Form -->
+        <form action="{{ url_for('schedule_interview_form', registration_number=user.registration_number) }}" method="POST">
+
+            <div class="input-container">
+                <label for="full_name">Full Name:</label>
+                <input type="text" id="full_name" name="full_name" value="{{ user.full_name }}" readonly>
+            </div>
+
+            <div class="input-container">
+                <label for="registration_number_1">Registration Number:</label>
+                <input type="text" id="registration_number" name="registration_number" value="{{ user.registration_number }}" readonly>
+            </div>
+
+            <div class="input-container">
+                <label for="email_address">Email Address:</label>
+                <input type="email" id="email_address" name="email_address" value="{{ user.email_address }}" readonly>
+            </div>
+
+            <div class="input-container">
+                <label for="collection_id" class="required">Collection ID:</label>
+                <input type="text" id="collection_id" name="collection_id" value="{{ collection_id }}" readonly>
+            </div>
+
+            <!-- Interview Date and Time -->
+            <div class="input-container">
+                <label for="interview_datetime" class="required">Interview Date & Time:</label>
+                <input type="datetime-local" id="interview_datetime" name="interview_datetime" required>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-button">Schedule Interview</button>
+                <a href="{{ url_for('show_table') }}" class="cancel-button">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Script for handling modal close if needed or for additional functionality
+        document.addEventListener("DOMContentLoaded", function() {
+            // If you need any dynamic behavior, you can write JavaScript here
+        });
+    </script>
+</body>
+</html>

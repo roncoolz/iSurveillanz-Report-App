@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Interview Review Form</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Interview Review</h1>
+
+        <form action="{{ url_for('review_form', registration_number=user['registration_number']) }}" method="POST">
+            <!-- Hidden input for registration number -->
+            <input type="hidden" name="registration_number" value="{{ registration_number }}">
+
+            <label for="interview_status">Interview Status:</label>
+            <input type="text" name="interview_status" value="{{ interview_status }}" readonly>
+
+            <label>Relevant Skills:</label>
+            <input type="radio" name="relevant_skills" value="Poor"> Poor
+            <input type="radio" name="relevant_skills" value="Average"> Average
+            <input type="radio" name="relevant_skills" value="Good"> Good
+
+            <label>Communication Skills:</label>
+            <input type="radio" name="communication_skills" value="Poor"> Poor
+            <input type="radio" name="communication_skills" value="Average"> Average
+            <input type="radio" name="communication_skills" value="Good"> Good
+
+            <label>Problem Solving Ability:</label>
+            <input type="radio" name="problem_solving" value="Poor"> Poor
+            <input type="radio" name="problem_solving" value="Average"> Average
+            <input type="radio" name="problem_solving" value="Good"> Good
+
+            <label>Culture Fit:</label>
+            <input type="radio" name="culture_fit" value="Poor"> Poor
+            <input type="radio" name="culture_fit" value="Average"> Average
+            <input type="radio" name="culture_fit" value="Good"> Good
+
+            <label for="comments">Comments:</label>
+            <textarea name="comments" rows="4" required></textarea>
+
+            <button type="submit">Submit Review</button>
+        </form>
+    </div>
+</body>
+</html>

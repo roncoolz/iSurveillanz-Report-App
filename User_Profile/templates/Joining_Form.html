@@ -1,0 +1,519 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Registration Form{% endblock %}
+
+{% block content %}
+    <section class="container4">
+        <div class="row">
+            <header class="text-center w-100 mb4">
+                <h1 style="font-size: 35px;">Registration Form</h1>
+            </header>
+            <form method="POST" class="JoinForm" action="{{ url_for('register.joining_form', registration_number=candidate.registration_number) }}">
+                <!-- Personal Information Section -->
+                <div class="section">
+                    <h3 class="section-title">Personal Information</h3>
+                    <div class="row">
+                        <div class="col-md-4 mb-3 position-relative">
+                            <label for="registration_number" class="mb-0">Registration Number</label>
+                            <div class="input-with-icon">
+                                <i class="fa-regular fa-user"></i>
+                                <span class="form-control">{{ registration_number }}</span>
+                            </div>
+                        </div>
+                    </div> 
+                    <div class="row">
+                        <div class="col-md-4 mb-3 position-relative">
+                            <label for="first_name" class="mb-0">First Name*</label>
+                            <div class="input-with-icon">
+                                <i class="fa-regular fa-user"></i>
+                                <input type="text" class="form-control" name="first_name" placeholder="Enter your First name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3 position-relative">
+                            <label for="middle_name" class="mb-0">Middle Name*</label>
+                            <div class="input-with-icon">
+                                <i class="fa-regular fa-user"></i>
+                                <input type="text" class="form-control" name="middle_name" placeholder="Enter your Middle name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3 position-relative">
+                            <label for="last_name" class="mb-0">Surname*</label>
+                            <div class="input-with-icon">
+                                <i class="fa-regular fa-user"></i>
+                                <input type="text" class="form-control" name="last_name" placeholder="Enter your Last name" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3 position-relative">
+                            <label for="email" class="mb-0">Email*</label>
+                            <div class="input-with-icon">
+                                <i class="fa-regular fa-envelope"></i>
+                                <input type="email" class="form-control" name="email" placeholder="Enter your Email ID" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3 position-relative">
+                            <label for="dob" class="mb-0">Date of Birth*</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-calendar-days"></i>
+                                <input type="date" class="form-control" name="dob" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Corresponding and Permanent Address Section -->
+                <div class="section">
+                    <h3 class="section-title">Address</h3>
+                    <div class="mb-3">
+                        <label for="corr_address_line1" class="mb-0">Corresponding Address*</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-house"></i>
+                            <input type="text" class="form-control" name="corr_address_line1" placeholder="Address Line 1" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-house"></i>
+                            <input type="text" class="form-control" name="corr_address_line2" placeholder="Address Line 2">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <input type="text" class="form-control" name="corr_city" placeholder="City/District" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <input type="text" class="form-control" name="corr_state" placeholder="State/Province" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <input type="text" class="form-control" name="corr_country" placeholder="Country" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <input type="number" class="form-control" name="corr_postal_code" placeholder="Postal Code" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="same-address" onchange="copyAddress()" style="width: 12px; height: 12px;">
+                        <label class="form-check label" for="same-address">Same as Corresponding Address</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="perm_address_line1" class="mb-0">Permanent Address*</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-house"></i>
+                            <input type="text" class="form-control" name="perm_address_line1" id="perm_address_line1" placeholder="Address Line 1" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-house"></i>
+                            <input type="text" class="form-control" name="perm_address_line2" id="perm_address_line2" placeholder="Address Line 2">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <input type="text" class="form-control" name="perm_city" id="perm_city" placeholder="City/District" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <input type="text" class="form-control" name="perm_state" id="perm_state" placeholder="State/Province" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <input type="text" class="form-control" name="perm_country" id="perm_country" placeholder="Country" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <input type="number" class="form-control" name="perm_postal_code" id="perm_postal_code" placeholder="Postal Code" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Additional Information Section -->
+                <div class="section mb-4">
+                    <h3 class="section-title">Additional Information</h3>
+                    <div class="row mb-3">
+                        <label for="gender" class="col-md-3">
+                            <i class="fa-solid fa-venus-mars"></i>
+                            Gender*
+                        </label>
+                        <div class="col-md-9 d-flex">
+                            <div class="form-check me-3">
+                                <input type="radio" class="form-check-input" name="gender" value="Male" style="width: 12px; height: 12px;" required>
+                                <label class="form-check label">Male</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" class="form-check-input" name="gender" value="Female" style="width: 12px; height: 12px;" required>
+                                <label class="form-check label">Female</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" class="form-check-input" name="gender" value="Other" style="width: 12px; height: 12px;" required>
+                                <label class="form-check label">Other</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="marital_status" class="mb-0">Marital Status*</label>
+                        <div class="input-with-icon2 position-relative">
+                            <i class="fa-solid fa-children"></i>
+                            <select class="form-control ps-5" name="marital_status" required>
+                                <option value="" hidden>Select Marital Status</option>
+                                <option>Single</option>
+                                <option>Married</option>
+                                <option>Divorced</option>
+                                <option>Widowed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="blood_group" class="mb-0">Blood Group</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-droplet"></i>
+                            <input type="text" class="form-control" name="blood_group" placeholder="Enter your Blood Group">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="udid_card_number" class="mb-0">UDID Card Number</label>
+                        <div class="input-with-icon">
+                            <i class="fa-regular fa-id-card"></i>
+                            <input type="text" class="form-control" name="udid_card_number" placeholder="Enter UDID Card Number">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="aadhar_card_number" class="mb-0">Aadhar Card Details*</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-fingerprint"></i>
+                            <input type="text" class="form-control" name="aadhar_card_number" placeholder="Enter Aadhar Card Number" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="whatsapp_number" class="mb-0">Whatsapp Number*</label>
+                        <div class="input-with-icon">
+                            <i class="fa-brands fa-whatsapp"></i>
+                            <input type="tel" class="form-control" name="whatsapp_number" placeholder="Enter Whatsapp Number" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="aadhar_linked" class="col-md-6">
+                            <i class="fa-solid fa-link"></i>
+                            Is your Aadhar linked to Whatsapp Number?*
+                        </label>
+                        <div class="col-md-6 d-flex">
+                            <div class="form-check me-3">
+                                <input type="radio" class="form-check-input" name="aadhar_linked" value="Yes" style="width: 12px; height: 12px;" required>
+                                <label class="form-check label">Yes</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" class="form-check-input" name="aadhar_linked" value="No" style="width: 12px; height: 12px;">
+                                <label class="form-check label">No</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="aadhar_contact" class="mb-0">Contact Number linked to Aadhar*</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-link"></i>
+                            <input type="tel" class="form-control" name="aadhar_contact" placeholder="Enter Contact Number" required>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- Family Background Section -->
+                <div class="section mb-4">
+                    <h3 class="section-title">Family Background Info (For ESI)</h3>
+                    <div id="family-members">
+                        <div class="family-member mb-3">
+                            <label class="mb-0">Relationship</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-users"></i>
+                                <input type="text" class="form-control" name="relationship[]" placeholder="Relationship">
+                            </div>
+                            <label class="mb-0">Family Member Name</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-people-roof"></i>
+                                <input type="text" class="form-control" name="family_name[]" placeholder="Family Member Name">
+                            </div>
+                            <label class="mb-0">Date of Birth</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-calendar-days"></i>
+                                <input type="date" class="form-control" name="family_dob[]">
+                            </div>
+                            <label class="mb-0">Contact Number</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-phone"></i>
+                                <input type="tel" class="form-control" name="family_contact[]" placeholder="Contact Number">
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-md-3">
+                                    <i class="fa-solid fa-house-user"></i>
+                                    Currently Staying?
+                                </label>
+                                <div class="col-md-9 d-flex">
+                                    <div class="form-check me-3">
+                                        <input type="radio" class="form-check-input" name="staying_with" value="Yes" style="width: 12px; height: 12px;">
+                                        <label class="form-check label">Yes</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="radio" class="form-check-input" name="staying_with" value="No" style="width: 12px; height: 12px;">
+                                        <label class="form-check label">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="add-family-member" class="btn btn-outline-primary">+ Add More Family Member</button>
+                    <small id="limit-message" class="text-danger d-none" style="text-align: center;">You can add up to 4 family members only.</small>
+                </div>
+    
+                <!-- Bank Details Section -->
+                <div class="section mb-4">
+                    <h3 class="section-title">Bank Account Details</h3>
+                   <div class="mb-3">
+                    <label for="account_type" class="mb-0">Bank Account Type*</label>
+                    <div class="input-with-icon2 position-relative">
+                        <i class="fa-solid fa-hand-holding-dollar position-absolute"></i>
+                        <select class="form-control ps-5" id="account_type" name="account_type" required>
+                            <option value="" hidden>Select Account Type</option>
+                            <option value="Savings">Savings</option>
+                            <option value="Current">Current</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="bank_account_number" class="mb-0" id="label_bank_account_number">Bank Account Number*</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-address-card"></i>
+                            <input type="password" class="form-control" id="bank_account_number" name="bank_account_number" placeholder="Bank Account Number" required>
+                            <i class="fa-solid fa-eye" id="toggle_password1" style="cursor: pointer;"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="confirm_bank_account_number" class="mb-0" id="label_confirm_bank_account_number">Confirm Bank Account Number*</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-id-card"></i>
+                            <input type="password" class="form-control" id="confirm_bank_account_number" name="confirm_bank_account_number" placeholder="Confirm Bank Account Number" required>
+                            <i class="fa-solid fa-eye" id="toggle_password2" style="cursor: pointer;"></i>
+                        </div>
+                    </div>
+                
+                    <div class="mb-3">
+                        <label for="bank_name" class="mb-0">Bank Name*</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-building-columns"></i>
+                            <input type="text" class="form-control" name="bank_name" placeholder="Bank Name" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ifsc_code" class="mb-0">IFSC Code*</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-code-branch"></i>
+                            <input type="text" class="form-control" name="ifsc_code" placeholder="Enter IFSC Code" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="branch" class="mb-0">Branch*</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                            <input type="text" class="form-control" name="branch" placeholder="Branch" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="mb-0">Pan Card Number*</label>
+                        <div class="input-with-icon">
+                            <i class="fa-regular fa-address-card"></i>
+                            <input type="text" class="form-control" name="pan_card_number" placeholder="Pan Card Number" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-md-4">
+                            <i class="fa-regular fa-credit-card"></i>
+                            Do you have a Debit Card?*
+                        </label>
+                        <div class="col-md-8 d-flex">
+                            <div class="form-check me-3">
+                                <input type="radio" class="form-check-input" name="debit_card" value="Yes" style="width: 12px; height: 12px;" required>
+                                <label class="form-check label">Yes</label>
+                            </div>
+                            <div class="form-check me-3">
+                                <input type="radio" class="form-check-input" name="debit_card" value="Yes" style="width: 12px; height: 12px;" required>
+                                <label class="form-check label">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-md-3 d-flex align-items-center">
+                            <i class="fa-brands fa-google-pay" style="font-size: 1.5em; margin-right: 8px;"></i>
+                            Do you have UPI?*
+                        </label>
+                        <div class="col-md-9 d-flex">
+                            <div class="form-check me-3">
+                                <input type="radio" class="form-check-input" name="upi" value="Yes" style="width: 12px; height: 12px;" required>
+                                <label class="form-check label">Yes</label>
+                            </div>
+                            <div class="form-check me-3">
+                                <input type="radio" class="form-check-input" name="upi" value="Yes" style="width: 12px; height: 12px;" required>
+                                <label class="form-check label">No</label>
+                            </div>
+                        </div>
+                        <!-- Message to display if passwords do not match -->
+                        <p id="password_message" style="color: red; display: none;">Passwords do not match!</p>
+                    </div>   
+                </div>
+
+                <!-- Upload Documents Section -->
+                <div class="section mb-4">
+                    <h3 class="section-title">Upload Documents</h3>
+                    <div class="file-upload-box">
+                        <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                        <label>Aadhar Card*</label>
+                        <input type="file" name="aadhar_card_upload">
+                    </div>
+                    <div class="file-upload-box">
+                        <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                        <label>Pan Card*</label>
+                        <input type="file" name="pan_card_upload" required>
+                    </div>
+                    <div class="file-upload-box">
+                        <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                        <label>Bank Details (Passbook/Cheque)*</label>
+                        <input type="file" name="bank_details_upload" required>
+                    </div>
+                </div>
+    
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        
+    </section>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function copyAddress() {
+            var checkbox = document.getElementById('same-address');
+            if (checkbox.checked) {
+                document.getElementById('perm_address_line1').value = document.getElementsByName('corr_address_line1')[0].value;
+                document.getElementById('perm_address_line2').value = document.getElementsByName('corr_address_line2')[0].value;
+                document.getElementById('perm_city').value = document.getElementsByName('corr_city')[0].value;
+                document.getElementById('perm_state').value = document.getElementsByName('corr_state')[0].value;
+                document.getElementById('perm_country').value = document.getElementsByName('corr_country')[0].value;
+                document.getElementById('perm_postal_code').value = document.getElementsByName('corr_postal_code')[0].value;
+            } else {
+                document.getElementById('perm_address_line1').value = '';
+                document.getElementById('perm_address_line2').value = '';
+                document.getElementById('perm_city').value = '';
+                document.getElementById('perm_state').value = '';
+                document.getElementById('perm_country').value = '';
+                document.getElementById('perm_postal_code').value = '';
+            }
+        }
+
+        let familyMemberCount = 1; // Start with the first family member form already present
+        const maxFamilyMembers = 4; // Limit to 4 family members
+
+        document.getElementById('add-family-member').addEventListener('click', function () {
+            if (familyMemberCount < maxFamilyMembers) {
+                familyMemberCount++; // Increment the count
+
+                // Get the container where family members are listed
+                const familyMembersContainer = document.getElementById('family-members');
+
+                // Create a new family member input block with a line separator
+                const newMemberHTML = `
+                    <hr class="my-4"> <!-- Line separator -->
+                    <div class="family-member mb-3">
+                        <!-- Relationship -->
+                        <label class="mb-0" for="relationship_${Date.now()}">Relationship</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-users"></i>
+                            <input type="text" class="form-control" id="relationship_${Date.now()}" name="relationship[]" placeholder="Relationship">
+                        </div>
+
+                        <!-- Family Member Name -->
+                        <label class="mb-0" for="family_name_${Date.now()}">Family Member Name</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-people-roof"></i>
+                            <input type="text" class="form-control" id="family_name_${Date.now()}" name="family_name[]" placeholder="Family Member Name">
+                        </div>
+
+                        <!-- Date of Birth -->
+                        <label class="mb-0" for="family_dob_${Date.now()}">Date of Birth</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <input type="date" class="form-control" id="family_dob_${Date.now()}" name="family_dob[]">
+                        </div>
+
+                        <!-- Contact Number -->
+                        <label class="mb-0" for="family_contact_${Date.now()}">Contact Number</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-phone"></i>
+                            <input type="tel" class="form-control" id="family_contact_${Date.now()}" name="family_contact[]" placeholder="Contact Number">
+                        </div>
+
+                        <!-- Currently Staying -->
+                        <div class="row mb-3">
+                            <label class="col-md-3">
+                                <i class="fa-solid fa-house-user"></i> Currently Staying?
+                            </label>
+                            <div class="col-md-9 d-flex">
+                                <div class="form-check me-3">
+                                    <input type="radio" class="form-check-input" id="staying_yes_${Date.now()}" name="staying_with_${Date.now()}" value="Yes">
+                                    <label class="form-check label" for="staying_yes_${Date.now()}">Yes</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" id="staying_no_${Date.now()}" name="staying_with_${Date.now()}" value="No">
+                                    <label class="form-check label" for="staying_no_${Date.now()}">No</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Append the new member block to the container
+                familyMembersContainer.insertAdjacentHTML('beforeend', newMemberHTML);
+
+                // Hide the warning message if it was shown
+                document.getElementById('limit-message').classList.add('d-none');
+            } else {
+                // Show a warning message and disable the button
+                document.getElementById('limit-message').classList.remove('d-none');
+                this.disabled = true;
+            }
+
+            /*const bankAccountInput = document.getElementById('bank_account_number');
+            const confirmBankAccountInput = document.getElementById('confirm_bank_account_number');
+
+            // Synchronize the confirm field with the hidden field
+            bankAccountInput.addEventListener('input', function () {
+                confirmBankAccountInput.value = bankAccountInput.value;
+            });*/
+        });
+    </script>
+</body>
+</html>
+{% endblock %}

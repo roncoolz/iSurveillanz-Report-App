@@ -1,0 +1,107 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Pre HR Approved List{% endblock %}
+
+{% block content %}
+    <div class="container2">
+        <h1>Pre HR Approved List</h1>
+
+    <!-- Back to Selection Process Link -->
+    <div class="back-link">
+        <a href="{{ url_for('settings_SelectionProcess') }}" class="back-button">Back to Selection Process</a>
+    </div>
+
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Table with Scrollbar -->
+        <div class="table-container">
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Registration Number</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Phone Number</th>
+                        <th>Status</th>
+                        <th>Date Joined</th>
+                        <th>Elective Subject</th>
+                        <th>Organization</th>
+                        <th>Location</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th>Shift</th>
+                        <th>Action</th> <!-- Added Action Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ user['Registration Number'] }}</td>
+                            <td>{{ user['First Name'] }} {{ user['Middle Name'] }} {{ user['Last Name'] }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.phone_number }}</td>
+                            <td>{{ user.Status }}</td>
+                            <td>{{ user.date_joined }}</td>
+                            <td>{{ user.elective_subject }}</td>
+                            <td>{{ user.organization }}</td>
+                            <td>{{ user.location }}</td>
+                            <td>{{ user.department }}</td>
+                            <td>{{ user.designation }}</td>
+                            <td>{{ user.shift }}</td>
+                            <td>
+                                <button onclick="confirmPortalApproval('{{ user['First Name'] }} {{ user['Middle Name'] }} {{ user['Last Name'] }}', '{{ user['Registration Number'] }}')">Portal Approval</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Popup for Portal Approval Confirmation (Outside the Table) -->
+        <div class="popup" id="portalApprovalPopup" style="display: none;">
+            <div class="popup-content">
+                <img src="{{ url_for('static', filename='question-mark-circle-outline-icon.svg') }}" alt="Confirmation Icon" class="confirmation-icon">
+                <h2>Portal Approval</h2>
+                <p>Are you sure you want to mark <span id="portalApprovalPopupFullName"></span> as active?</p>
+                <div class="button-container">
+                    <form id="portalApprovalForm" method="post" style="display: inline;">
+                        <input type="hidden" id="portalApprovalPopupRegistrationNumber" name="record_id">
+                        <button type="submit">Yes, Proceed</button>
+                    </form>
+                    <button type="button" onclick="closePortalApprovalPopup()">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function confirmPortalApproval(fullName, registrationNumber) {
+            // Update the popup content dynamically
+            document.getElementById("portalApprovalPopupFullName").innerText = fullName;
+            document.getElementById("portalApprovalPopupRegistrationNumber").value = registrationNumber;
+
+            // Set the form action dynamically
+            const form = document.getElementById("portalApprovalForm");
+            form.action = '/portal_approval/'+registrationNumber; // Ensure the route is correct
+
+            // Show the popup
+            document.getElementById("portalApprovalPopup").style.display = "block";
+        }
+
+        function closePortalApprovalPopup() {
+            document.getElementById("portalApprovalPopup").style.display = "none";
+        }
+    </script>
+
+{% endblock %}

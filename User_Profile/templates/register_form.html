@@ -1,0 +1,53 @@
+{% extends "report_master.html" %}
+
+{% block title %}Registration Form{% endblock %}
+
+{% block content %}
+    <div class="container1">
+        <h1>Register Form</h1>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="/register_form" method="POST" class="form" enctype="multipart/form-data">
+            <!-- Full Name Field -->
+            <div class="input-container">
+                <i class='bx bx-user'></i>
+                <label for="full_name" class="required">Full Name:</label>
+                <input type="text" id="full_name" name="full_name" placeholder="Full Name" required>
+            </div>
+
+            <!-- Email Address Field -->
+            <div class="input-container">
+                <i class='bx bx-envelope'></i>
+                <label for="email_address" class="required">Email Address:</label>
+                <input type="email" id="email_address" name="email_address" placeholder="Email Address" required><br>
+            </div>
+
+            <!-- Mobile Number Field -->
+            <div class="input-container">
+                <i class='bx bx-phone'></i>
+                <label for="mobile_number" class="required">Mobile Number:</label>
+                <input type="tel" id="mobile_number" name="mobile_number" placeholder="Mobile Number" pattern="\d{10}" title="Mobile number must be exactly 10 digits" required><br>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="file-upload-box">
+                <i class='bx bx-upload'></i>
+                <label for="cv_file" class="required">Upload CV (PDF only):</label>
+                <input type="file" id="files" name="cv_file" accept="application/pdf" required>
+            </div>
+
+            <button type="submit">Submit</button>
+        </form>
+
+    </div>
+</body>
+</html>
+{% endblock %}

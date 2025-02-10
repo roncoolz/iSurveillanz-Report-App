@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permission Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&family=Open+Sans:wght@300..800&family=Poppins:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dark">
+
+    <!-- Navigation Bar -->
+    <section id="content">
+        <nav>
+            <a href="#" class="brand">
+                <img src="{{ url_for('static', filename='Favicon.svg') }}" alt="Logo" width="50" class="toggle-sidebar">
+            </a>
+            <form action="#">
+                <div class="form-group">
+                    <input type="text" placeholder="Search...">
+                    <i class="fa-solid fa-magnifying-glass icon"></i>
+                </div>
+            </form>
+            <input type="checkbox" id="mode" hidden>
+            <label for="mode">
+                <i class='fa-solid fa-sun' id="light-icon"></i>
+                <i class='fa-solid fa-moon' id="dark-icon"></i>
+            </label>
+            <span class="divider"></span>
+            <div class="profile">
+                <label for="profile-dropdown">
+                    <img src="{{ url_for('static', filename='bussiness-man.png') }}" alt="">
+                </label>
+                <input type="checkbox" id="profile-dropdown" class="profile-checkbox">
+                <ul class="profile-link">
+                    <li><a href="#"><i class='fa-solid fa-circle-user icon' style="color: cadetblue;"></i> Profile</a></li>
+                    <li><a href="#"><i class='fa-solid fa-pen-to-square icon' style="color: cadetblue;"></i> Edit Profile</a></li>
+                    <li><a href="{{ url_for('logout') }}"><i class='fa-solid fa-right-from-bracket icon' style="color: cadetblue;"></i> Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+    </section>
+
+    <!-- Main Content Section -->
+    <section id="main-content" style="max-height: 100vh; overflow-y: auto;">
+        <main>
+            <div class="container">
+                <h2>Permission Profile</h2>
+
+                <!-- Permission Profile Content -->
+                <p>Here you can manage permission profiles and view details about user roles, permissions, etc.</p>
+
+                <!-- Portal Titles Form -->
+                <div class="mt-5">
+                    <h3>Portal Titles</h3>
+                    <form method="POST" action="{{ url_for('submit_portal_titles') }}">
+                        <!-- Category Dropdown -->
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select id="category" name="category" class="form-select" required onchange="toggleManualEntry()">
+                                <option value="Manual">Manual</option>
+                                <option value="Other">Other (Manual Entry)</option> <!-- Added "Other" option for manual entry -->
+                            </select>
+                        </div>
+
+                        <!-- Manual Category Entry (only shown when "Other" is selected) -->
+                        <div class="mb-3" id="manual-category-container" style="display: none;">
+                            <label for="manual_category" class="form-label">Manual Category</label>
+                            <input type="text" id="manual_category" name="manual_category" class="form-control" placeholder="Enter category manually">
+                        </div>
+
+                        <!-- Portal Title Textbox -->
+                        <div class="mb-3">
+                            <label for="portal_title" class="form-label">Portal Title</label>
+                            <input type="text" id="portal_title" name="portal_title" class="form-control" required>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <!-- Sidebar-->
+    <section id="sidebar" class="hidden"> 
+        <ul class="side-menu">
+            {% for name1, name2, html in menu_list %}
+            {% if name2 %}
+                <li class="divider" data-text="main">{{ name1 }}</li>
+                <li><a href="{{ url_for(html) }}" class="active"><i class='fa-solid fa-user icon'></i>{{ name2 }}</a></li>
+            {% else %}
+                <li><a href="{{ url_for(html) }}" class="active"><i class='fa-solid fa-user icon'></i>{{ name }}</a></li>
+            {% endif %}
+            {% endfor %}
+
+            <!-- Permissions Section -->
+            <li class="divider" data-text="Permissions">Permissions</li>
+            <li><a href="{{ url_for('permission_profile') }}" class="active"><i class='fa-solid fa-lock icon'></i> Permission Profile</a></li>
+            
+            <!-- New Menu Item for Portal Titles -->
+            <li><a href="{{ url_for('portal_titles_form') }}" class="active"><i class='fa-solid fa-clipboard-list icon'></i> Portal Titles</a></li>
+        </ul>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mode = document.getElementById('mode');
+            const lightIcon = document.getElementById('light-icon');
+            const darkIcon = document.getElementById('dark-icon');
+
+            // Mode switch functionality (Dark/Light mode)
+            function initializeMode() {
+                if (mode.checked) {
+                    document.body.classList.add('dark');
+                    lightIcon.style.display = 'none';
+                    darkIcon.style.display = 'block';
+                } else {
+                    document.body.classList.remove('dark');
+                    lightIcon.style.display = 'block';
+                    darkIcon.style.display = 'none';
+                }
+            }
+
+            initializeMode();
+
+            mode.addEventListener('change', function () {
+                if (mode.checked) {
+                    document.body.classList.add('dark');
+                    lightIcon.style.display = 'none';
+                    darkIcon.style.display = 'block';
+                } else {
+                    document.body.classList.remove('dark');
+                    lightIcon.style.display = 'block';
+                    darkIcon.style.display = 'none';
+                }
+            });
+        });
+
+        // Show or hide the manual category entry field based on dropdown selection
+        function toggleManualEntry() {
+            const categorySelect = document.getElementById('category');
+            const manualCategoryContainer = document.getElementById('manual-category-container');
+
+            if (categorySelect.value === 'Other') {
+                manualCategoryContainer.style.display = 'block';
+            } else {
+                manualCategoryContainer.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

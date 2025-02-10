@@ -1,0 +1,189 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Portal HTML Linking{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('settings_permission') }}">Back to Permission Profile</a>
+<div class="container mt-5">
+    <h2>Portal HTML Linking Form</h2>
+
+    <form method="POST" action="{{ url_for('portal.portal_html_linking') }}">
+        <!-- Category Dropdown -->
+        <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category" name="category" class="form-control" onchange="fetchPortalTitles()">
+                <option value="">Select Category</option>
+                {% for category in categories %}
+                    <option value="{{ category }}" >{{ category }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Portal Title Dropdown (Initially Empty) -->
+        <div class="form-group">
+            <label for="portal_title">Portal Title</label>
+            <select id="portal_title" name="portal_title" class="form-control" onchange="fetchCheckedHTMLFiles()">
+                <option value="">Select Portal Title</option> <!-- Placeholder option -->
+            </select>
+        </div>
+
+        <!-- Permission Parameter Filter Dropdown -->
+        <div class="form-group">
+            <label for="permission_filter">Filter by Permission Parameter</label>
+            <select id="permission_filter" name="permission_filter" class="form-control" onchange="applyFilter()">
+                <option value="">Select Permission Parameter</option>
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
+
+        <!-- HTML Files Table (Initially Hidden) -->
+        <div class="form-group" id="html-files-table" style="display: none;">
+            <label for="html_files_table">HTML Files</label>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>HTML File Name</th>
+                        <th>Permission Parameter</th>
+                        <th>Action</th>
+                        <th>Select</th>
+                    </tr>
+                </thead>
+                <tbody id="html-files-body">
+                </tbody>
+            </table>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+<script>
+    // Function to fetch portal titles based on selected category
+    function fetchPortalTitles() {
+        var category = document.getElementById('category').value;  // Get selected category
+        var portalTitleSelect = document.getElementById('portal_title');  // Portal title dropdown
+        var htmlFilesTable = document.getElementById('html-files-table');  // HTML Files Table
+
+        // Clear existing options in portal title dropdown
+        portalTitleSelect.innerHTML = '<option value="">Select Portal Title</option>';  // Reset the dropdown
+
+        // If a category is selected, make an AJAX request to fetch portal titles
+        if (category) {
+            fetch(`/get_portal_titles?category=${category}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Populate portal title dropdown with fetched data
+                    data.forEach(function(title) {
+                        var option = document.createElement('option');
+                        option.value = title;
+                        option.text = title;
+                        portalTitleSelect.appendChild(option);
+                    });
+
+                    // Hide the HTML files table initially
+                    htmlFilesTable.style.display = 'none';
+                })
+                .catch(error => console.log('Error fetching portal titles:', error));
+        }
+    }
+
+    // Function to fetch and display the HTML files table after selecting category and portal title
+    document.getElementById('portal_title').addEventListener('change', function () {
+        var category = document.getElementById('category').value;
+        var portalTitle = this.value;
+        var htmlFilesTable = document.getElementById('html-files-table');
+
+        // Show the HTML files table only if both category and portal title are selected
+        if (category && portalTitle) {
+            htmlFilesTable.style.display = 'block';
+        } else {
+            htmlFilesTable.style.display = 'none';
+        }
+    });
+
+    // Ensure the correct visibility and behavior on page load (in case of previously selected category)
+    document.addEventListener('DOMContentLoaded', function () {
+        var category = document.getElementById('category').value;
+        var portalTitle = document.getElementById('portal_title').value;
+        var htmlFilesTable = document.getElementById('html-files-table');
+
+        // Show the HTML files table if both category and portal title are already selected
+        if (category && portalTitle) {
+            htmlFilesTable.style.display = 'block';
+        }
+        
+        // Populate the permission filter dropdown
+        populatePermissionFilter();
+    });
+
+    // Function to fetch and display HTML files based on selected category and permission filter
+    function fetchCheckedHTMLFiles() {
+        var category = document.getElementById('category').value;  // Get selected category
+        var portalTitleSelect = document.getElementById('portal_title').value;  // Portal title dropdown
+        var permissionFilter = document.getElementById('permission_filter').value; // Permission filter dropdown
+        var htmlFilesBody = document.getElementById('html-files-body');  // HTML Files Table
+
+        // Clear existing rows in the HTML files table
+        htmlFilesBody.innerHTML = '';
+
+        // Fetch HTML files based on category, portal title, and permission filter
+        if (category && portalTitleSelect) {
+            fetch(`/get_checked_htmlfiles?category=${category}&portal_title=${portalTitleSelect}&permission_filter=${permissionFilter}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Populate the HTML files table
+                    data.forEach(function(file) {
+                        var row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${file.htmlName}</td>
+                            <td>${file.permission_parameter}</td>
+                            <td>${file.action}</td>
+                            <td>
+                                <input type="checkbox" name="selected_files" value="${file.htmlName}" ${file.is_marked ? 'checked' : ''}>
+                            </td>
+                        `;
+                        htmlFilesBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.log('Error fetching HTML files:', error));
+        }
+    }
+
+    // Function to populate the permission filter dropdown with distinct values from MongoDB
+    function populatePermissionFilter() {
+        fetch('/get_permission_parameters')
+            .then(response => response.json())
+            .then(data => {
+                var permissionFilter = document.getElementById("permission_filter");
+
+                // Clear existing options
+                permissionFilter.innerHTML = '<option value="">Select Permission Parameter</option>';
+
+                // Add new options dynamically
+                data.forEach(function(permission) {
+                    var option = document.createElement("option");
+                    option.value = permission;
+                    option.textContent = permission;
+                    permissionFilter.appendChild(option);
+                });
+            })
+            .catch(error => console.log('Error fetching permission parameters:', error));
+    }
+
+    // Function to apply the filter when the permission parameter is selected
+    function applyFilter() {
+        var permissionFilter = document.getElementById('permission_filter').value;
+        var rows = document.querySelectorAll('#html-files-body tr');  // Get all rows in the table
+
+        // Loop through each row and hide/show based on the permission parameter filter
+        rows.forEach(function(row) {
+            var permissionParameter = row.cells[1].textContent; // Get the permission parameter from the row
+            if (permissionFilter === "" || permissionFilter === permissionParameter) {
+                row.style.display = ""; // Show row if it matches the filter or if no filter is selected
+            } else {
+                row.style.display = "none"; // Hide row if it doesn't match the filter
+            }
+        });
+    }
+</script>
+{% endblock %}

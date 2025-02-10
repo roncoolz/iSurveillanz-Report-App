@@ -1,0 +1,711 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Joining Form List{% endblock %}
+
+{% block content %}
+<div class="container2">
+    <h1>Joining Form List</h1>
+
+    <!-- Back to Selection Process Link -->
+    <div class="back-link">
+        <a href="{{ url_for('settings_SelectionProcess') }}" class="back-button">Back to Selection Process</a>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table with Scrollbar -->
+    <div class="table-container">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Registration Number</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Official ID</th>
+                    <th>Bank Account</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ user['User ID'] }}</td>
+                    <td>{{ user['First Name'] }} {{ user['Last Name'] }}</td>
+                    <td>{{ user['email_address'] }}</td>
+                    <td>{{ user['Mobile Number'] }}</td>
+                    <td>{{ user['Official ID'] }}</td>
+                    <td>{{ user['Bank Account Number'] }}</td>
+                    <td>{{ user['Status']}}</td>
+                    <td>
+                         <!-- Edit Button -->
+                        <button type="button" class="btn btn-primary edit-btn" 
+                                data-user-id="{{ user['User ID'] }}" 
+                                data-registration-number="{{ user['Registration Number'] }}" 
+                                data-first-name="{{ user['First Name'] }}" 
+                                data-last-name="{{ user['Last Name'] }}" 
+                                data-email="{{ user['Email Address'] }}" 
+                                data-phone="{{ user['Mobile Number'] }}" 
+                                data-official-id="{{ user['Official ID'] }}" 
+                                data-dob="{{ user['Date of Birth'] }}"
+                                data-marital-status="{{ user['Marital Status'] }}"
+                                data-blood-group="{{ user['Blood Group'] }}"
+                                data-gender="{{ user['Gender'] }}"
+                                data-udid="{{ user['UDID Number'] }}"
+                                data-bank-account="{{ user['Bank Account Number'] }}" 
+                                data-bank-name="{{ user['Bank Name'] }}" 
+                                data-ifsc="{{ user['IFSC Code'] }}" 
+                                data-branch="{{ user['Branch Name'] }}" 
+                                data-pan="{{ user['PAN Card Number'] }}" 
+                                data-debit-card="{{ user['has_debit_card'] }}" 
+                                data-upi="{{ user['has_upi'] }}" 
+                                data-address-line1="{{ user['address_line_1'] }}" 
+                                data-address-line2="{{ user['address_line_2'] }}" 
+                                data-city="{{ user['City'] }}" 
+                                data-district="{{ user['District'] }}" 
+                                data-country="{{ user['Country'] }}" 
+                                data-postal="{{ user[['Postal Code']] }}" 
+                                data-perm-address-line1="{{ user['address_line_1'] }}" 
+                                data-perm-address-line2="{{ user['address_line_2'] }}" 
+                                data-perm-city="{{ user['City'] }}" 
+                                data-perm-district="{{ user['District'] }}" 
+                                data-perm-country="{{ user['Country'] }}" 
+                                data-perm-postal="{{ user['Postal_Code'] }}" 
+                                data-whatsapp="{{ user['Whatsapp Number'] }}" 
+                                data-aadhar="{{ user['Aadhar Card Number'] }}" 
+                                data-aadhar-linked="{{ user['is_aadhar_linked_to_mobile_number'] }}" 
+                                data-linked-mobile="{{ user['linked_mobile_number'] }}" 
+                                data-emergency-name="{{ user['Family Name'] }}" 
+                                data-emergency-phone="{{ user['Emergency Contact Number'] }}" 
+                                data-emergency-relationship="{{ user['Relation'] }}" 
+                                data-hearing-status="{{ user['Hearing Status (Deaf/Normal)'] }}">
+                            Edit
+                        </button>
+                        <button type="button" class="btn" onclick="openConfirmationForm('{{ user['Registration Number'] }}', '{{ user['First Name'] }} {{ user['Last Name'] }}', '{{ user['Email Address'] }}')">Confirmation of Employment</button>
+
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal for Confirmation of Employment Form -->
+<div id="confirmationModal" class="modal">
+    <div class="modal-content2">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Confirmation of Employment</h2>
+
+        <!-- Confirmation Form -->
+        <form method="POST" action="" id="confirmationForm">
+            <!-- Display fields for registration number, full name, and email -->
+            <label for="registration_number">Registration Number:</label>
+            <input type="text" id="registration_number" name="registration_number" required readonly><br><br>
+
+            <label for="fullName">Full Name:</label>
+            <input type="text" id="fullName" name="fullName" required readonly><br><br>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required readonly><br><br>
+
+            <!-- Other dynamic fields as needed -->
+            <label for="organization">Organization:</label>
+            <select id="organization" name="organization" onchange="handleOrganizationChange()" required>
+                <option value="">Select Organization</option>
+                <option value="iSurveillanz">iSurveillanz</option>
+            </select><br><br>
+
+            <label for="location" id="locationLabel" style="display: none;">Location:</label>
+            <select id="location" name="location" style="display: none;" onchange="handleLocationChange()">
+                <option value="">Select Location</option>
+                <option value="Paud Road (Pune)">Paud Road (Pune)</option>
+            </select><br><br>
+
+            <label for="department" id="departmentLabel" style="display: none;">Department:</label>
+            <select id="department" name="department" style="display: none;" onchange="handleDepartmentChange()">
+                <option value="">Select Department</option>
+                <option value="CRAD Department">CRAD Department</option>
+                <option value="Surveillance Room">Surveillance Room</option>
+            </select><br><br>
+
+            <label for="designation" id="designationLabel" style="display: none;">Designation:</label>
+            <select id="designation" name="designation" style="display: none;" onchange="handleDesignationChange()">
+                <option value="">Select Designation</option>
+                <option value="Code Developer">Code Developer</option>
+                <option value="Data Assistant">Data Assistant</option>
+                <option value="Software Engineer">Software Engineer</option>
+                <option value="Trainee">Trainee</option>
+                <option value="Trainee">Junior Developer</option>
+                <option value="Manager Operations">Manager (Operations)</option>
+                <option value="Investigator Analytics">Investigator & Analytics</option>
+                <option value="Manager Operations">Assistant Manager (Control Rooms)</option>
+                <option value="Assistant Project Manager">Assistant Project Manager</option>
+                <option value="Administrator">Administrator</option>
+                <option value="Administrator">Control Rooms Leader</option>
+                <option value="Surveillance Auditor 01">Surveillance Auditor 01</option>
+                <option value="Surveillance Auditor 02">Surveillance Auditor 02</option>
+                <option value="Surveillance Auditor 03">Surveillance Auditor 03</option>
+                <option value="Surveillance Auditor 04">Surveillance Auditor 04</option>
+                <option value="Vigiliance Reporter 01">Vigiliance Reporter 01</option>
+                <option value="V & R In-charge">V & R In-charge</option>
+                <option value="Trainer">Trainer</option>
+                <option value="Jr.Leader (Control Room)">Jr.Leader (Control Room)</option>
+                <option value="Trainee iSurveillanz">Trainee (iSurveillanz)</option>
+            </select><br><br>
+
+            <label for="shift" id="shiftLabel" style="display: none;">Shift:</label>
+            <select id="shift" name="shift" style="display: none;">
+                <option value="">Select Shift</option>
+                <option value="CRAD Shift 1">CRAD Shift 1 (Sat-Sun off)</option>
+                <option value="CRAD Shift 2">CRAD Shift 2 (Only Sun off)</option>
+                <option value="General Shift">General Shift</option>
+            </select><br><br>
+
+            <label for="dateJoined">Date of Joined:</label>
+            <input type="date" id="dateJoined" name="dateJoined" required><br><br>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category" class="form-control" onchange="fetchPortalTitles()">
+                    <option value="">Select Category</option>
+                    {% for category in categories %}
+                        <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Portal Title Dropdown (Initially Empty) -->
+            <div class="form-group">
+                <label for="portal_title">Portal Title</label>
+                <select id="portal_title" name="portal_title" class="form-control">
+                    <option value="">Select Portal Title</option> <!-- Placeholder option -->
+                </select>
+            </div>
+
+            <label for="electiveSubject">Elective Subject for Exam:</label>
+            <select id="electiveSubject" name="electiveSubject" required>
+                <option value="Logical Reasoning">Logical Reasoning</option>
+                <option value="iSurveillanz">iSurveillanz</option>
+                <option value="Artzy's Studio">Artzy's Studio</option>
+                <option value="Administration">Administration</option>
+            </select><br><br>
+
+            <button type="submit" class="btn">Submit</button>
+        </form>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div id="editUserModal" class="modal">
+    <div class="modal-content2 p-4" style="max-height: 80vh; overflow-y: auto;">
+        <span class="close" onclick="closeEditUserModal()">&times;</span>
+        <h2>Edit User Details</h2>
+        <form method="POST" action="{{ url_for('register.update_user') }}" class="g-3" id="editJoinForm">
+            <input type="hidden" name="user_id" id="edit_user_id">
+
+             <!-- Add Registration Number Field -->
+             <div class="row">
+                <label for="edit_registration_number" class="col-md-4 col-form-label">Registration Number:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_registration_number" name="registration_number" readonly>
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_official_id" class="col-md-4 col-form-label">Official ID:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_official_id" name="official_id" readonly>
+                </div>
+            </div>
+            
+            <div class="row">
+                <label for="edit_first_name" class="col-md-4 col-form-label">First Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_first_name" name="first_name">
+                </div>
+            </div>
+            
+            <div class="row">
+                <label for="edit_last_name" class="col-md-4 col-form-label">Last Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_last_name" name="last_name">
+                </div>
+            </div>
+            
+            <div class="row">
+                <label for="edit_email" class="col-md-4 col-form-label">Email:</label>
+                <div class="col-8">
+                    <input type="email" class="form-control" id="edit_email" name="email">
+                </div>
+            </div>
+            
+            <div class="row">
+                <label for="edit_phone_number" class="col-md-4 col-form-label">Phone Number:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_phone_number" name="phone_number">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_dob" class="col-md-4 col-form-label">Date of Birth:</label>
+                <div class="col-8">
+                    <input type="date" class="form-control" id="edit_dob" name="dob">
+                </div>
+            </div>
+            
+            <div class="row">
+                <label for="edit_bank_account" class="col-md-4 col-form-label">Bank Account Number:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_bank_account" name="bank_account">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_bank_name" class="col-md-4 col-form-label">Bank Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_bank_name" name="bank_name">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_ifsc" class="col-md-4 col-form-label">IFSC Code:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_ifsc" name="ifsc">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_branch" class="col-md-4 col-form-label">Branch Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_branch" name="branch">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_pan" class="col-md-4 col-form-label">PAN Card Number:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_pan" name="pan">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_debit_card" class="col-md-4 col-form-label">Has Debit Card:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_debit_card" name="debit_card">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_upi" class="col-md-4 col-form-label">Has UPI:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_upi" name="upi">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_address_line1" class="col-md-4 col-form-label">Corresponding Address Line 1:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_address_line1" name="address_line1">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_address_line2" class="col-md-4 col-form-label">Corresponding Address Line 2:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_address_line2" name="address_line2">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_city" class="col-md-4 col-form-label">City:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_city" name="city">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_district" class="col-md-4 col-form-label">District:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_district" name="district">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_country" class="col-md-4 col-form-label">Country:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_country" name="country">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_postal_code" class="col-md-4 col-form-label">Postal Code:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_postal_code" name="postal_code">
+                </div>
+            </div>
+
+              <!-- Permanent Address Fields -->
+              <div class="row">
+                <label for="edit_perm_address_line1" class="col-md-4 col-form-label">Permanent Address Line 1:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_perm_address_line1" name="perm_address_line1">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_perm_address_line2" class="col-md-4 col-form-label">Permanent Address Line 2:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_perm_address_line2" name="perm_address_line2">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_perm_city" class="col-md-4 col-form-label">Permanent City:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_perm_city" name="perm_city">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_perm_district" class="col-md-4 col-form-label">Permanent District:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_perm_district" name="perm_district">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_perm_country" class="col-md-4 col-form-label">Permanent Country:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_perm_country" name="perm_country">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_perm_postal_code" class="col-md-4 col-form-label">Permanent Postal Code:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_perm_postal_code" name="perm_postal_code">
+                </div>
+            </div>
+
+            <!-- Personal Info -->
+            <div class="row">
+                <label for="edit_gender" class="col-md-4 col-form-label">Gender:</label>
+                <div class="col-8">
+                    <select id="edit_gender" name="gender" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; transition: 0.3s;">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row">
+                <label for="edit_marital_status" class="col-md-4 col-form-label">Marital Status:</label>
+                <div class="col-8">
+                    <select id="edit_marital_status" name="marital_status" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; transition: 0.3s;">
+                        <option value="Single">Single</option>
+                        <option value="Married">Married</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row">
+                <label for="edit_blood_group" class="col-md-4 col-form-label">Blood Group:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_blood_group" name="blood_group">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_udid" class="col-md-4 col-form-label">UDID Number:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_udid" name="udid_card_number">
+                </div>
+            </div>
+            
+            <div class="row">
+                <label for="edit_emergency_name" class="col-md-4 col-form-label">Emergency Contact Name:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_emergency_name" name="emergency_name">
+                </div>
+            </div>
+
+            <!-- Emergency Contact -->
+            
+            <div class="row">
+                <label for="edit_emergency_phone" class="col-md-4 col-form-label">Emergency Contact Phone:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_emergency_phone" name="emergency_phone">
+                </div>
+            </div>
+            
+            <div class="row">
+                <label for="edit_emergency_relationship" class="col-md-4 col-form-label">Emergency Contact Relationship:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_emergency_relationship" name="emergency_relationship">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_whatsapp" class="col-md-4 col-form-label">Whatsapp Number:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_whatsapp" name="whatsapp_number">
+                </div>
+            </div>
+
+            <!-- Aadhar Card Info -->
+            <div class="row">
+                <label for="edit_aadhar" class="col-md-4 col-form-label">Aadhar Card Number:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_aadhar" name="aadhar_card_number">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_aadhar_linked" class="col-md-4 col-form-label">Aadhar Linked to Mobile?</label>
+                <div class="col-8">
+                    <input type="checkbox" id="edit_aadhar_linked" name="aadhar_linked">
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="edit_linked_mobile" class="col-md-4 col-form-label">Linked Mobile Number:</label>
+                <div class="col-8">
+                    <input type="text" class="form-control" id="edit_linked_mobile" name="linked_mobile">
+                </div>
+            </div>
+
+            <div class="row text-center">
+                <div class="col-12">
+                    <button type="submit" class="proceed-button">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Open the modal and prefill the data
+    function openConfirmationForm(registrationNumber, fullName, email) {
+        // Set the form fields with the correct values
+        document.getElementById('registration_number').value = registrationNumber;
+        document.getElementById('fullName').value = fullName;
+        document.getElementById('email').value = email;
+
+        // Set the form's action dynamically using the registration number
+        var formActionUrl = "/employment_confirmation/" + registrationNumber;  // Directly set the action URL
+        document.getElementById('confirmationForm').action = formActionUrl;
+
+        // Open the modal
+        document.getElementById('confirmationModal').style.display = "block";
+    }
+
+    // Close the modal
+    function closeModal() {
+        document.getElementById('confirmationModal').style.display = "none";
+    }
+
+    // Handle organization change
+    function handleOrganizationChange() {
+        let organization = document.getElementById('organization').value;
+        if (organization) {
+            document.getElementById('locationLabel').style.display = 'inline';
+            document.getElementById('location').style.display = 'inline';
+        } else {
+            document.getElementById('locationLabel').style.display = 'none';
+            document.getElementById('location').style.display = 'none';
+            resetForm();
+        }
+    }
+
+    // Handle location change
+    function handleLocationChange() {
+        let location = document.getElementById('location').value;
+        if (location) {
+            document.getElementById('departmentLabel').style.display = 'inline';
+            document.getElementById('department').style.display = 'inline';
+        } else {
+            document.getElementById('departmentLabel').style.display = 'none';
+            document.getElementById('department').style.display = 'none';
+            resetForm();
+        }
+    }
+
+    // Handle department change
+    function handleDepartmentChange() {
+        let department = document.getElementById('department').value;
+        if (department) {
+            document.getElementById('designationLabel').style.display = 'inline';
+            document.getElementById('designation').style.display = 'inline';
+        } else {
+            document.getElementById('designationLabel').style.display = 'none';
+            document.getElementById('designation').style.display = 'none';
+            resetForm();
+        }
+    }
+
+    // Handle designation change
+    function handleDesignationChange() {
+        let designation = document.getElementById('designation').value;
+        if (designation) {
+            document.getElementById('shiftLabel').style.display = 'inline';
+            document.getElementById('shift').style.display = 'inline';
+        } else {
+            document.getElementById('shiftLabel').style.display = 'none';
+            document.getElementById('shift').style.display = 'none';
+            resetForm();
+        }
+    }
+
+    // Reset form when needed
+    function resetForm() {
+        document.getElementById('confirmationForm').reset();
+    }
+
+        // Close modal if user clicks outside of it
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('confirmationModal')) {
+                closeModal();
+            }
+        }
+
+    // Handle Portal Category change
+        function fetchPortalTitles() {
+            var category = document.getElementById('category').value;  // Get selected category
+            var portalTitleSelect = document.getElementById('portal_title');  // Portal title dropdown
+
+            // Clear existing options in portal title dropdown
+            portalTitleSelect.innerHTML = '<option value="">Select Portal Title</option>';  // Reset the dropdown
+
+            // If a category is selected, make an AJAX request to fetch portal titles
+            if (category) {
+                fetch(`/get_portal_titles?category=${category}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Populate portal title dropdown with fetched data
+                        data.forEach(function(title) {
+                            var option = document.createElement('option');
+                            option.value = title;
+                            option.text = title;
+                            portalTitleSelect.appendChild(option);
+                        });
+
+
+                    })
+                    .catch(error => console.log('Error fetching portal titles:', error));
+            }
+        }
+ 
+
+    // Open Modal and Populate Fields
+    function openEditUserModal(user) {
+        document.getElementById('edit_user_id').value = user.userId;
+        document.getElementById('edit_registration_number').value = user.registrationNumber;  // Populate Registration Number
+        document.getElementById('edit_first_name').value = user.firstName;
+        document.getElementById('edit_last_name').value = user.lastName;
+        document.getElementById('edit_email').value = user.email;
+        document.getElementById('edit_phone_number').value = user.phoneNumber;
+        document.getElementById('edit_official_id').value = user.officialId;
+        document.getElementById('edit_bank_account').value = user.bankAccount;
+        document.getElementById('edit_bank_name').value = user.bank_name;
+        document.getElementById('edit_ifsc').value = user.ifsc;
+        document.getElementById('edit_branch').value = user.branch;
+        document.getElementById('edit_pan').value = user.pan;
+        document.getElementById('edit_debit_card').checked = user.debit_card === '1';
+        document.getElementById('edit_upi').checked = user.upi === '1';
+        document.getElementById('edit_address_line1').value = user.address_line1;
+        document.getElementById('edit_address_line2').value = user.address_line2;
+        document.getElementById('edit_city').value = user.city;
+        document.getElementById('edit_district').value = user.district;
+        document.getElementById('edit_country').value = user.country;
+        document.getElementById('edit_postal_code').value = user.postal_code;
+        document.getElementById('edit_perm_address_line1').value = user.perm_address_line1;
+        document.getElementById('edit_perm_address_line2').value = user.perm_address_line2;
+        document.getElementById('edit_perm_city').value = user.perm_city;
+        document.getElementById('edit_perm_district').value = user.perm_district;
+        document.getElementById('edit_perm_country').value = user.perm_country;
+        document.getElementById('edit_perm_postal_code').value = user.perm_postal_code;
+        document.getElementById('edit_dob').value = user.dob;
+        document.getElementById('edit_gender').value = user.gender;
+        document.getElementById('edit_marital_status').value = user.maritalStatus;
+        document.getElementById('edit_blood_group').value = user.bloodGroup;
+        document.getElementById('edit_udid').value = user.udid;
+        document.getElementById('edit_whatsapp').value = user.whatsapp;
+        document.getElementById('edit_aadhar').value = user.aadhar;
+        document.getElementById('edit_emergency_name').value = user.emergencyName;
+        document.getElementById('edit_emergency_phone').value = user.emergencyPhone;
+        document.getElementById('edit_emergency_relationship').value = user.emergencyRelationship;
+        document.getElementById('edit_aadhar_linked').checked = user.aadhar_linked === '1';
+        document.getElementById('edit_linked_mobile').value = user.linked_mobile;
+
+        document.getElementById('editUserModal').style.display = 'block';
+    }
+
+    // Close Modal
+    function closeEditUserModal() {
+        document.getElementById('editUserModal').style.display = 'none';
+    }
+
+    // Attach event listener to edit buttons
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const user = {
+                userId: this.getAttribute('data-user-id'),
+                registrationNumber: this.getAttribute('data-registration-number'),
+                firstName: this.getAttribute('data-first-name'),
+                lastName: this.getAttribute('data-last-name'),
+                email: this.getAttribute('data-email'),
+                phoneNumber: this.getAttribute('data-phone'),
+                officialId: this.getAttribute('data-official-id'),
+                dob: this.getAttribute('data-dob'),
+                bloodGroup: this.getAttribute('data-blood-group'),
+                maritalStatus:this.getAttribute('data-marital-status'),
+                gender: this.getAttribute('data-gender'),
+                udid: this.getAttribute('data-udid'),
+                bankAccount: this.getAttribute('data-bank-account'),
+                bank_name: this.getAttribute('data-bank-name'),
+                ifsc: this.getAttribute('data-ifsc'),
+                branch: this.getAttribute('data-branch'),
+                pan: this.getAttribute('data-pan'),
+                debit_card: this.getAttribute('data-debit-card'),
+                upi: this.getAttribute('data-upi'),
+                address_line1: this.getAttribute('data-address-line1'),
+                address_line2: this.getAttribute('data-address-line2'),
+                city: this.getAttribute('data-city'),
+                district: this.getAttribute('data-district'),
+                country: this.getAttribute('data-country'),
+                postal_code: this.getAttribute('data-postal'),
+                perm_address_line1: this.getAttribute('data-perm-address-line1'),
+                perm_address_line2: this.getAttribute('data-perm-address-line2'),
+                perm_city: this.getAttribute('data-perm-city'),
+                perm_district: this.getAttribute('data-perm-district'),
+                perm_country: this.getAttribute('data-perm-country'),
+                perm_postal_code: this.getAttribute('data-perm-postal'),
+                whatsapp: this.getAttribute('data-whatsapp'),
+                aadhar: this.getAttribute('data-aadhar'),
+                aadhar_linked: this.getAttribute('data-aadhar-linked'),
+                linked_mobile: this.getAttribute('data-linked-mobile'),
+                emergencyName: this.getAttribute('data-emergency-name'),
+                emergencyPhone: this.getAttribute('data-emergency-phone'),
+                emergencyRelationship: this.getAttribute('data-emergency-relationship'),
+                hearing_status: this.getAttribute('data-hearing-status'),
+            };
+
+            openEditUserModal(user);
+        });
+    });
+</script>
+{% endblock %}

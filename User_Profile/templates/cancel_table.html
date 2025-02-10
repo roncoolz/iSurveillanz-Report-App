@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Cancelled Users</title>
+</head>
+<body>
+    <div class="container2">
+        <h1>Cancelled Users</h1>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sr No.</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Mobile Number</th>
+                        <th>Registration Number</th>
+                        <th>Status</th>
+                        <th>CV File</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_records = records|length %}
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ total_records - loop.index }}</td>
+                        <td>{{ record['full_name'] }}</td>
+                        <td>{{ record['email_address'] }}</td>
+                        <td>{{ record['mobile_number'] }}</td>
+                        <td>{{ record['registration_number'] }}</td>
+                        <td>{{ record['Status'] }}</td>
+                        <td class="view-cell">
+                            {% if record['cv_file_id'] %}
+                            <button class="view-button" data-file-url="{{ url_for('view_cv', file_id=record['cv_file_id']) }}">View</button>
+                            {% else %}
+                                No file uploaded
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CV Modal with Close Button -->
+    <div id="cvModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <iframe id="cvIframe" src="" width="100%" height="500px" style="border: none;"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // Add event listener to all view buttons after the page loads
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get all buttons with the class 'view-button'
+            var viewButtons = document.querySelectorAll('.view-button');
+            
+            viewButtons.forEach(function(button) {
+                // Add click event to each button
+                button.addEventListener('click', function() {
+                    var fileUrl = button.getAttribute('data-file-url');
+                    openModal(fileUrl); // Call the openModal function with the file URL
+                });
+            });
+        });
+
+        // Function to open the CV modal and display the file in the iframe
+        function openModal(fileUrl) {
+            var modal = document.getElementById("cvModal");
+            var iframe = document.getElementById("cvIframe");
+            iframe.src = fileUrl;
+            modal.style.display = "block";
+        }
+
+        // Function to close the CV modal
+        function closeModal() {
+            var modal = document.getElementById("cvModal");
+            var iframe = document.getElementById("cvIframe");
+            iframe.src = ""; // Clear the iframe source
+            modal.style.display = "none"; // Hide the modal
+        }
+
+        // Close the modal if the user clicks outside of the modal content
+        window.onclick = function(event) {
+            var modal = document.getElementById("cvModal");
+            if (event.target == modal) {
+                closeModal();
+            }
+        };
+    </script>
+</body>
+</html>

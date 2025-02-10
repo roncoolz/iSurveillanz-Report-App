@@ -1,0 +1,57 @@
+{% extends "report_master.html" %}
+
+{% block title %}Log Records{% endblock %}
+
+{% block content %}
+    <div class="container2">
+        <h1>Action Logs</h1>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Table to Display Logs -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sr No.</th>
+                        <th>Action Title</th>
+                        <th>Official ID</th>
+                        <th>Action</th>
+                        <th>User</th>
+                        <th>User Name</th>
+                        <th>Date-Time</th>
+                        <th>Collection Name</th>
+                        <th>Collection ID</th>
+                        <th>HTML File Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_records = logs|length %}
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ total_records - loop.index + 1 }}</td>
+                        <td>{{ log['action_title'] }}</td>
+                        <td>{{ log['official_id'] }}</td>
+                        <td>{{ log['action'] }}</td>
+                        <td>{{ log['user'] }}</td>
+                        <td>{{ log['user_name'] }}</td>
+                        <td>{{ log['date_time'].strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>{{ log['collection_name'] }}</td>  
+                        <td>{{ log['collection_id'] }}</td>
+                        <td>{{ log['html_file_source'] }}</td>  
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Interview Reviewed List{% endblock %}
+
+{% block content %}
+    <div class="container2">
+        <h1>Interview Reviewed List</h1>
+
+        <!-- Back to Selection Process Link -->
+        <div class="back-link">
+            <a href="{{ url_for('settings_SelectionProcess') }}" class="back-button">Back to Selection Process</a>
+        </div>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Table with Scrollbar -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sr No.</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Mobile Number</th>
+                        <th>Registration Number</th>
+                        <th>Interview Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_records = records|length %}
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ total_records - loop.index }}</td>
+                        <td>{{ record['full_name'] }}</td>
+                        <td>{{ record['email_address'] }}</td>
+                        <td>{{ record['mobile_number'] }}</td>
+                        <td>{{ record['registration_number'] }}</td>
+                        <td>{{ record['interview_date'] }}</td>
+                        <td>{{ record['Status'] }}</td>
+                        <td>
+                            <!-- Trigger Button for Modal (Next Interview Required) -->
+                            <button type="button" class="btn" onclick="openModal('{{ record['registration_number'] }}', '{{ record['full_name'] }}', '{{ record['email_address'] }}')">Next Interview Required</button>
+
+                            <!-- "Selected" button -->
+                            <button type="button" onclick="confirmShortlist('{{ record['full_name'] }}', '{{ record['registration_number'] }}')" class="btn">Selected</button>
+
+                            <!-- "Not Selected/On-Hold" button -->
+                            <form action="{{ url_for('register.update_status_interview', registration_number=record['registration_number']) }}" method="POST" style="display:inline;">
+                                <button type="submit" name="interview_status" value="Not Selected/On-Hold" class="btn">Not Selected/On-Hold</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal for Next Interview Schedule -->
+    <div id="nextInterviewModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Next Interview Schedule</h2>
+            <form action="{{ url_for('register.schedule_next_interview') }}" method="POST">
+                <input type="hidden" name="registration_number" id="modal_registration_number">
+                <input type="hidden" name="full_name" id="modal_full_name">
+                <input type="hidden" name="email_address" id="modal_email_address">
+
+                <!-- Display registration number, full name, and email (read-only) -->
+                <div>
+                    <label for="registration_number_display">Registration Number:</label>
+                    <input type="text" id="registration_number_display" name="registration_number_display" readonly>
+                </div>
+                <div>
+                    <label for="full_name_display">Full Name:</label>
+                    <input type="text" id="full_name_display" name="full_name_display" readonly>
+                </div>
+                <div>
+                    <label for="email_address_display">Email Address:</label>
+                    <input type="email" id="email_address_display" name="email_address_display" readonly>
+                </div>
+
+                <!-- Editable fields -->
+                <div>
+                    <label for="next_interview_date">Next Interview Date & Time:</label>
+                    <input type="datetime-local" id="next_interview_date" name="interview_date" required>
+                </div>
+                <div>
+                    <label for="comments">Comments:</label>
+                    <textarea id="comments" name="comments"></textarea>
+                </div>
+                <button type="submit" class="btn">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Popup for Selected confirmation -->
+    <div class="popup" id="shortlistConfirmationPopup" style="display: none;">
+        <div class="popup-content">
+            <img src="{{ url_for('static', filename='question-mark-circle-outline-icon.svg') }}" alt="Confirmation Icon" class="confirmation-icon">
+            <h2>Selected Confirmation</h2>
+            <p>Are you sure you want to mark <span id="shortlistPopupFullName"></span> as selected?</p>
+
+            <div class="button-container">
+                <form id="shortlistForm" method="post" style="display: inline;">
+                    <input type="hidden" id="shortlistPopupRegistrationNumber" name="record_id">
+                    <button type="submit">Yes, Proceed</button>
+                </form>
+                <button type="button" onclick="closeShortlistConfirmationPopup()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(registration_number, full_name, email_address) {
+            document.getElementById('modal_registration_number').value = registration_number;
+            document.getElementById('modal_full_name').value = full_name;
+            document.getElementById('modal_email_address').value = email_address;
+
+            // Display the values in read-only inputs
+            document.getElementById('registration_number_display').value = registration_number;
+            document.getElementById('full_name_display').value = full_name;
+            document.getElementById('email_address_display').value = email_address;
+
+            document.getElementById('nextInterviewModal').style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById('nextInterviewModal').style.display = "none";
+        }
+
+        function confirmShortlist(fullName, registrationNumber) {
+            // Update the popup content dynamically
+            document.getElementById("shortlistPopupFullName").innerText = fullName;
+        
+            // Update the hidden input field
+            document.getElementById("shortlistPopupRegistrationNumber").value = registrationNumber;
+        
+            // Set the form action dynamically
+            const form = document.getElementById("shortlistForm");
+            form.action = `/add_to_selected/${registrationNumber}`; // Ensure the route is correct
+        
+            // Show the popup
+            document.getElementById("shortlistConfirmationPopup").style.display = "block";
+        }
+        
+        function closeShortlistConfirmationPopup() {
+            document.getElementById("shortlistConfirmationPopup").style.display = "none";
+        }
+        
+    </script>
+{% endblock %}

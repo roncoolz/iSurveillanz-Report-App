@@ -1,0 +1,74 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Interview Reviewed List{% endblock %}
+
+{% block content %}
+    <div class="container2">
+        <h1>On Trial Candidates</h1>
+
+        <!-- Back to Selection Process Link -->
+        <div class="back-link">
+            <a href="{{ url_for('settings_SelectionProcess') }}" class="back-button">Back to Selection Process</a>
+        </div>
+        
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Table with Scrollbar -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sr No.</th>
+                        <th>Full Name</th>
+                        <th>Registration Number</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_records = records|length %}
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ total_records - loop.index }}</td>
+                        <td>{{ record['full_name'] }}</td>
+                        <td>{{ record['registration_number'] }}</td>
+                        <td>
+                            {% if record['Status'] == 'Registered' %}
+                                Registered
+                            {% elif record['Status'] == 'Interview Scheduled' %}
+                                Interview Scheduled on {{ record['interview_date'] }}
+                            {% elif record['Status'] == 'Next Interview Scheduled' %}
+                                Next Interview on {{ record['interview_date'] }}
+                            {% elif record['Status'] == 'Selected' %}
+                                Selected
+                            {% elif record['Status'] == 'Trial Scheduled' %}
+                                Trial Period: {{ record['trial_start_date'] }} to {{ record['trial_end_date'] }}
+                            {% else %}
+                                {{ record['Status'] }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form action="/joining_form/{{ record['registration_number'] }}" method="GET">
+                                <button type="submit" class="action-btn">Open Joining Form</button>
+                            </form>                            
+                            <button class="action-btn">Not Satisfied</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}
