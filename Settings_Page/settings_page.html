@@ -1,0 +1,95 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}PC Profile{% endblock %}
+
+{% block content %}
+    <h2>Settings Home Page</h2>
+        <!--Widget Start-->
+        <div class="card-body">
+            <div class="container3">
+                <div class="row">
+                    <div class="mb-3 col-md-6 col-12">
+                        <div class="card1">
+                            <a href="{{ url_for('settings_SelectionProcess') }}" class="card-link"> <!-- Make the whole card clickable -->
+                                <div class="face">
+                                    <div class="content">
+                                        <i class="fa-solid fa-user-gear icon"></i>
+                                        <h3 style="font-size: 15px; margin-top: 15px;">User Profile</h3>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+    
+        <div class="row">
+            <div class="mb-3 col-md-6 col-12">
+                <div class="card1">
+                    <a href="{{ url_for('settings_BlockPCProfile') }}" class="card-link"> <!-- Make the whole card clickable -->
+                        <div class="face">
+                            <div class="content">
+                                <i class="fa-solid fa-computer icon"></i>
+                                <h3 style="font-size: 15px; margin-top: 15px;">Block & PC Profile</h3>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+        <div class="row">
+            <div class="mb-3 col-md-6 col-12">
+                <div class="card1">
+                    <a href="{{ url_for('settings_ClientProfile') }}" class="card-link"> <!-- Make the whole card clickable -->
+                        <div class="face">
+                            <div class="content">
+                                <i class="fa-solid fa-user-gear icon"></i>
+                                <h3 style="font-size: 15px; margin-top: 15px;">Client Profile</h3>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+        <div class="row">
+            <div class="mb-3 col-md-6 col-12">
+                <div class="card1">
+                    <a href="{{ url_for('settings_permission') }}" class="card-link"> <!-- Make the whole card clickable -->
+                        <div class="face">
+                            <div class="content">
+                                <i class="fa-solid fa-user-gear icon"></i>
+                                <h3 style="font-size: 15px; margin-top: 15px;">Permission Profile</h3>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+        <div class="row">
+            <div class="mb-3 col-md-6 col-12">
+                <div class="card1">
+                    <a href="{{ url_for('show_logs') }}" class="card-link"> <!-- Make the whole card clickable -->
+                        <div class="face">
+                            <div class="content">
+                                <i class="fa-solid fa-user-gear icon"></i>
+                                <h3 style="font-size: 15px; margin-top: 15px;">Logs Records</h3>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+        <div class="row">
+            <div class="mb-3 col-md-6 col-12">
+                <div class="card1">
+                    <a href="{{ url_for('settings_OrganizationProfile') }}" class="card-link"> <!-- Make the whole card clickable -->
+                        <div class="face">
+                            <div class="content">
+                                <i class="fa-solid fa-user-gear icon"></i>
+                                <h3 style="font-size: 15px; margin-top: 15px;">Organization Profile</h3>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+    
+
+{% endblock %}
