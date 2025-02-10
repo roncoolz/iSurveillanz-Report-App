@@ -1,0 +1,172 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Cancellation Reasons{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('settings_reportform') }}">Back to Report Form Home Page</a>
+<div class="container2">
+    <h1>Cancellation Reasons</h1>
+
+    <button class="add-button" onclick="openAddReasonModal()">+</button>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            <script>
+                // Hide flash messages after 4 seconds
+                setTimeout(() => {
+                    const flashElements = document.querySelectorAll('.flashes .flash');
+                    flashElements.forEach(flash => flash.style.display = 'none');
+                }, 3000);
+            </script>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Table to Display Cancellation Reasons -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Cancellation Title</th>
+                    <th>Status</th>
+                    <th>Parameter</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_records = cancellation_reasons|length %}
+                {% for reason in cancellation_reasons %}
+                <tr>
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td>{{ reason['Cancellation Title'] }}</td>
+                    <td>{{ reason.Status }}</td>
+                    <td>{{ reason['Reason Parameter'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Cancellation Reason Modal -->
+<div id="addReasonModal" class="modal">
+    <div class="modal-content2">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Add Cancellation Reason</h2>
+        <form method="POST" action="{{ url_for('report.add_cancellation_reason') }}" onsubmit="return validateForm()">
+            <!-- Cancellation Title Input -->
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="reason_title">Cancellation Title:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <select class="form-control" id="reason_title_dropdown" name="reason_title_dropdown" onchange="toggleOtherInput()">
+                            <option value="" selected disabled>Select a reason</option>
+                            {% for reason in unique_reasons %}
+                            <option value="{{ reason }}">{{ reason }}</option>
+                            {% endfor %}
+                            <option value="Other">Other</option>  <!-- 'Other' option added -->
+                        </select>
+                        <input type="text" class="form-control mt-2" id="reason_title_text" name="reason_title_text" placeholder="Enter a new reason" style="display: none;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parameter Input -->
+            <div class="mb-3">
+                <div class="form-group row">
+                    <div class="col-12 col-md-4">
+                        <label for="parameter">Parameter:</label>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" class="form-control" id="parameter" name="parameter" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="row text-center">
+                <div class="col-12">
+                    <button type="submit" class="proceed-button">Add</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Include Modal Script -->
+<script>
+    function openAddReasonModal() {
+        const modal = document.getElementById('addReasonModal');
+        modal.style.display = 'block'; // Show the modal
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('addReasonModal');
+        modal.style.display = 'none'; // Hide the modal
+    }
+
+    // Close the modal if the user clicks outside the modal content
+    window.onclick = function (event) {
+        const modal = document.getElementById('addReasonModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    // Show the input field for "Other" option in the dropdown
+    function toggleOtherInput() {
+        var dropdown = document.getElementById('reason_title_dropdown');
+        var otherInput = document.getElementById('reason_title_text');
+        if (dropdown.value === "Other") {
+            otherInput.style.display = 'block'; // Show the input field
+        } else {
+            otherInput.style.display = 'none'; // Hide the input field
+        }
+    }
+
+    // Validate form submission
+    function validateForm() {
+        var dropdown = document.getElementById('reason_title_dropdown');
+        var otherInput = document.getElementById('reason_title_text').value;
+        var selectedReason = dropdown.value;
+        
+        // Check if 'Other' is selected and if the input field is empty
+        if (selectedReason === "Other" && otherInput.trim() === "") {
+            alert("Please enter a new reason or select an existing one.");
+            return false;  // Prevent form submission
+        }
+        
+        // Check if a predefined reason is selected
+        if (selectedReason === "" || selectedReason === "Select a reason") {
+            alert("Please select a reason or enter a new one.");
+            return false;  // Prevent form submission
+        }
+
+        return true; // Allow form submission
+    }
+</script>
+
+<style>
+    .add-button {
+        margin-bottom: 10px;
+        padding: 5px 15px;
+        font-size: 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .add-button:hover {
+        background-color: #45a049;
+    }
+</style>
+{% endblock %}
