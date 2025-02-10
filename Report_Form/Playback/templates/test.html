@@ -1,0 +1,138 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Initiated Reports View (Reporter View){% endblock %}
+
+{% block content %}
+<div class="container2">
+    <h1>Initiated Reports View (Reporter View)</h1>
+
+    <div class="table-container">
+        <table id="initiatedReportReporterViewTable">
+            <thead>
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Client Name</th>
+                    <th>PC Name</th>
+                    <th>File Name</th>
+                    <th>Incident Message</th>
+                    <th>Incident Category</th>
+                    <th>Final Report Message</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="reportTableBody">
+                {% set total_records = initiated_reports_reporter|length %}
+                {% for report in initiated_reports_reporter %}
+                <tr id="report-{{ report._id }}" 
+                    data-incident-message="{{ report['Incident Message'] }}"
+                    data-department-name="{{ report['Department Name'] }}"
+                    data-camera-number="{{ report['Camera Number'] }}">
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td>{{ report['Client Name'] }}</td>
+                    <td>{{ report['PC Name'] }}</td>
+                    <td>{{ report['File Name'] }}</td>
+                    <td>{{ report['Incident Message'] }}</td>
+                    <td>{{ report['Incident Category'] }}</td>
+                    <td class="final-report-message">
+                        {{ report['Final Report Message'] }}
+                    </td>                    
+                    <td>{{ report['Status'] }}</td>
+                    <td>
+                        <button 
+                            onclick="generateFinalMessage('{{ report._id }}', this)" 
+                            class="btn btn-primary btn-sm" 
+                            data-unique-counter="0">View
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let currentActiveRow = null;
+
+    window.onload = function() {
+        restorePreviousState();
+    }
+
+    function restorePreviousState() {
+        const lastActiveRowId = localStorage.getItem('lastActiveRowId');
+        if (lastActiveRowId) {
+            const lastRow = document.querySelector(`#report-${lastActiveRowId}`);
+            if (lastRow) {
+                currentActiveRow = lastRow;
+            }
+        }
+    }
+
+    function generateFinalMessage(reportId, button) {
+        // Reset previous active row if exists
+        if (currentActiveRow && currentActiveRow !== button.closest('tr')) {
+            const previousRowId = currentActiveRow.id.split('-')[1];
+            const previousRowMessageCell = currentActiveRow.querySelector('.final-report-message');
+            previousRowMessageCell.textContent = '';
+
+            fetch('/update_final_report_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    report_id: previousRowId,
+                    final_report_message: ''
+                }),
+            })
+            .catch(error => {
+                console.error('Error clearing Final Report Message:', error);
+            });
+        }
+
+        const row = button.closest('tr');
+        const incidentMessage = row.getAttribute('data-incident-message');
+        const departmentName = row.getAttribute('data-department-name');
+        const cameraNumber = row.getAttribute('data-camera-number');
+
+        let uniqueCounter = parseInt(button.getAttribute('data-unique-counter')) || 0;
+        uniqueCounter += 1;
+        button.setAttribute('data-unique-counter', uniqueCounter);
+
+        const currentMonth = new Date().toLocaleString('en-US', { month: 'short' }).toUpperCase();
+        const uniqueNumber = `${currentMonth}${uniqueCounter.toString().padStart(4, '0')}`;
+
+        // Create a more detailed final message
+        const finalMessage = `${uniqueNumber}:${departmentName}: Cam ${cameraNumber}: ${incidentMessage}`;
+
+        fetch('/update_final_report_message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                report_id: reportId,
+                final_report_message: finalMessage
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error(data.error);
+                alert('Error updating the Final Report Message.');
+            } else {
+                const finalMessageCell = row.querySelector('.final-report-message');
+                finalMessageCell.textContent = finalMessage;
+                currentActiveRow = row;
+                localStorage.setItem('lastActiveRowId', reportId);
+                localStorage.setItem('lastUniqueCounter', uniqueCounter);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the Final Report Message.');
+        });
+    }
+</script>
+{% endblock %}

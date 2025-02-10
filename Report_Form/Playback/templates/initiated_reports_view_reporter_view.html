@@ -1,0 +1,737 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Initiated Reports View (Reporter View){% endblock %}
+
+{% block content %}
+<div class="container2">
+    <h1>Initiated Reports View (Reporter View)</h1>
+
+    <div class="table-container">
+        <table id="initiatedReportReporterViewTable">
+            <thead>
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Client Name</th>
+                    <th>PC Name</th>
+                    <th>File Name</th>
+                    <th>Incident Category</th>
+                    <th>Final Report Message</th>
+                    <th>View or Not</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="reportTableBody">
+                {% set total_records = initiated_reports_reporter|length %}
+                {% for report in initiated_reports_reporter %}
+                <tr id="report-{{ report._id }}" 
+                    data-incident-message="{{ report['Incident Message'] }}"
+                    data-department-name="{{ report['Department Name'] }}"
+                    data-camera-number="{{ report['camera_select'] }}"
+                    data-incident-category="{{ report['Incident Category'] }}"
+                    data-status="{{ report['Status'] }}"
+                    data-view-or-not="{{ report['View or Not'] }}"
+                    data-incident-date="{{ report['Incident Date'] }}"
+                    data-incident-time="{{ report['Incident Time'] }}">
+                    <td>{{ total_records - loop.index + 1 }}</td>
+                    <td>{{ report['Client Name'] }}</td>
+                    <td>{{ report['PC title'] }}</td>
+                    <td>{{ report['File Name'] }}</td>
+                    <td>{{ report['Incident Category'] }}</td>
+                    <td class="final-report-message">{{ report['Final Report Message'] }}</td>                    
+                    <td class="view-or-not">{{ report['View or Not'] }}</td>
+                    <td class="status-cell">{{ report['Status'] }}</td>
+                    <td class="action-buttons">
+                        <button 
+                            onclick="generateFinalMessage('{{ report._id }}', this)" 
+                            class="btn btn-primary btn-sm view-btn"
+                            {% if report['View or Not'] == '1' %}disabled{% endif %}>
+                            View
+                        </button>
+                        <button 
+                            onclick="submitReportStatus('{{ report._id }}', this)" 
+                            class="btn btn-success btn-sm submit-btn" 
+                            data-status="Reported"
+                            {% if not report['Final Report Message'] %}disabled{% endif %}>
+                            Submit
+                        </button>
+                    </td>                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="detailsModal" class="modal" style="display: none;">
+    <div class="modal-content2">
+        <span id="closeModal" class="close">&times;</span>
+        <h2>Report Details</h2>
+        <p>ID: <span id="modal-id"></span></p>
+        <p>Client: <span id="modal-client"></span></p>
+        <p>Report Message: <span id="modal-report-message"></span></p>
+        <p>Incident Category: <span id="modal-incident-category"></span></p>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button id="cancelBtn" class="tab-btn active-tab">Cancel</button>
+            <button id="recheckBtn" class="tab-btn">Recheck</button>
+            <button id="modifyBtn" class="tab-btn">Modify</button>
+        </div>
+
+        <!-- Tab Content Sections -->
+        <div id="cancelSection" class="tab-content">
+            <label>Cancellation Reason:</label>
+            <select id="cancelReason">
+                <option value="" disabled selected>Select a reason</option>
+                {% for reason in cancellation_reasons %}
+                <option value="{{ reason }}">{{ reason }}</option>
+                {% endfor %}
+            </select>
+            <label>Need to explain SA?</label>
+            <input type="checkbox" id="explainSA" />
+            <button id="confirmBtnCancel" onclick="submitCancellation()">Confirm Cancellation</button>
+        </div>
+
+        <div id="recheckSection" class="tab-content" style="display: none;">
+            <label>Recheck Reason:</label>
+            <input type="text" id="recheckReason" />
+            <label>Comments:</label>
+            <textarea id="recheckComments"></textarea>
+            <button id="confirmBtnRecheck" onclick="submitRechecking()">Confirm Rechecking</button>
+        </div>
+
+        <div id="modifySection" class="tab-content" style="display: none;">
+            <div>
+                <label for="modal-department">Department Name:</label>
+                <select id="modal-department" name="modal-department" style="width: 100%;">
+                    <option value="" disabled selected>Select Department</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="modal-camera">Camera Name:</label>
+                <select id="modal-camera" name="modal-camera" style="width: 100%;">
+                    <option value="" disabled selected>Select Camera</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="modal-modify-report-message">Report Message:</label>
+                <textarea id="modal-modify-report-message"></textarea>
+            </div>
+            
+            <div>
+                <label for="modal-modify-category">Incident Category:</label>
+                <select id="modal-modify-category" name="modal-modify-category">
+                    <option value="" disabled selected>Select Category</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="modal-incident-date">Incident Date:</label>
+                <input type="date" id="modal-incident-date" />
+            </div>
+            
+            <div>
+                <label for="modal-incident-time">Incident Time:</label>
+                <input type="time" id="modal-incident-time" />
+            </div>
+            
+            <div>
+                <button id="confirmBtnModify" onclick="submitModification()">Confirm Modification</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentActiveRow = null;
+    let reportedCounter = 1;
+
+    window.onload = function() {
+        initializeCounter();
+        restorePreviousState();
+        setupInitialButtonStates();
+    }
+
+    function setupInitialButtonStates() {
+        const rows = document.querySelectorAll('#reportTableBody tr');
+        rows.forEach(row => {
+            const viewOrNot = row.querySelector('.view-or-not').textContent.trim();
+            const viewBtn = row.querySelector('.view-btn');
+            const submitBtn = row.querySelector('.submit-btn');
+            
+            if (viewOrNot === '1') {
+                viewBtn.disabled = true;
+                submitBtn.disabled = false;
+            } else {
+                viewBtn.disabled = false;
+                submitBtn.disabled = true;
+            }
+        });
+    }
+
+    function initializeCounter() {
+        const reportedCount = parseInt('{{ reported_count }}', 10);
+        reportedCounter = reportedCount > 0 ? reportedCount - 1 : -1;
+        localStorage.setItem('reportedCounter', reportedCounter.toString());
+    }
+
+    function restorePreviousState() {
+        const lastActiveRowId = localStorage.getItem('lastActiveRowId');
+        if (lastActiveRowId) {
+            const lastRow = document.querySelector(`#report-${lastActiveRowId}`);
+            if (lastRow) {
+                currentActiveRow = lastRow;
+            }
+        }
+    }
+    
+    function getNextUniqueNumber() {
+        const currentMonth = new Date().toLocaleString('en-US', { month: 'short' }).toUpperCase();
+        return `${currentMonth}${(reportedCounter + 2).toString().padStart(4, '0')}`;
+    }
+
+    function generateFinalMessage(reportId, button) {
+        const row = button.closest('tr');
+        const incidentMessage = row.getAttribute('data-incident-message');
+        const viewOrNotCell = row.querySelector('.view-or-not');
+        const finalMessageCell = row.querySelector('.final-report-message');
+    
+        if (currentActiveRow && currentActiveRow !== row) {
+            const prevViewOrNotCell = currentActiveRow.querySelector('.view-or-not');
+            const prevFinalMessageCell = currentActiveRow.querySelector('.final-report-message');
+            const prevIncidentMessage = currentActiveRow.getAttribute('data-incident-message');
+    
+            prevViewOrNotCell.textContent = '';
+            prevFinalMessageCell.textContent = prevIncidentMessage;
+    
+            fetch('/update_view_or_not', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    report_id: currentActiveRow.id.split('-')[1],
+                    view_or_not: '',
+                    final_report_message: prevIncidentMessage,
+                }),
+            }).catch(error => {
+                console.error('Error clearing View or Not:', error);
+            });
+    
+            const prevViewBtn = currentActiveRow.querySelector('.view-btn');
+            const prevSubmitBtn = currentActiveRow.querySelector('.submit-btn');
+            prevViewBtn.disabled = false;
+            prevSubmitBtn.disabled = true;
+        }
+    
+        const uniqueNumber = getNextUniqueNumber();
+        const finalMessage = `${uniqueNumber}:${incidentMessage}`;
+    
+        finalMessageCell.textContent = finalMessage;
+        viewOrNotCell.textContent = '1';
+        currentActiveRow = row;
+        localStorage.setItem('lastActiveRowId', reportId);
+    
+        const viewBtn = row.querySelector('.view-btn');
+        const submitBtn = row.querySelector('.submit-btn');
+        viewBtn.disabled = true;
+        submitBtn.disabled = false;
+    
+        fetch('/update_final_report_message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                report_id: reportId,
+                final_report_message: finalMessage,
+                view_or_not: '1',
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Error updating the Final Report Message:', data.error);
+                alert('Error updating the Final Report Message.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the Final Report Message.');
+        });
+    }
+    
+    function submitReportStatus(reportId, button) {
+        fetch('/update_report_status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                report_id: reportId,
+                status: 'Reported'
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error(data.error);
+                alert('Error updating the status.');
+            } else {
+                reportedCounter++;
+                localStorage.setItem('reportedCounter', reportedCounter.toString());
+                window.location.reload()
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the status.');
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const rows = document.querySelectorAll('#initiatedReportReporterViewTable tbody tr');
+        const modal = document.getElementById('detailsModal');
+        const closeModal = document.getElementById('closeModal');
+    
+        // Tab Buttons
+        const cancelBtn = document.getElementById('cancelBtn');
+        const recheckBtn = document.getElementById('recheckBtn');
+        const modifyBtn = document.getElementById('modifyBtn');
+    
+        // Tab Sections
+        const cancelSection = document.getElementById('cancelSection');
+        const recheckSection = document.getElementById('recheckSection');
+        const modifySection = document.getElementById('modifySection');
+    
+        function switchTab(activeBtn, activeSection) {
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabSections = document.querySelectorAll('.tab-content');
+    
+            tabButtons.forEach(btn => btn.classList.remove('active-tab'));
+            tabSections.forEach(section => (section.style.display = 'none'));
+    
+            activeBtn.classList.add('active-tab');
+            activeSection.style.display = 'block';
+        }
+    
+        rows.forEach(row => {
+            row.addEventListener('dblclick', async function () {
+                const id = row.id.split('-')[1];
+                const client = row.querySelector('td:nth-child(2)').textContent.trim();
+                const reportMessage = row.getAttribute('data-incident-message');
+                const incidentCategory = row.querySelector('td:nth-child(5)').textContent.trim();
+                
+                // Get additional data from dataset
+                const department = row.dataset.departmentName;
+                const camera = row.dataset.cameraNumber;
+                const incidentDate = row.dataset.incidentDate;
+                const incidentTime = row.dataset.incidentTime;
+        
+                console.log('Current Incident Category:', incidentCategory); // Debug log
+        
+                // Populate modal fields
+                document.getElementById('modal-id').textContent = id;
+                document.getElementById('modal-client').textContent = client;
+                document.getElementById('modal-report-message').textContent = reportMessage;
+                document.getElementById('modal-incident-category').textContent = incidentCategory;
+                document.getElementById('modal-modify-report-message').value = reportMessage;
+                document.getElementById('modal-incident-date').value = formatDateForInput(incidentDate);
+                document.getElementById('modal-incident-time').value = convertTimeFormat(incidentTime);
+        
+                try {
+                    // Initialize all dropdowns with current values
+                    await Promise.all([
+                        initializeDepartments(client, department, camera),
+                        initializeIncidentCategories(client, incidentCategory)
+                    ]);
+                    
+                    // Show the modal after everything is initialized
+                    modal.style.display = 'block';
+                    switchTab(cancelBtn, cancelSection);
+                } catch (error) {
+                    console.error('Error initializing dropdowns:', error);
+                }
+            });
+        });
+    
+        async function initializeIncidentCategories(clientName, currentCategory) {
+            const categorySelect = document.getElementById('modal-modify-category');
+            
+            try {
+                const response = await fetch('/get_incident_categories_22', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ client_name: clientName })
+                });
+                const categories = await response.json();
+                
+                categorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>';
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    
+                    // Compare with the currentCategory and select if matching
+                    if (category === currentCategory) {
+                        option.selected = true;
+                    }
+                    categorySelect.appendChild(option);
+                });
+                
+                // If no exact match was found but we have a currentCategory,
+                // add it as an option and select it
+                if (currentCategory && !categories.includes(currentCategory)) {
+                    const option = document.createElement('option');
+                    option.value = currentCategory;
+                    option.textContent = currentCategory;
+                    option.selected = true;
+                    categorySelect.appendChild(option);
+                }
+            } catch (error) {
+                console.error('Error fetching incident categories:', error);
+            }
+        }
+    
+        // Update camera dropdown when department changes
+        document.getElementById('modal-department').addEventListener('change', function() {
+            const selectedDepartment = this.value;
+            if (selectedDepartment) {
+                initializeCameras(selectedDepartment);
+                updateReportMessage();
+            }
+        });
+
+        // Add camera change event listener
+        document.getElementById('modal-camera').addEventListener('change', function() {
+            updateReportMessage();
+        });
+
+        document.getElementById('modal-incident-date').addEventListener('change', function() {
+            updateReportMessage();
+        });
+    
+        document.getElementById('modal-incident-time').addEventListener('change', function() {
+            updateReportMessage();
+        });
+
+    // Helper function to format date
+    function formatDateForInput(dateString) {
+        if (!dateString) return '';
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return dateString;
+        
+        const months = {
+            'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 
+            'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08', 
+            'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+        };
+        
+        try {
+            const [day, month, year] = dateString.split(' ');
+            return `${year}-${months[month]}-${day.padStart(2, '0')}`;
+        } catch (error) {
+            console.error('Error formatting date:', error);
+            return '';
+        }
+    }
+    
+    // Helper function to convert time format
+    function convertTimeFormat(timeString) {
+        if (!timeString) return '';
+        const [time, period] = timeString.split(' ');
+        let [hours, minutes] = time.split(':');
+        
+        if (period === 'PM' && hours !== '12') {
+            hours = String(parseInt(hours) + 12);
+        }
+        if (period === 'AM' && hours === '12') {
+            hours = '00';
+        }
+        
+        return `${hours.padStart(2, '0')}:${minutes}`;
+    }
+
+    function formatDateTime(date, time) {
+        if (!date || !time) return '';
+        
+        const dateObj = new Date(date);
+        const day = dateObj.getDate();
+        const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(dateObj);
+        const year = dateObj.getFullYear();
+        
+        // Convert 24-hour time to 12-hour format with AM/PM
+        let [hours, minutes] = time.split(':');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // Convert 0 to 12
+
+        return `@ ${hours}:${minutes} ${ampm} on ${day} ${month} ${year}`;
+    }
+
+    // Function to initialize departments and cameras
+    async function initializeDepartments(clientName, currentDepartment, currentCamera) {
+        const departmentSelect = document.getElementById('modal-department');
+        try {
+            const response = await fetch('/get_department_names', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ client_name: clientName })
+            });
+            const departments = await response.json();
+            
+            departmentSelect.innerHTML = '<option value="" disabled selected>Select Department</option>';
+            departments.forEach(dept => {
+                const option = document.createElement('option');
+                option.value = dept['Department Name/Port Number'];
+                option.textContent = dept['Department Name/Port Number'];
+                departmentSelect.appendChild(option);
+            });
+            
+            if (currentDepartment) {
+                departmentSelect.value = currentDepartment;
+                // After setting department, initialize cameras
+                await initializeCameras(currentDepartment, currentCamera);
+            }
+        } catch (error) {
+            console.error('Error fetching departments:', error);
+        }
+    }
+
+    // Function to update report message
+    function updateReportMessage() {
+        const departmentSelect = document.getElementById('modal-department');
+        const cameraSelect = document.getElementById('modal-camera');
+        const reportMessageField = document.getElementById('modal-modify-report-message');
+        const dateInput = document.getElementById('modal-incident-date');
+        const timeInput = document.getElementById('modal-incident-time');
+        
+        if (!departmentSelect.value || !cameraSelect.value) {
+            return;
+        }
+
+        // Get the selected department (Port No.)
+        const departmentName = departmentSelect.value;
+        
+        // Get the camera details from the selected value
+        const [cameraNumber, cameraName] = cameraSelect.value.split(':');
+        
+        // Get the existing incident details from the current report message
+        const currentMessage = reportMessageField.value;
+        let incidentDetails = '';
+        
+        // Extract the incident description (without date/time) from the current message
+        if (currentMessage.includes(':')) {
+            const matches = currentMessage.match(/(?:.*?:){3}\s*([^@]+)/);
+            if (matches && matches[1]) {
+                incidentDetails = matches[1].trim();
+            }
+        }
+
+        // Format the date and time
+        const dateTimeStr = formatDateTime(dateInput.value, timeInput.value);
+        
+        // Construct the new report message
+        let newReportMessage = `${departmentName}:Cam ${cameraNumber}:${cameraName}`;
+        
+        if (incidentDetails) {
+            // Remove any duplicate prefixes and clean up the incident details
+            incidentDetails = incidentDetails.replace(/(?:CV Line:\s*)+/g, '').trim();
+            // Remove any existing datetime information from incident details
+            incidentDetails = incidentDetails.replace(/\s*@\s*\d{1,2}:\d{2}\s*(?:AM|PM)\s*on\s*\d{1,2}\s*(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*\d{4}/g, '');
+            newReportMessage += `: ${incidentDetails}`;
+        }
+
+        // Add the formatted date and time if both are selected
+        if (dateInput.value && timeInput.value) {
+            newReportMessage += ` ${dateTimeStr}`;
+        }
+        
+        // Update the report message field
+        reportMessageField.value = newReportMessage;
+    }
+
+    // Initialize cameras function update
+    async function initializeCameras(departmentName, currentCamera) {
+        const cameraSelect = document.getElementById('modal-camera');
+        if (!departmentName) return;
+        
+        const clientName = document.getElementById('modal-client').textContent.trim();
+    
+        try {
+            const response = await fetch('/get_camera_numbers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    department_name: departmentName,
+                    client_name: clientName
+                })
+            });
+            const cameras = await response.json();
+            
+            cameraSelect.innerHTML = '<option value="" disabled selected>Select Camera</option>';
+            cameras.forEach(camera => {
+                const option = document.createElement('option');
+                // Set the value as "Camera Number:Camera Name"
+                const cameraValue = `${camera['Camera Number']}:${camera['Camera Name']}`;
+                option.value = cameraValue;
+                option.textContent = `${camera['Camera Number']} - ${camera['Camera Name']}`;
+                
+                if (cameraValue === currentCamera) {
+                    option.selected = true;
+                }
+                cameraSelect.appendChild(option);
+            });
+
+            // After initializing cameras, update the report message if a camera is selected
+            if (cameraSelect.value) {
+                updateReportMessage();
+            }
+        } catch (error) {
+            console.error('Error fetching cameras:', error);
+        }
+    }
+
+    // Event listener for department change
+    document.getElementById('modal-department').addEventListener('change', function() {
+        fetchCameras(this.value);
+    });
+    
+        closeModal.addEventListener('click', function () {
+            modal.style.display = 'none';
+        });
+    
+        cancelBtn.addEventListener('click', function () {
+            switchTab(cancelBtn, cancelSection);
+        });
+    
+        recheckBtn.addEventListener('click', function () {
+            switchTab(recheckBtn, recheckSection);
+        });
+
+        modifyBtn.addEventListener('click', function () {
+            switchTab(modifyBtn, modifySection);
+        });
+    
+        window.onclick = function (event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    });
+
+    function submitModification() {
+        const reportId = document.getElementById('modal-id').textContent;
+        const data = {
+            report_id: reportId,
+            department: document.getElementById('modal-department').value,
+            camera: document.getElementById('modal-camera').value,
+            report_message: document.getElementById('modal-modify-report-message').value,
+            category: document.getElementById('modal-modify-category').value,
+            incident_date: document.getElementById('modal-incident-date').value,
+            incident_time: document.getElementById('modal-incident-time').value
+        };
+
+        // Validate required fields
+        if (!data.department || !data.camera || !data.report_message || !data.category || !data.incident_date || !data.incident_time) {
+            alert('Please fill in all required fields');
+            return;
+        }
+
+        fetch('/update_modify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert(result.message || 'Report modified successfully');
+                window.location.reload();
+            } else {
+                throw new Error(result.error || 'Error modifying report');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(error.message || 'An error occurred while modifying the report');
+        });
+    }
+
+    function submitCancellation() {
+        const reportId = document.getElementById('modal-id').innerText.trim();
+        const cancelReason = document.getElementById('cancelReason').value;
+        const explainSA = document.getElementById('explainSA').checked;
+
+        if (!cancelReason) {
+            alert('Please select a cancellation reason.');
+            return;
+        }
+
+        fetch('/cancel_report', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                report_id: reportId,
+                cancel_reason: cancelReason,
+                explain_sa: explainSA ? 'on' : 'off'
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Report cancelled successfully.');
+                location.reload();
+            } else {
+                alert(`Error: ${data.message}`);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while cancelling the report.');
+        });
+    }
+
+    function submitRechecking() {
+        const reportId = document.getElementById('modal-id').innerText.trim();
+        const recheckReason = document.getElementById('recheckReason').value;
+        const comments = document.getElementById('recheckComments').value;
+
+        if (!recheckReason) {
+            alert('Please select a Rechecking reason.');
+            return;
+        }
+
+        fetch('/recheck_report', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                report_id: reportId,
+                recheck_reason: recheckReason,
+                comments: comments 
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Report rechecked successfully.');
+                location.reload();
+            } else {
+                alert(`Error: ${data.message}`);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while rechecking the report.');
+        });
+    }
+</script>
+{% endblock %}
