@@ -1,0 +1,23 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}View Reports{% endblock %}
+
+{% block content %}
+<div class="container2">
+    <h1>Reports for Client: {{ client_name }}</h1>
+
+    {% if files %}
+    <ul>
+        {% for file in files %}
+            <li>
+                <a href="{{ url_for('report.download_file', client_name=client_name, filename=file) }}" download>
+                    {{ file }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>No files available for this client.</p>
+    {% endif %}
+</div>
+{% endblock %}
