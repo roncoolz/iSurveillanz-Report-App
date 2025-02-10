@@ -1,0 +1,93 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Block Profile{% endblock %}
+
+{% block content %}
+    <!-- Back to Selection Process Link -->
+    <div class="back-link">
+        <a href="{{ url_for('settings_BlockPCProfile') }}" class="back-button">Back to PC & Block Profile</a>
+    </div>
+
+    <div class="container1">
+        <h2>Block Profile Form</h2>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="block_id">Block ID:</label>
+                <input type="text" id="block_id" name="block_id" value="{{ block_id }}" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="block_name">Block Name:</label>
+                <input type="text" id="block_name" name="block_name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="organization">Organization:</label>
+                <select id="organization" name="organization" required onchange="generateBlockLocation()">
+                    <option value="" selected disabled>Select Organization</option>
+                    <option value="iSurveillanz" {% if organization == 'iSurveillanz' %}selected{% endif %}>iSurveillanz</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location:</label>
+                <select id="location" name="location" required onchange="generateBlockLocation()">
+                    <option value="" selected disabled>Select Location</option>
+                    <option value="Paud Road(Pune)" {% if location == 'Paud Road(Pune)' %}selected{% endif %}>Paud Road (Pune)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="department">Department:</label>
+                <select id="department" name="department" required onchange="generateBlockLocation()">
+                    <option value="" selected disabled>Select Department</option>
+                    <option value="Surveillance Room" {% if department == 'Surveillance Room' %}selected{% endif %}>Surveillance Room</option>
+                    <option value="CRAD Department" {% if department == 'CRAD Department' %}selected{% endif %}>CRAD Department</option>
+                </select>
+            </div>
+
+            <!-- Block Location (This will be dynamically generated and displayed) -->
+            <div class="form-group">
+                <label for="block_location">Block Location:</label>
+                <input type="text" id="block_location" name="block_location" value="{{ block_location }}" disabled readonly>
+            </div>
+
+            <button type="submit" id="submit_button" disabled>Submit</button>
+        </form>
+
+        {% if block_location %}
+            <div id="generated-info">
+                <p>Block Location: <strong>{{ block_location }}</strong></p>
+            </div>
+        {% endif %}
+
+        <script>
+            // Function to generate Block Location dynamically
+            function generateBlockLocation() {
+                var organization = document.getElementById('organization').value;
+                var location = document.getElementById('location').value;
+                var department = document.getElementById('department').value;
+
+                // If all values are selected, generate the Block Location
+                if (organization && location && department) {
+                    var blockLocation = organization + '/' + location + '/' + department;
+                    document.getElementById('block_location').value = blockLocation;
+                    document.getElementById('submit_button').disabled = false;  // Enable Submit button
+                } else {
+                    document.getElementById('block_location').value = '';  // Clear Block Location field
+                    document.getElementById('submit_button').disabled = true;  // Disable Submit button
+                }
+            }
+        </script>
+    </div>
+{% endblock %}
