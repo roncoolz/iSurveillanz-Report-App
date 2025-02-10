@@ -1,0 +1,137 @@
+{% extends "menu_bar.html" %}
+
+{% block title %}Report Form{% endblock %}
+
+{% block content %}
+    <h1>Report Form Home Page</h1>
+    <!--Widget Start-->
+    <div class="card-body">
+        <div class="container3">
+
+            <div class="row">
+                <div class="mb-3 col-md-6 col-12">
+                    <div class="card1">
+                        <a href="{{ url_for('report.table_cancellation_reasons') }}" class="card-link"> <!-- Make the whole card clickable -->
+                            <div class="face">
+                                <div class="content">
+                                    <i class="fa-solid fa-user-gear icon"></i>
+                                    <h3 style="font-size: 15px; margin-top: 15px;">Cancellation Reasons Profile</h3>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+            <div class="row">
+                <div class="mb-3 col-md-6 col-12">
+                    <div class="card1">
+                        <a href="{{ url_for('report.form_incident_profile') }}" class="card-link"> <!-- Make the whole card clickable -->
+                            <div class="face">
+                                <div class="content">
+                                    <i class="fa-solid fa-user-gear icon"></i>
+                                    <h3 style="font-size: 15px; margin-top: 15px;">Incidents Profile Form</h3>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+            <div class="row">
+                <div class="mb-3 col-md-6 col-12">
+                    <div class="card1">
+                        <a href="{{ url_for('report.form_entity_profile') }}" class="card-link"> <!-- Make the whole card clickable -->
+                            <div class="face">
+                                <div class="content">
+                                    <i class="fa-solid fa-user-gear icon"></i>
+                                    <h3 style="font-size: 15px; margin-top: 15px;">Entity Profile Form</h3>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+            <div class="row">
+                <div class="mb-3 col-md-6 col-12">
+                    <div class="card1">
+                        <a href="{{ url_for('report.form_report') }}" class="card-link"> <!-- Make the whole card clickable -->
+                            <div class="face">
+                                <div class="content">
+                                    <i class="fa-solid fa-user-gear icon"></i>
+                                    <h3 style="font-size: 15px; margin-top: 15px;">Report Form</h3>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+            <div class="row">
+                <div class="mb-3 col-md-6 col-12">
+                    <div class="card1">
+                        <a href="{{ url_for('report.add_playback') }}" class="card-link"> <!-- Make the whole card clickable -->
+                            <div class="face">
+                                <div class="content">
+                                    <i class="fa-solid fa-user-gear icon"></i>
+                                    <h3 style="font-size: 15px; margin-top: 15px;">Add Playback</h3>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="mb-3 col-md-6 col-12">
+                        <div class="card1">
+                            <a href="{{ url_for('report.view_playback') }}" class="card-link"> <!-- Make the whole card clickable -->
+                                <div class="face">
+                                    <div class="content">
+                                        <i class="fa-solid fa-user-gear icon"></i>
+                                        <h3 style="font-size: 15px; margin-top: 15px;">View Playback</h3>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                <div class="row">
+                    <div class="mb-3 col-md-6 col-12">
+                        <div class="card1">
+                            <a href="{{ url_for('report.table_camera_issue_auditor1') }}" class="card-link"> <!-- Make the whole card clickable -->
+                                <div class="face">
+                                    <div class="content">
+                                        <i class="fa-solid fa-user-gear icon"></i>
+                                        <h3 style="font-size: 15px; margin-top: 15px;">Camera Issue Auditor View</h3>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                <div class="row">
+                    <div class="mb-3 col-md-6 col-12">
+                        <div class="card1">
+                            <a href="{{ url_for('report.camera_issue_reporter_view') }}" class="card-link"> <!-- Make the whole card clickable -->
+                                <div class="face">
+                                    <div class="content">
+                                        <i class="fa-solid fa-user-gear icon"></i>
+                                        <h3 style="font-size: 15px; margin-top: 15px;">Camera Issue Reporter View</h3>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                <div class="row">
+                    <div class="mb-3 col-md-6 col-12">
+                        <div class="card1">
+                            <a href="{{ url_for('report.index') }}" class="card-link"> <!-- Make the whole card clickable -->
+                                <div class="face">
+                                    <div class="content">
+                                        <i class="fa-solid fa-user-gear icon"></i>
+                                        <h3 style="font-size: 15px; margin-top: 15px;">Quick Report View</h3>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+{% endblock %}
