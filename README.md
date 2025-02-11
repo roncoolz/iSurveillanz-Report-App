@@ -1,5 +1,6 @@
 # iSurveillanz-Report-App
 (Web Application Overview)
+
 This document provides an overview of a web application developed using Flask, MongoDB, and Jinja2 templates. The application serves as a system for entering, processing, and reporting incident details, along with data analysis and management of various settings and profiles. It is designed for use in organizations that manage incidents and need to generate reports for clients and internal purposes.
 
 
@@ -76,3 +77,17 @@ Administrators can manage user profiles, client profiles, and organization setti
 
 Conclusion
 This web application is a comprehensive tool designed for managing incident data, generating reports, and analyzing system actions. With its robust integration with MongoDB, dynamic forms, and interactive user interface, it provides a seamless experience for users to enter and process data, manage profiles, and access detailed reports. The application’s audit trail and permissions system ensure data integrity and security, making it an ideal solution for organizations that need to manage incident details and generate reports efficiently.
+
+
+
+Important Note:
+
+Please take a look in the MongoDB folder. You will see two files that you can download and save to your own MongoDB server.
+
+Use the following credentials:
+
+Login: ISEMP514AA
+
+Password: btvvrz
+
+Make sure to change your PC name to 'DESKTOP-CRAD02', as there is a section in the code that retrieves the PC name and saves the database with your name and PC name.
