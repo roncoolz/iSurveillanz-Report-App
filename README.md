@@ -76,11 +76,14 @@ Administrators can manage user profiles, client profiles, and organization setti
 
 
 Conclusion
+
 This web application is a comprehensive tool designed for managing incident data, generating reports, and analyzing system actions. With its robust integration with MongoDB, dynamic forms, and interactive user interface, it provides a seamless experience for users to enter and process data, manage profiles, and access detailed reports. The application’s audit trail and permissions system ensure data integrity and security, making it an ideal solution for organizations that need to manage incident details and generate reports efficiently.
 
 
 
+________________
 Important Note:
+________________
 
 Please take a look in the MongoDB folder. You will see two files that you can download and save to your own MongoDB server.
 
